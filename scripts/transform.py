@@ -7,6 +7,7 @@ import time
 import multiprocessing
 import logging
 from fhirclient.models.bundle import Bundle, BundleEntry
+from fhirclient.models.documentreference import DocumentReference
 from fhirclient.models.specimen import Specimen
 from fhirclient.models.task import Task, TaskInput, TaskOutput
 from fhirclient.models.fhirreference import FHIRReference
@@ -36,7 +37,7 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
             if '55232-3' in codes:
                 diagnostic_reports.append(e.resource)
         if e.resource.resource_type == 'DocumentReference':
-            data = str(base64.b64decode(e.resource.content[0].attachment.data))
+            data = base64.b64decode(e.resource.content[0].attachment.data).decode("utf-8")
             if "_dna.csv" in data:
                 document_references.append(e.resource)
         if e.resource.resource_type == 'Condition':
@@ -68,14 +69,31 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
             )]
             assert len(
                 document_references) == 1, "Should have found a document reference with a reference to the dna data."
+            # this document reference is the clinical note
             document_reference = document_references[0]
+            # clone the document reference, create new one with url
+            document_reference_with_url = DocumentReference(document_reference.as_json())
+            data = base64.b64decode(document_reference_with_url.content[0].attachment.data).decode("utf-8")
+            lines = data.split('\n')
+            line_with_file_info = next(
+                iter([line for line in lines if 'genetic analysis summary panel  stored in' in line]), None)
+            assert line_with_file_info
+            path_from_report = line_with_file_info.split(' ')[-1]
+            assert '_dna.csv' in path_from_report, f"{file_path}\n{data}\n{line_with_file_info}"
+            # alter attachment
+            document_reference_with_url.content[0].attachment.data = None
+            document_reference_with_url.content[0].attachment.url = path_from_report
+            additional_entries.append(document_reference_with_url)
+            # unique id
+            document_reference_with_url.id = str(uuid.uuid5(uuid.UUID(diagnostic_report.id), 'document_reference_with_url'))
+            # add it to task
             task.output = [TaskOutput(
-                {'type': {'coding': [{'code': document_reference.resource_type}]},
-                 'valueReference': {'reference': f"{document_reference.resource_type}/{document_reference.id}"}}
+                {'type': {'coding': [{'code': document_reference_with_url.resource_type}]},
+                 'valueReference': {'reference': f"{document_reference_with_url.resource_type}/{document_reference_with_url.id}"}}
             )]
             task.status = "completed"
             task.intent = "order"
-            # add the task back to bundle
+            # add the task to bundle
             additional_entries.append(task)
         # add entries to bundle
         for additional_entry in additional_entries:

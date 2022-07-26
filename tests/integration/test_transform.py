@@ -1,3 +1,4 @@
+import base64
 import json
 import multiprocessing
 import os
@@ -10,6 +11,25 @@ def _verify_bundle(output_file_path) -> str:
     assert os.path.isfile(output_file_path), "Should be a file."
     bundle = Bundle(json.load(open(output_file_path)))
     assert bundle, "Should parse json into Bundle"
+
+    diagnostic_reports = []
+    document_references = []
+    for e in bundle.entry:
+        if e.resource.resource_type == 'Patient':
+            patient = e.resource
+        if e.resource.resource_type == 'DiagnosticReport':
+            codes = [c.code for c in e.resource.code.coding]
+            # genetic panel
+            if '55232-3' in codes:
+                diagnostic_reports.append(e.resource)
+        if e.resource.resource_type == 'DocumentReference':
+            if e.resource.content[0].attachment.url and "_dna.csv" in e.resource.content[0].attachment.url:
+                document_references.append(e.resource)
+
+    if len(diagnostic_reports) > 0:
+        assert len(document_references) == 1, \
+            f"Should have a 1 document reference for each genomic panel, with url had {len(document_references)}"
+
     # return a string so it can be serialized as across process boundaries
     return str(True)
 
