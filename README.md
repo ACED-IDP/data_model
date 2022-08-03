@@ -7,7 +7,6 @@
 ```commandline
 wget http://hdx.mitre.org/downloads/coherent-08-10-2021.zip
 unzip coherent-08-10-2021.zip
-
 ```
 
 
@@ -19,6 +18,7 @@ source venv/bin/activate
 pip install --upgrade pip
 pip install numpy cython
 pip install -r requirements.txt
+cp -r output coherent
 ```
 
 * Transform the data
@@ -32,4 +32,3 @@ python3 scripts/transform.py
     ....    
     60467 - __main__ - INFO - Parsed all files in coherent/output/fhir in 109.9279 seconds
     ```
-
