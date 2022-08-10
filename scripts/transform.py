@@ -6,7 +6,7 @@ from pathlib import Path
 import time
 import multiprocessing
 import logging
-from fhirclient.models.bundle import Bundle
+from fhirclient.models.bundle import Bundle, BundleEntry
 from fhirclient.models.specimen import Specimen
 from fhirclient.models.task import Task, TaskInput, TaskOutput
 from fhirclient.models.fhirreference import FHIRReference
@@ -78,7 +78,10 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
             # add the task back to bundle
             additional_entries.append(task)
         # add entries to bundle
-        bundle.entry.extend(additional_entries)
+        for additional_entry in additional_entries:
+            bundle_entry = BundleEntry()
+            bundle_entry.resource = additional_entry
+            bundle.entry.append(bundle_entry)
 
     # write new bundle to output
     output_file = output_path.joinpath(file_path.name)

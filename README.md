@@ -19,6 +19,7 @@ source venv/bin/activate
 pip install --upgrade pip
 pip install numpy cython
 pip install -r requirements.txt
+pip install -r requirements-dev.txt
 cp -r output coherent
 ```
 
@@ -33,4 +34,8 @@ python3 scripts/transform.py
     ....    
     60467 - __main__ - INFO - Parsed all files in coherent/output/fhir in 109.9279 seconds
 
-    ```
+* Test the data
+
+```commandline
+pytest tests/integration/
+```
