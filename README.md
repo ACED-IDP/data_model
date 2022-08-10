@@ -19,6 +19,7 @@ source venv/bin/activate
 pip install --upgrade pip
 pip install numpy cython
 pip install -r requirements.txt
+cp -r output coherent
 ```
 
 * Transform the data
@@ -31,5 +32,5 @@ python3 scripts/transform.py
     60473 - __mp_main__ - INFO - Parsed coherent/output/fhir/Janean397_Bradtke547_c4b8f200-66af-4de6-47ae-c98df28998b1.json in 0.6010 seconds, wrote output/Janean397_Bradtke547_c4b8f200-66af-4de6-47ae-c98df28998b1.json
     ....    
     60467 - __main__ - INFO - Parsed all files in coherent/output/fhir in 109.9279 seconds
-    ```
 
+    ```
