@@ -2,6 +2,14 @@
 
 ## coherent dataset
 
+* Read the paper
+
+> This is a synthetic data set that includes FHIR resources, DICOM images, genomic data, physiological data (i.e., ECGs), and simple clinical notes. FHIR links all the data types together.
+
+> Walonoski J, Hall D, Bates KM, Farris MH, Dagher J, Downs ME, Sivek RT, Wellner B, Gregorowicz A, Hadley M, Campion FX, Levine L, Wacome K, Emmer G, Kemmer A, Malik M, Hughes J, Granger E, Russell S. The “Coherent Data Set”: Combining Patient Data and Imaging in a Comprehensive, Synthetic Health Record. Electronics. 2022; 11(8):1199. https://doi.org/10.3390/electronics11081199
+
+see https://doi.org/10.3390/electronics11081199
+
 * Get the coherent dataset
 
 ```commandline

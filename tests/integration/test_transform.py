@@ -14,6 +14,10 @@ def _verify_bundle(output_file_path) -> str:
 
     diagnostic_reports = []
     document_references = []
+    dicom_document_references = []
+    dicom_diagnostic_reports = []
+    imaging_studies = []
+    should_have_dicom_file = False
     for e in bundle.entry:
         if e.resource.resource_type == 'Patient':
             patient = e.resource
@@ -22,13 +26,33 @@ def _verify_bundle(output_file_path) -> str:
             # genetic panel
             if '55232-3' in codes:
                 diagnostic_reports.append(e.resource)
+            if e.resource.presentedForm and len(e.resource.presentedForm) == 1 and e.resource.presentedForm[0].data:
+                data = base64.b64decode(e.resource.presentedForm[0].data).decode("utf-8")
+                if '.dcm' in data:
+                    dicom_diagnostic_reports.append(e.resource)
+
+        if e.resource.resource_type == 'DocumentReference' and e.resource.content[0].attachment.data:
+            data = base64.b64decode(e.resource.content[0].attachment.data).decode("utf-8")
+            if '.dcm' in data:
+                should_have_dicom_file = True
+
+        if e.resource.resource_type == 'ImagingStudy':
+            imaging_studies.append(e.resource)
+
         if e.resource.resource_type == 'DocumentReference':
             if e.resource.content[0].attachment.url and "_dna.csv" in e.resource.content[0].attachment.url:
                 document_references.append(e.resource)
+            if e.resource.content[0].attachment.url and ".dcm" in e.resource.content[0].attachment.url:
+                dicom_document_references.append(e.resource)
 
     if len(diagnostic_reports) > 0:
         assert len(document_references) == 1, \
-            f"Should have a 1 document reference for each genomic panel, with url had {len(document_references)}"
+            f"Should have a 1 document reference for each genomic panel each with a url. This one {output_file_path} had {len(document_references)}"
+
+    if should_have_dicom_file:
+        assert len(dicom_document_references) == 1, f"Should have 1 document reference for each diagnostic_reports with .dcm file. {output_file_path} {len(dicom_document_references)}"
+        assert len(imaging_studies) > 0, f"Should have at least 1 imaging study for each diagnostic_reports with .dcm file. {output_file_path} {len(imaging_studies)}"
+        assert dicom_diagnostic_reports[0].encounter.reference == dicom_document_references[0].context.encounter[0].reference
 
     # return a string so it can be serialized as across process boundaries
     return str(True)

@@ -23,30 +23,47 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
     """Read json, update bundle with bundle Specimen, Task, ensure DocumentReference."""
     tic = time.perf_counter()
     bundle = Bundle(json.load(open(file_path)))
-    diagnostic_reports = []
-    document_references = []
+    dna_diagnostic_reports = []
+    dna_document_references = []
+    imaging_diagnostic_reports = []
+    imaging_document_references = []
     patient = None
     additional_entries = []
     conditions = []
+    imaging_studies = []
     for e in bundle.entry:
+
         if e.resource.resource_type == 'Patient':
             patient = e.resource
+
         if e.resource.resource_type == 'DiagnosticReport':
             codes = [c.code for c in e.resource.code.coding]
             # genetic panel
             if '55232-3' in codes:
-                diagnostic_reports.append(e.resource)
+                dna_diagnostic_reports.append(e.resource)
+            # imaging
+            if e.resource.presentedForm and len(e.resource.presentedForm) == 1 and e.resource.presentedForm[0].data:
+                data = base64.b64decode(e.resource.presentedForm[0].data).decode("utf-8")
+                if '.dcm' in data:
+                    imaging_diagnostic_reports.append(e.resource)
+
         if e.resource.resource_type == 'DocumentReference':
             data = base64.b64decode(e.resource.content[0].attachment.data).decode("utf-8")
             if "_dna.csv" in data:
-                document_references.append(e.resource)
+                dna_document_references.append(e.resource)
+            if '.dcm' in data:
+                imaging_document_references.append(e.resource)
+
         if e.resource.resource_type == 'Condition':
             conditions.append(e.resource)
 
+        if e.resource.resource_type == 'ImagingStudy':
+            imaging_studies.append(e.resource)
+
     output_file = None
-    if len(diagnostic_reports) > 0:
-        logging.info(f"{file_path} has {len(diagnostic_reports)} genetic analysis reports")
-        for diagnostic_report in diagnostic_reports:
+    if len(dna_diagnostic_reports) > 0:
+        logging.info(f"{file_path} has {len(dna_diagnostic_reports)} genetic analysis reports")
+        for diagnostic_report in dna_diagnostic_reports:
             # create a specimen
             specimen = Specimen()
             specimen.id = str(uuid.uuid5(uuid.UUID(diagnostic_report.id), 'specimen'))
@@ -68,9 +85,9 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
                  'valueReference': {'reference': f"{diagnostic_report.resource_type}/{diagnostic_report.id}"}}
             )]
             assert len(
-                document_references) == 1, "Should have found a document reference with a reference to the dna data."
+                dna_document_references) == 1, "Should have found a document reference with a reference to the dna data."
             # this document reference is the clinical note
-            document_reference = document_references[0]
+            document_reference = dna_document_references[0]
             # clone the document reference, create new one with url
             document_reference_with_url = DocumentReference(document_reference.as_json())
             data = base64.b64decode(document_reference_with_url.content[0].attachment.data).decode("utf-8")
@@ -83,8 +100,8 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
             # alter attachment
             document_reference_with_url.content[0].attachment.data = None
             document_reference_with_url.content[0].attachment.url = path_from_report
-            additional_entries.append(document_reference_with_url)
             # unique id
+            additional_entries.append(document_reference_with_url)
             document_reference_with_url.id = str(uuid.uuid5(uuid.UUID(diagnostic_report.id), 'document_reference_with_url'))
             # add it to task
             task.output = [TaskOutput(
@@ -95,11 +112,36 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
             task.intent = "order"
             # add the task to bundle
             additional_entries.append(task)
-        # add entries to bundle
-        for additional_entry in additional_entries:
-            bundle_entry = BundleEntry()
-            bundle_entry.resource = additional_entry
-            bundle.entry.append(bundle_entry)
+
+    if len(imaging_diagnostic_reports) > 0:
+        logging.info(f"{file_path} has {len(imaging_studies)} imaging studies")
+        for imaging_diagnostic_report in imaging_diagnostic_reports:
+            if len(imaging_document_references) != 1:
+                logging.debug(f"No document reference found with a reference to the imaging data. {file_path}")
+                continue
+            # this document reference is the clinical note
+            document_reference = imaging_document_references[0]
+            # clone the document reference, create new one with url
+            document_reference_with_url = DocumentReference(document_reference.as_json())
+            data = base64.b64decode(document_reference_with_url.content[0].attachment.data).decode("utf-8")
+            lines = data.split('\n')
+            line_with_file_info = next(
+                iter([line for line in lines if 'stored in' in line]), None)
+            assert line_with_file_info
+            path_from_report = line_with_file_info.split(' ')[-1]
+            assert '.dcm' in path_from_report, f"{file_path}\n{data}\n{line_with_file_info}"
+            # alter attachment
+            document_reference_with_url.content[0].attachment.data = None
+            document_reference_with_url.content[0].attachment.url = path_from_report
+            # unique id
+            document_reference_with_url.id = str(uuid.uuid5(uuid.UUID(imaging_diagnostic_report.id), 'document_reference_with_url'))
+            additional_entries.append(document_reference_with_url)
+
+    # add entries to bundle
+    for additional_entry in additional_entries:
+        bundle_entry = BundleEntry()
+        bundle_entry.resource = additional_entry
+        bundle.entry.append(bundle_entry)
 
     # write new bundle to output
     output_file = output_path.joinpath(file_path.name)
@@ -130,8 +172,11 @@ def transform(coherent_path, output_path):
     output_path = Path(output_path)
     fhir_path = Path(os.path.join(coherent_path, "output", "fhir"))
     assert os.path.isdir(fhir_path)
+
     file_paths = list(fhir_path.glob('*.json'))
     assert len(file_paths) > 1200
+    # file_paths = list(fhir_path.glob('Carmen818_Murazik203*.json'))
+    # assert len(file_paths) > 0
 
     pool_count = max(multiprocessing.cpu_count() - 1, 1)
     pool = multiprocessing.Pool(pool_count)
