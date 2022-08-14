@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 
 import click
 import os
@@ -12,6 +13,7 @@ from fhirclient.models.specimen import Specimen
 from fhirclient.models.task import Task, TaskInput, TaskOutput
 from fhirclient.models.fhirreference import FHIRReference
 from fhirclient.models.narrative import Narrative
+from fhirclient.models.reference import Reference
 import base64
 import uuid
 from itertools import repeat
@@ -62,7 +64,7 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
 
     output_file = None
     if len(dna_diagnostic_reports) > 0:
-        logging.info(f"{file_path} has {len(dna_diagnostic_reports)} genetic analysis reports")
+        # logging.info(f"{file_path} has {len(dna_diagnostic_reports)} genetic analysis reports")
         for diagnostic_report in dna_diagnostic_reports:
             # create a specimen
             specimen = Specimen()
@@ -114,11 +116,14 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
             additional_entries.append(task)
 
     if len(imaging_diagnostic_reports) > 0:
-        logging.info(f"{file_path} has {len(imaging_studies)} imaging studies")
         for imaging_diagnostic_report in imaging_diagnostic_reports:
             if len(imaging_document_references) != 1:
-                logging.debug(f"No document reference found with a reference to the imaging data. {file_path}")
+                logging.warning(f"No document reference found with a reference to the imaging data. {file_path}")
                 continue
+            if len(imaging_studies) != len(imaging_document_references):
+                logging.info(f"{file_path} has {len(imaging_studies)} imaging studies and "
+                             f"{len(imaging_document_references)} document_references with embedded dicom files")
+
             # this document reference is the clinical note
             document_reference = imaging_document_references[0]
             # clone the document reference, create new one with url
@@ -136,6 +141,7 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
             # unique id
             document_reference_with_url.id = str(uuid.uuid5(uuid.UUID(imaging_diagnostic_report.id), 'document_reference_with_url'))
             additional_entries.append(document_reference_with_url)
+            logging.info(f"Added dicom document_reference to bundle in {file_path}")
 
     # add entries to bundle
     for additional_entry in additional_entries:
@@ -149,11 +155,44 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
 
     toc = time.perf_counter()
     msg = f"Parsed {file_path} in {toc - tic:0.4f} seconds, wrote {output_file}"
-    logging.getLogger(__name__).info(msg)
+    # logging.getLogger(__name__).info(msg)
+
     return {
         'patient_id': patient.id,
-        'conditions': [(condition.code.coding[0].code, condition.code.coding[0].display) for condition in conditions]
+        'conditions': [condition.code.coding[0] for condition in conditions],
+        'bundle_file_path': file_path
     }
+
+
+def create_studies() -> dict:
+    """Create a dict of studies."""
+    studies = """
+7200002,Alcoholism
+26929004,Alzheimer's disease (disorder)
+92691004,Carcinoma in situ of prostate (disorder)
+44054006,Diabetes
+230265002,Familial Alzheimer's disease of early onset (disorder)
+254837009,Malignant neoplasm of breast (disorder)
+363406005,Malignant tumor of colon
+314994000,Metastasis from malignant tumor of prostate (disorder)
+126906006,Neoplasm of prostate
+424132000,Non-small cell carcinoma of lung,TNM stage 1 (disorder)
+254637007,Non-small cell lung cancer (disorder)
+68496003,Polyp of colon
+162573006,Suspected lung cancer (situation)
+    """.split('\n')
+    studies = [c.split(',') for c in studies]
+    studies = {c[0]: {'name': c[1], 'members': []} for c in studies if len(c) > 1}
+    return studies
+
+
+def member_of_study(patient_conditions, studies):
+    """Return condition_code if patient has condition."""
+    for patient_condition in patient_conditions['conditions']:
+        if patient_condition.code in studies:
+            logging.info(f">>> Add {patient_conditions['bundle_file_path']} to research_study {patient_condition.display}")
+            yield patient_condition.code
+    return None
 
 
 @click.command()
@@ -175,19 +214,24 @@ def transform(coherent_path, output_path):
 
     file_paths = list(fhir_path.glob('*.json'))
     assert len(file_paths) > 1200
-    # file_paths = list(fhir_path.glob('Carmen818_Murazik203*.json'))
+    # file_paths = list(fhir_path.glob('C*.json'))
     # assert len(file_paths) > 0
 
     pool_count = max(multiprocessing.cpu_count() - 1, 1)
     pool = multiprocessing.Pool(pool_count)
     tic = time.perf_counter()
-    # for patient_conditions in zip(*pool.map(_transform_bundle, file_paths)):
+    studies = create_studies()
     for patient_conditions in pool.starmap(_transform_bundle, zip(file_paths, repeat(output_path))):
         # TODO - create ResearchStudy & ResearchSubject->Patient for each condition
-        pass
+        for condition_code in member_of_study(patient_conditions, studies):
+            studies[condition_code]['members'].append(str(patient_conditions['bundle_file_path']))
+
     toc = time.perf_counter()
     msg = f"Parsed all files in {fhir_path} in {toc - tic:0.4f} seconds"
     logging.getLogger(__name__).info(msg)
+    research_studies_path = f"{output_path}/research_studies.json"
+    json.dump(studies, open(research_studies_path, 'w'))
+    logging.getLogger(__name__).info(f"See {research_studies_path}")
 
 
 if __name__ == '__main__':
