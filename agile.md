@@ -4,7 +4,8 @@
 
 The product roadmap is expressed and visualized as a set of initiatives.
 
-ACED Initiatives:
+- Initiatives
+  - Epics 
 
 - Business Problem
   - Confirm / Refine ACED Vision
