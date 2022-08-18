@@ -133,3 +133,6 @@ venv/
 # ide
 .idea/
 pfb/
+.DS_Store
+coherent/.DS_Store
+
