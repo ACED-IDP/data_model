@@ -4,6 +4,32 @@
 
 The product roadmap is expressed and visualized as a set of initiatives.
 
+ACED Initiatives:
+
+- Business Problem
+  - Confirm / Refine ACED Vision
+- Objectives and Key results
+  - Set Expectations
+- Customer Experience Roadmap
+  - User Journeys
+    - IRB members
+    - Data stewards
+    - IT
+    - Informatics
+    - Researchers
+- Solution Architecture Roadmap
+  - Data Replication
+  - Compute
+  - Portals
+- Product roadmap prioritised by value, size and dependencies
+  - Schedule 
+  - Dependencies
+- Initiative risks and issues
+  - Mitigations
+- Initiative budget and resource plan
+  - Staffing
+  - Team Formation
+  
 ## Epics
 
 An epic is a large body of work that can be broken down into a number of smaller stories.
