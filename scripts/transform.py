@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 
 import click
 import os
@@ -12,6 +13,7 @@ from fhirclient.models.specimen import Specimen
 from fhirclient.models.task import Task, TaskInput, TaskOutput
 from fhirclient.models.fhirreference import FHIRReference
 from fhirclient.models.narrative import Narrative
+from fhirclient.models.reference import Reference
 import base64
 import uuid
 from itertools import repeat
@@ -23,30 +25,47 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
     """Read json, update bundle with bundle Specimen, Task, ensure DocumentReference."""
     tic = time.perf_counter()
     bundle = Bundle(json.load(open(file_path)))
-    diagnostic_reports = []
-    document_references = []
+    dna_diagnostic_reports = []
+    dna_document_references = []
+    imaging_diagnostic_reports = []
+    imaging_document_references = []
     patient = None
     additional_entries = []
     conditions = []
+    imaging_studies = []
     for e in bundle.entry:
+
         if e.resource.resource_type == 'Patient':
             patient = e.resource
+
         if e.resource.resource_type == 'DiagnosticReport':
             codes = [c.code for c in e.resource.code.coding]
             # genetic panel
             if '55232-3' in codes:
-                diagnostic_reports.append(e.resource)
+                dna_diagnostic_reports.append(e.resource)
+            # imaging
+            if e.resource.presentedForm and len(e.resource.presentedForm) == 1 and e.resource.presentedForm[0].data:
+                data = base64.b64decode(e.resource.presentedForm[0].data).decode("utf-8")
+                if '.dcm' in data:
+                    imaging_diagnostic_reports.append(e.resource)
+
         if e.resource.resource_type == 'DocumentReference':
             data = base64.b64decode(e.resource.content[0].attachment.data).decode("utf-8")
             if "_dna.csv" in data:
-                document_references.append(e.resource)
+                dna_document_references.append(e.resource)
+            if '.dcm' in data:
+                imaging_document_references.append(e.resource)
+
         if e.resource.resource_type == 'Condition':
             conditions.append(e.resource)
 
+        if e.resource.resource_type == 'ImagingStudy':
+            imaging_studies.append(e.resource)
+
     output_file = None
-    if len(diagnostic_reports) > 0:
-        logging.info(f"{file_path} has {len(diagnostic_reports)} genetic analysis reports")
-        for diagnostic_report in diagnostic_reports:
+    if len(dna_diagnostic_reports) > 0:
+        # logging.info(f"{file_path} has {len(dna_diagnostic_reports)} genetic analysis reports")
+        for diagnostic_report in dna_diagnostic_reports:
             # create a specimen
             specimen = Specimen()
             specimen.id = str(uuid.uuid5(uuid.UUID(diagnostic_report.id), 'specimen'))
@@ -68,9 +87,9 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
                  'valueReference': {'reference': f"{diagnostic_report.resource_type}/{diagnostic_report.id}"}}
             )]
             assert len(
-                document_references) == 1, "Should have found a document reference with a reference to the dna data."
+                dna_document_references) == 1, "Should have found a document reference with a reference to the dna data."
             # this document reference is the clinical note
-            document_reference = document_references[0]
+            document_reference = dna_document_references[0]
             # clone the document reference, create new one with url
             document_reference_with_url = DocumentReference(document_reference.as_json())
             data = base64.b64decode(document_reference_with_url.content[0].attachment.data).decode("utf-8")
@@ -83,8 +102,8 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
             # alter attachment
             document_reference_with_url.content[0].attachment.data = None
             document_reference_with_url.content[0].attachment.url = path_from_report
-            additional_entries.append(document_reference_with_url)
             # unique id
+            additional_entries.append(document_reference_with_url)
             document_reference_with_url.id = str(uuid.uuid5(uuid.UUID(diagnostic_report.id), 'document_reference_with_url'))
             # add it to task
             task.output = [TaskOutput(
@@ -95,11 +114,40 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
             task.intent = "order"
             # add the task to bundle
             additional_entries.append(task)
-        # add entries to bundle
-        for additional_entry in additional_entries:
-            bundle_entry = BundleEntry()
-            bundle_entry.resource = additional_entry
-            bundle.entry.append(bundle_entry)
+
+    if len(imaging_diagnostic_reports) > 0:
+        for imaging_diagnostic_report in imaging_diagnostic_reports:
+            if len(imaging_document_references) != 1:
+                logging.warning(f"No document reference found with a reference to the imaging data. {file_path}")
+                continue
+            if len(imaging_studies) != len(imaging_document_references):
+                logging.info(f"{file_path} has {len(imaging_studies)} imaging studies and "
+                             f"{len(imaging_document_references)} document_references with embedded dicom files")
+
+            # this document reference is the clinical note
+            document_reference = imaging_document_references[0]
+            # clone the document reference, create new one with url
+            document_reference_with_url = DocumentReference(document_reference.as_json())
+            data = base64.b64decode(document_reference_with_url.content[0].attachment.data).decode("utf-8")
+            lines = data.split('\n')
+            line_with_file_info = next(
+                iter([line for line in lines if 'stored in' in line]), None)
+            assert line_with_file_info
+            path_from_report = line_with_file_info.split(' ')[-1]
+            assert '.dcm' in path_from_report, f"{file_path}\n{data}\n{line_with_file_info}"
+            # alter attachment
+            document_reference_with_url.content[0].attachment.data = None
+            document_reference_with_url.content[0].attachment.url = path_from_report
+            # unique id
+            document_reference_with_url.id = str(uuid.uuid5(uuid.UUID(imaging_diagnostic_report.id), 'document_reference_with_url'))
+            additional_entries.append(document_reference_with_url)
+            logging.info(f"Added dicom document_reference to bundle in {file_path}")
+
+    # add entries to bundle
+    for additional_entry in additional_entries:
+        bundle_entry = BundleEntry()
+        bundle_entry.resource = additional_entry
+        bundle.entry.append(bundle_entry)
 
     # write new bundle to output
     output_file = output_path.joinpath(file_path.name)
@@ -107,11 +155,44 @@ def _transform_bundle(file_path: Path, output_path: Path) -> dict:
 
     toc = time.perf_counter()
     msg = f"Parsed {file_path} in {toc - tic:0.4f} seconds, wrote {output_file}"
-    logging.getLogger(__name__).info(msg)
+    # logging.getLogger(__name__).info(msg)
+
     return {
         'patient_id': patient.id,
-        'conditions': [(condition.code.coding[0].code, condition.code.coding[0].display) for condition in conditions]
+        'conditions': [condition.code.coding[0] for condition in conditions],
+        'bundle_file_path': file_path
     }
+
+
+def create_studies() -> dict:
+    """Create a dict of studies."""
+    studies = """
+7200002,Alcoholism
+26929004,Alzheimer's disease (disorder)
+92691004,Carcinoma in situ of prostate (disorder)
+44054006,Diabetes
+230265002,Familial Alzheimer's disease of early onset (disorder)
+254837009,Malignant neoplasm of breast (disorder)
+363406005,Malignant tumor of colon
+314994000,Metastasis from malignant tumor of prostate (disorder)
+126906006,Neoplasm of prostate
+424132000,Non-small cell carcinoma of lung,TNM stage 1 (disorder)
+254637007,Non-small cell lung cancer (disorder)
+68496003,Polyp of colon
+162573006,Suspected lung cancer (situation)
+    """.split('\n')
+    studies = [c.split(',') for c in studies]
+    studies = {c[0]: {'name': c[1], 'members': []} for c in studies if len(c) > 1}
+    return studies
+
+
+def member_of_study(patient_conditions, studies):
+    """Return condition_code if patient has condition."""
+    for patient_condition in patient_conditions['conditions']:
+        if patient_condition.code in studies:
+            logging.info(f">>> Add {patient_conditions['bundle_file_path']} to research_study {patient_condition.display}")
+            yield patient_condition.code
+    return None
 
 
 @click.command()
@@ -130,19 +211,27 @@ def transform(coherent_path, output_path):
     output_path = Path(output_path)
     fhir_path = Path(os.path.join(coherent_path, "output", "fhir"))
     assert os.path.isdir(fhir_path)
+
     file_paths = list(fhir_path.glob('*.json'))
     assert len(file_paths) > 1200
+    # file_paths = list(fhir_path.glob('C*.json'))
+    # assert len(file_paths) > 0
 
     pool_count = max(multiprocessing.cpu_count() - 1, 1)
     pool = multiprocessing.Pool(pool_count)
     tic = time.perf_counter()
-    # for patient_conditions in zip(*pool.map(_transform_bundle, file_paths)):
+    studies = create_studies()
     for patient_conditions in pool.starmap(_transform_bundle, zip(file_paths, repeat(output_path))):
         # TODO - create ResearchStudy & ResearchSubject->Patient for each condition
-        pass
+        for condition_code in member_of_study(patient_conditions, studies):
+            studies[condition_code]['members'].append(str(patient_conditions['bundle_file_path']))
+
     toc = time.perf_counter()
     msg = f"Parsed all files in {fhir_path} in {toc - tic:0.4f} seconds"
     logging.getLogger(__name__).info(msg)
+    research_studies_path = f"{output_path}/research_studies.json"
+    json.dump(studies, open(research_studies_path, 'w'))
+    logging.getLogger(__name__).info(f"See {research_studies_path}")
 
 
 if __name__ == '__main__':
