@@ -1,3 +1,4 @@
+mkdir -p pfb
 pfb_fhir visualize --pfb_path pfb/research_study_Alcoholism.pfb --layout shell_layout
 pfb_fhir visualize --pfb_path pfb/research_study_Alzheimers.pfb --layout shell_layout
 pfb_fhir visualize --pfb_path pfb/research_study_Breast_Cancer.pfb --layout shell_layout
