@@ -34,16 +34,29 @@ cp -r output coherent
 * Transform the data
 
 ```commandline
+# transform the coherent data (fix references, add missing resources)
 python3 scripts/transform.py
+# create the pfb
+python3 scripts/pfb.py | sh
+# create figures
+./scripts/visualize.sh 
+
 ```
+
   * Expected output
     ```commandline
     60473 - __mp_main__ - INFO - Parsed coherent/output/fhir/Janean397_Bradtke547_c4b8f200-66af-4de6-47ae-c98df28998b1.json in 0.6010 seconds, wrote output/Janean397_Bradtke547_c4b8f200-66af-4de6-47ae-c98df28998b1.json
     ....    
     60467 - __main__ - INFO - Parsed all files in coherent/output/fhir in 109.9279 seconds
-
+    ...
+    copied png files to docs/
+    ```
+ 
 * Test the data
+    
+    ```commandline
+    pytest tests/integration/
+    ```
 
-```commandline
-pytest tests/integration/
-```
+* See [data model](data_model.md)
+

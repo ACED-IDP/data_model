@@ -1,0 +1,320 @@
+entities:
+
+  # admin
+  Organization:
+    category: Administrative
+    links:
+      partOf:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Organization
+    source: null
+
+  Location:
+    category: Administrative
+    links:
+      managingOrganization:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Organization
+    source: null
+
+  Practitioner:
+    category: Administrative
+    source: null
+
+  PractitionerRole:
+    category: Administrative
+    links:
+      organization:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Organization
+      practitioner:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Practitioner
+    source: null
+
+
+  # clinical
+
+  ResearchStudy:
+    category: Administrative
+    links:
+      partOf:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/ResearchStudy
+      principalInvestigator:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Practitioner
+      sponsor:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Organization
+    source: null
+
+  Patient:
+    category: Administrative
+    links:
+      managingOrganization:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Organization
+    source: null
+
+  ResearchSubject:
+    category: Administrative
+    links:
+      individual:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+      study:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/ResearchStudy
+    source: null
+
+
+  Specimen:
+    category: Biospecimen
+    links:
+      subject:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+    source: null
+
+
+  FamilyRelationship:
+    category: Administrative
+    links:
+      subject:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+    source: https://nih-ncpi.github.io/ncpi-fhir-ig/StructureDefinition-family-relationship.json
+
+  Observation:
+    category: Clinical
+    links:
+      focus:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/ResearchStudy
+      specimen:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Specimen
+      subject:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+      encounter:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Ebcounter
+    source: null
+
+  Encounter:
+    category: Clinical
+    links:
+      subject:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+# TODO - pfb_fhir needs to grab references in lists and dictionaries
+#      participant.individual:
+#        required: false
+#        targetProfile: http://hl7.org/fhir/StructureDefinition/Provider
+      serviceProvider:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Organization
+    source: null
+
+  CareTeam:
+    category: Clinical
+    links:
+      subject:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+      managingOrganization:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Organization
+      encounter:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Encounter
+    source: null
+
+  CarePlan:
+    category: Clinical
+    links:
+      subject:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+      encounter:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Encounter
+      careTeam:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/CareTeam
+    source: null
+
+  DiagnosticReport:
+    category: Clinical
+    links:
+      subject:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+      encounter:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Encounter
+      performer:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Provider
+    source: null
+
+  Claim:
+    category: Administrative
+    links:
+      patient:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+    source: null
+
+  ExplanationOfBenefit:
+    category: Administrative
+    links:
+      patient:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+    source: null
+
+  Condition:
+    category: Clinical
+    links:
+      subject:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+      encounter:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Encounter
+    source: null
+
+  MedicationRequest:
+    category: Clinical
+    links:
+      subject:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+      encounter:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Encounter
+    source: null
+
+  Medication:
+    category: Clinical
+    source: null
+
+  MedicationAdministration:
+    category: Clinical
+    links:
+      subject:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+#      encounter:
+#        required: false
+#        targetProfile: http://hl7.org/fhir/StructureDefinition/Encounter
+    source: null
+
+  ImagingStudy:
+    category: Clinical
+    links:
+      subject:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+      encounter:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Encounter
+    source: null
+
+  Immunization:
+    category: Clinical
+    links:
+      patient:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+      encounter:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Encounter
+    source: null
+
+  Procedure:
+    category: Clinical
+    links:
+      subject:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+      encounter:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Encounter
+    source: null
+
+  Device:
+    category: Clinical
+    links:
+      patient:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+    source: null
+
+  Provenance:
+    category: Administrative
+    source: null
+
+  Questionnaire:
+    category: Clinical
+    links:
+      researchStudy:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/ResearchStudy
+    source: null
+
+  QuestionnaireResponse:
+    category: Clinical
+    links:
+      questionnaire:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Questionnaire
+      subject:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+    source: null
+
+  DocumentReference:
+    category: data_file
+    links:
+      subject:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+      custodian:
+        required: false
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Organization
+    source: https://nih-ncpi.github.io/ncpi-fhir-ig/StructureDefinition-ncpi-drs-document-reference.json
+
+  Task:
+    category: Analysis
+    links:
+      for:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+      focus:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Specimen
+      output:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/DocumentReference
+    source: https://nih-ncpi.github.io/ncpi-fhir-ig/StructureDefinition-ncpi-specimen-task.json
+
+  Media:
+    category: Clinical
+    links:
+      subject:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient
+      encounter:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Encounter
+
+  AllergyIntolerance:
+    category: Clinical
+    links:
+      patient:
+        required: true
+        targetProfile: http://hl7.org/fhir/StructureDefinition/Patient

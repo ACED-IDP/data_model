@@ -1,0 +1,4 @@
+dump-ordered.json
+gen3/*.yaml
+!gen3/_*.yaml
+pfb/*.ndjson

@@ -1,2 +1,2 @@
-pfb_fhir
+pfb_fhir==0.1.0rc1
 click
