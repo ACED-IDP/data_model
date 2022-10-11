@@ -14,6 +14,12 @@ def output_path():
 
 
 @pytest.fixture
+def pfb_work_files_path():
+    """Path to pfb data."""
+    return './DATA'
+
+
+@pytest.fixture
 def number_of_files_to_sample():
     """If set, verify N """
     return 100  # set to None to verify all

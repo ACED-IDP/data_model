@@ -20,6 +20,7 @@ from fhirclient.models.organization import Organization
 from fhirclient.models.location import Location
 from fhirclient.models.practitioner import Practitioner
 from pydantic import BaseModel
+from fhirclient.models.extension import Extension
 
 import base64
 import uuid
@@ -215,6 +216,20 @@ def _normalize_references(bundle, global_resources, file_path) -> Bundle:
     return bundle, add_to_research_study_bundle
 
 
+def _file_attributes(file_name):
+    """Calculate the hash and size."""
+    import hashlib
+
+    md5_hash = hashlib.md5()
+
+    with open(file_name, "rb") as f:
+        # Read and update hash in chunks of 4K
+        for byte_block in iter(lambda: f.read(4096), b""):
+            md5_hash.update(byte_block)
+
+    return md5_hash.hexdigest(), os.lstat(file_name).st_size
+
+
 def _transform_bundle(file_path: Path, output_path: Path, global_resources: list) -> dict:
     """Read json, update bundle with bundle Specimen, Task, ensure DocumentReference."""
     tic = time.perf_counter()
@@ -231,6 +246,11 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
 
         if e.resource.resource_type == 'Patient':
             patient = e.resource
+
+        if e.resource.resource_type == 'ExplanationOfBenefit':
+            if e.resource.status == 'completed':
+                e.resource.status = None
+                logging.warning(f"invalid status ExplanationOfBenefit.{e.resource.id}  set to None")
 
         if e.resource.resource_type == 'DiagnosticReport':
             codes = [c.code for c in e.resource.code.coding]
@@ -297,6 +317,19 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
             # alter attachment
             document_reference_with_url.content[0].attachment.data = None
             document_reference_with_url.content[0].attachment.url = path_from_report
+            md5, file_size = _file_attributes(path_from_report)
+            document_reference_with_url.content[0].attachment.size = file_size
+            if not document_reference_with_url.content[0].attachment.extension:
+                document_reference_with_url.content[0].attachment.extension = []
+            document_reference_with_url.content[0].attachment.extension.append(
+                Extension({
+                    "url": "http://aced-idp.org/fhir/StructureDefinition/md5",
+                    "valueString": md5
+                    }
+                )
+            )
+
+            #
             # unique id
             additional_entries.append(document_reference_with_url)
             document_reference_with_url.id = str(uuid.uuid5(uuid.UUID(diagnostic_report.id), 'document_reference_with_url'))
@@ -332,8 +365,21 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
             path_from_report = line_with_file_info.split(' ')[-1]
             assert '.dcm' in path_from_report, f"{file_path}\n{data}\n{line_with_file_info}"
             # alter attachment
+
             document_reference_with_url.content[0].attachment.data = None
             document_reference_with_url.content[0].attachment.url = path_from_report
+            md5, file_size = _file_attributes(path_from_report)
+            document_reference_with_url.content[0].attachment.size = file_size
+            if not document_reference_with_url.content[0].attachment.extension:
+                document_reference_with_url.content[0].attachment.extension = []
+            document_reference_with_url.content[0].attachment.extension.append(
+                Extension({
+                    "url": "http://aced-idp.org/fhir/StructureDefinition/md5",
+                    "valueString": md5
+                    }
+                )
+            )
+
             # unique id
             document_reference_with_url.id = str(uuid.uuid5(uuid.UUID(imaging_diagnostic_report.id), 'document_reference_with_url'))
             additional_entries.append(document_reference_with_url)
@@ -415,6 +461,9 @@ http://snomed.info/sct,162573006,Suspected lung cancer (situation)
             'title': study_name,
             'id': str(uuid.uuid5(uuid.NAMESPACE_DNS, study_name)),
             'status': 'active',
+            # 'primaryPurposeType': 'health-services-research',
+            'description': 'An aggregation of patients from the Coherent Data Set  ' 
+                           f'https://doi.org/10.1093/jamia/ocx079 that had conditions related to {study_name}. ',
             'condition': [
                 condition for condition_code, condition in conditions.items() if
                 condition_code in study_dict['conditions']
@@ -491,11 +540,13 @@ def transform(coherent_path, output_path, file_name_pattern, minimum_file_count)
     tic = time.perf_counter()
     pool_count = max(multiprocessing.cpu_count() - 1, 1)
     pool = multiprocessing.Pool(pool_count)
-    study_manifests = create_study_manifests()
     # organizations, locations, etc.
     global_resources = create_global_resources(coherent_path)
+    # create our artificial ResearchStudies
+    study_manifests = create_study_manifests()
     # transform patient bundles, write to output
-    for patient_conditions in pool.starmap(_transform_bundle, zip(file_paths, repeat(output_path), repeat(global_resources))):
+    for patient_conditions in pool.starmap(_transform_bundle,
+                                           zip(file_paths, repeat(output_path), repeat(global_resources))):
         # create ResearchStudy & ResearchSubject->Patient for each condition
         member_of_study(patient_conditions, study_manifests)
     toc = time.perf_counter()
@@ -530,14 +581,19 @@ def transform(coherent_path, output_path, file_name_pattern, minimum_file_count)
             ]
         )
 
-        for reference in study_manifest['add_to_research_study_bundle']:
-            resource_type, id_ = reference.split('/')
-            for resource in global_resources:
-                if resource.resource_type == resource_type and resource.id == id_:
-                    logging.getLogger(__name__).debug(f"add global_reference {reference} to research_study_bundle")
-                    bundle_entry = BundleEntry()
-                    bundle_entry.resource = resource
-                    bundle.entry.append(bundle_entry)
+        for resource in global_resources:
+            bundle_entry = BundleEntry()
+            bundle_entry.resource = resource
+            bundle.entry.append(bundle_entry)
+
+        # for reference in study_manifest['add_to_research_study_bundle']:
+        #     resource_type, id_ = reference.split('/')
+        #     for resource in global_resources:
+        #         if resource.resource_type == resource_type and resource.id == id_:
+        #             logging.getLogger(__name__).debug(f"add global_reference {reference} to research_study_bundle")
+        #             bundle_entry = BundleEntry()
+        #             bundle_entry.resource = resource
+        #             bundle.entry.append(bundle_entry)
 
         bundle_path = f"{output_path}/research_study_{'_'.join(research_study.title.split(' '))}.json"
         json.dump(bundle.as_json(), open(bundle_path, 'w'))

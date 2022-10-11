@@ -29,12 +29,14 @@ pip install numpy cython
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
 cp -r output coherent
+mkdir output
+cp -r coherent/dna output
 ```
 
 * Transform the data
 
 ```commandline
-# transform the coherent data (fix references, add missing resources)
+# transform the coherent data (fix references, add missing Task resources, calculate file sizes and md5 hash)
 python3 scripts/transform.py
 # create the pfb
 python3 scripts/pfb.py | sh

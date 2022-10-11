@@ -2,8 +2,22 @@ import base64
 import json
 import multiprocessing
 import os
+import re
 from pathlib import Path
+
+import yaml
 from fhirclient.models.bundle import Bundle
+
+
+def _assert_legal_keys(keys):
+    """Valid graphql key name"""
+    illegal_keys = []
+    for key in keys:
+        if not re.match('^[_a-zA-Z][_a-zA-Z0-9]*$', key):
+            illegal_keys.append(key)
+        if '-' in key:
+            illegal_keys.append(key)
+    assert len(illegal_keys) == 0, illegal_keys
 
 
 def _verify_bundle(output_file_path) -> str:
@@ -19,6 +33,7 @@ def _verify_bundle(output_file_path) -> str:
     imaging_studies = []
     should_have_dicom_file = False
     for e in bundle.entry:
+        _assert_legal_keys(vars(e.resource))
         if e.resource.resource_type == 'Patient':
             patient = e.resource
         if e.resource.resource_type == 'DiagnosticReport':
@@ -67,8 +82,8 @@ def test_all_output_files(coherent_path, output_path, number_of_files_to_sample)
     """Ensure expected entities in output bundles."""
     fhir_path = Path(os.path.join(coherent_path, "output", "fhir"))
     assert os.path.isdir(fhir_path), "Input should exist"
-    input_file_paths = list(fhir_path.glob('*.json'))
-    assert len(input_file_paths) > 1200, "Should have over 1200 files."
+    input_file_paths = list(fhir_path.glob('A*.json'))
+    assert len(input_file_paths) > 0, "Should have at least one file from over 1200 files."
 
     assert os.path.isdir(output_path), "Output should exist"
     output_path = Path(output_path)
@@ -83,6 +98,30 @@ def test_all_output_files(coherent_path, output_path, number_of_files_to_sample)
     pool_count = max(multiprocessing.cpu_count() - 1, 1)
     pool = multiprocessing.Pool(pool_count)
     results = pool.map(_verify_bundle, output_file_paths)
-    assert all(results), "All files should be OK."
+    assert all(["true" == r.lower() for r in results]), "All files should be OK."
 
+
+def test_property_names(pfb_work_files_path):
+    pfb_work_files_path = Path(pfb_work_files_path + "/gen3")
+    assert len([file_name for file_name in pfb_work_files_path.glob("*.yaml")]) > 0
+    for file_name in pfb_work_files_path.glob("*.yaml"):
+        print(file_name)
+        schema = yaml.load(open(file_name), Loader=yaml.SafeLoader)
+        keys = [k for k in schema.keys() if k != '$schema']
+        illegal_keys = []
+        for key in keys:
+            if not re.match('^[_a-zA-Z][_a-zA-Z0-9]*$', key):
+                illegal_keys.append(key)
+            if '-' in key:
+                illegal_keys.append(key)
+            if ':' in key:
+                illegal_keys.append(key)
+        for key in schema.get('properties', []):
+            if not re.match('^[_a-zA-Z][_a-zA-Z0-9]*$', key):
+                illegal_keys.append(key)
+            if '-' in key:
+                illegal_keys.append(key)
+            if ':' in key:
+                illegal_keys.append(key)
+        assert len(illegal_keys) == 0, illegal_keys
 
