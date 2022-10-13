@@ -1,0 +1,429 @@
+$schema: http://json-schema.org/draft-04/schema#
+additionalProperties: false
+category: Administrative
+description: " Information about an individual or animal receiving health care services.\n\
+  \    \n    Demographics and other administrative information about an individual\
+  \ or\n    animal receiving care or other health-related services.\n    "
+id: Patient
+links:
+- backref: Patients
+  label: Organizations
+  multiplicity: many_to_many
+  name: Organizations
+  required: true
+  target_type: Organization
+namespace: http://hl7.org/fhir
+program: '*'
+project: '*'
+properties:
+  address_city:
+    description: Name of city, town etc..
+    type:
+    - string
+    - 'null'
+  address_country:
+    description: Country (e.g. can be ISO 3166 2 or 3 letter code).
+    type:
+    - string
+    - 'null'
+  address_geolocation_latitude:
+    description: Additional content defined by implementations.
+    type:
+    - number
+    - 'null'
+  address_geolocation_longitude:
+    description: Additional content defined by implementations.
+    type:
+    - number
+    - 'null'
+  address_line:
+    description: Street name, number, direction & P.O. Box etc..
+    type:
+    - string
+    - 'null'
+  address_postalCode:
+    description: Postal code for area.
+    type:
+    - string
+    - 'null'
+  address_state:
+    description: Sub-unit of country (abbreviations ok).
+    type:
+    - string
+    - 'null'
+  birthDate:
+    description: The date of birth for the individual.
+    type:
+    - string
+    - 'null'
+  communication_language_coding_urn_ietf_bcp_47:
+    description: Code defined by a terminology system.
+    type:
+    - string
+    - 'null'
+  communication_language_text:
+    description: Plain text representation of the concept.
+    type:
+    - string
+    - 'null'
+  created_datetime:
+    $ref: _definitions.yaml#/datetime
+  deceasedDateTime:
+    description: Indicates if the individual is deceased or not.
+    type:
+    - string
+    - 'null'
+  disability_adjusted_life_years:
+    description: Additional content defined by implementations.
+    type:
+    - number
+    - 'null'
+  gender:
+    description: Administrative Gender - the gender that the patient is considered
+      to have for administration and record keeping purposes.. http://hl7.org/fhir/administrative-gender
+    enum:
+    - male
+    - female
+    - other
+    - unknown
+    term:
+      description: Administrative Gender - the gender that the patient is considered
+        to have for administration and record keeping purposes.. http://hl7.org/fhir/administrative-gender
+      termDef:
+        cde_id: http://hl7.org/fhir/administrative-gender
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/administrative-gender
+        term_url: http://hl7.org/fhir/administrative-gender
+  id:
+    description: Logical id of this artifact.
+    type:
+    - string
+    - 'null'
+  identifier_DL:
+    description: An identifier for this patient.
+    type:
+    - string
+    - 'null'
+  identifier_MR:
+    description: An identifier for this patient.
+    type:
+    - string
+    - 'null'
+  identifier_PPN:
+    description: An identifier for this patient.
+    type:
+    - string
+    - 'null'
+  identifier_SS:
+    description: An identifier for this patient.
+    type:
+    - string
+    - 'null'
+  identifier_synthea:
+    description: An identifier for this patient.
+    type:
+    - string
+    - 'null'
+  maritalStatus_coding_v3_MaritalStatus:
+    description: Code defined by a terminology system.
+    type:
+    - string
+    - 'null'
+  maritalStatus_text:
+    description: Plain text representation of the concept.
+    type:
+    - string
+    - 'null'
+  meta_profile:
+    description: Profiles this resource claims to conform to.
+    type:
+    - string
+    - 'null'
+  multipleBirthBoolean:
+    description: Whether patient is part of a multiple birth.
+    type:
+    - boolean
+    - 'null'
+  name_0_family:
+    description: Family name (often called 'Surname').
+    type:
+    - string
+    - 'null'
+  name_0_given:
+    description: Given names (not always 'first'). Includes middle names.
+    type:
+    - string
+    - 'null'
+  name_0_prefix:
+    description: Parts that come before the name.
+    type:
+    - string
+    - 'null'
+  name_0_use:
+    description: Identifies the purpose for this name.. http://hl7.org/fhir/name-use
+    enum:
+    - usual
+    - official
+    - temp
+    - nickname
+    - anonymous
+    - old
+    - maiden
+    term:
+      description: Identifies the purpose for this name.. http://hl7.org/fhir/name-use
+      termDef:
+        cde_id: http://hl7.org/fhir/name-use
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/name-use
+        term_url: http://hl7.org/fhir/name-use
+  name_1_family:
+    description: Family name (often called 'Surname').
+    type:
+    - string
+    - 'null'
+  name_1_given:
+    description: Given names (not always 'first'). Includes middle names.
+    type:
+    - string
+    - 'null'
+  name_1_prefix:
+    description: Parts that come before the name.
+    type:
+    - string
+    - 'null'
+  name_1_use:
+    description: Identifies the purpose for this name.. http://hl7.org/fhir/name-use
+    enum:
+    - usual
+    - official
+    - temp
+    - nickname
+    - anonymous
+    - old
+    - maiden
+    term:
+      description: Identifies the purpose for this name.. http://hl7.org/fhir/name-use
+      termDef:
+        cde_id: http://hl7.org/fhir/name-use
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/name-use
+        term_url: http://hl7.org/fhir/name-use
+  name_family:
+    description: Family name (often called 'Surname').
+    type:
+    - string
+    - 'null'
+  name_given:
+    description: Given names (not always 'first'). Includes middle names.
+    type:
+    - string
+    - 'null'
+  name_prefix:
+    description: Parts that come before the name.
+    type:
+    - string
+    - 'null'
+  name_use:
+    description: Identifies the purpose for this name.. http://hl7.org/fhir/name-use
+    enum:
+    - usual
+    - official
+    - temp
+    - nickname
+    - anonymous
+    - old
+    - maiden
+    term:
+      description: Identifies the purpose for this name.. http://hl7.org/fhir/name-use
+      termDef:
+        cde_id: http://hl7.org/fhir/name-use
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/name-use
+        term_url: http://hl7.org/fhir/name-use
+  patient_birthPlace_city:
+    description: Additional content defined by implementations.
+    type:
+    - string
+    - 'null'
+  patient_birthPlace_country:
+    description: Additional content defined by implementations.
+    type:
+    - string
+    - 'null'
+  patient_birthPlace_state:
+    description: Additional content defined by implementations.
+    type:
+    - string
+    - 'null'
+  patient_mothersMaidenName:
+    description: Additional content defined by implementations.
+    type:
+    - string
+    - 'null'
+  project_id:
+    $ref: _definitions.yaml#/project_id
+  quality_adjusted_life_years:
+    description: Additional content defined by implementations.
+    type:
+    - number
+    - 'null'
+  resourceType:
+    description: One of the resource types defined as part of this version of FHIR
+    type:
+    - string
+    - 'null'
+  state:
+    $ref: _definitions.yaml#/state
+  submitter_id:
+    type:
+    - string
+    - 'null'
+  telecom_system:
+    description: Telecommunications form for contact point - what communications system
+      is required to make use of the contact.. http://hl7.org/fhir/contact-point-system
+    enum:
+    - phone
+    - fax
+    - email
+    - pager
+    - url
+    - sms
+    - other
+    term:
+      description: Telecommunications form for contact point - what communications
+        system is required to make use of the contact.. http://hl7.org/fhir/contact-point-system
+      termDef:
+        cde_id: http://hl7.org/fhir/contact-point-system
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/contact-point-system
+        term_url: http://hl7.org/fhir/contact-point-system
+  telecom_use:
+    description: Identifies the purpose for the contact point.. http://hl7.org/fhir/contact-point-use
+    enum:
+    - home
+    - work
+    - temp
+    - old
+    - mobile
+    term:
+      description: Identifies the purpose for the contact point.. http://hl7.org/fhir/contact-point-use
+      termDef:
+        cde_id: http://hl7.org/fhir/contact-point-use
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/contact-point-use
+        term_url: http://hl7.org/fhir/contact-point-use
+  telecom_value:
+    description: The actual contact point details.
+    type:
+    - string
+    - 'null'
+  text_div:
+    description: Limited xhtml content.
+    type:
+    - string
+  text_status:
+    description: The status of the narrative - whether it's entirely generated (from
+      just the defined data or the extensions too), or whether a human authored it
+      and it may contain additional data.. http://hl7.org/fhir/narrative-status
+    enum:
+    - generated
+    - extensions
+    - additional
+    - empty
+    term:
+      description: The status of the narrative - whether it's entirely generated (from
+        just the defined data or the extensions too), or whether a human authored
+        it and it may contain additional data.. http://hl7.org/fhir/narrative-status
+      termDef:
+        cde_id: http://hl7.org/fhir/narrative-status
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/narrative-status
+        term_url: http://hl7.org/fhir/narrative-status
+  type:
+    type: string
+  updated_datetime:
+    $ref: _definitions.yaml#/datetime
+  us_core_birthsex:
+    description: Additional content defined by implementations.
+    type:
+    - string
+    - 'null'
+  us_core_ethnicity_ombCategory:
+    description: Additional content defined by implementations.. http://hl7.org/fhir/us/core/ValueSet/omb-ethnicity-category
+    enum:
+    - 2135-2
+    - 2186-5
+    - ASKU
+    - UNK
+    term:
+      description: Additional content defined by implementations.. http://hl7.org/fhir/us/core/ValueSet/omb-ethnicity-category
+      termDef:
+        cde_id: http://hl7.org/fhir/us/core/ValueSet/omb-ethnicity-category
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/us/core/ValueSet/omb-ethnicity-category
+        term_url: http://hl7.org/fhir/us/core/ValueSet/omb-ethnicity-category
+  us_core_ethnicity_text:
+    description: Additional content defined by implementations.
+    type:
+    - string
+    - 'null'
+  us_core_race_ombCategory:
+    description: Additional content defined by implementations.. http://hl7.org/fhir/us/core/ValueSet/omb-race-category
+    enum:
+    - 1002-5
+    - 2028-9
+    - 2054-5
+    - 2076-8
+    - 2106-3
+    - 2131-1
+    - ASKU
+    - UNK
+    term:
+      description: Additional content defined by implementations.. http://hl7.org/fhir/us/core/ValueSet/omb-race-category
+      termDef:
+        cde_id: http://hl7.org/fhir/us/core/ValueSet/omb-race-category
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/us/core/ValueSet/omb-race-category
+        term_url: http://hl7.org/fhir/us/core/ValueSet/omb-race-category
+  us_core_race_text:
+    description: Additional content defined by implementations.
+    type:
+    - string
+    - 'null'
+required:
+- submitter_id
+- type
+- text_status
+- text_div
+submittable: true
+systemProperties:
+- id
+- project_id
+- created_datetime
+- updated_datetime
+- state
+title: Patient
+type: object
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+validators: null

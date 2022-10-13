@@ -1,0 +1,120 @@
+$schema: http://json-schema.org/draft-04/schema#
+additionalProperties: false
+category: Clinical
+description: " Detailed information about conditions, problems or diagnoses.\n   \
+  \ \n    A clinical condition, problem, diagnosis, or other event, situation, issue,\n\
+  \    or clinical concept that has risen to a level of concern.\n    "
+id: Condition
+links:
+- backref: Conditions
+  label: Patients
+  multiplicity: many_to_many
+  name: Patients
+  required: true
+  target_type: Patient
+- backref: Conditions
+  label: Encounters
+  multiplicity: many_to_many
+  name: Encounters
+  required: true
+  target_type: Encounter
+namespace: http://hl7.org/fhir
+program: '*'
+project: '*'
+properties:
+  abatementDateTime:
+    description: When in resolution/remission.
+    type:
+    - string
+    - 'null'
+  category_coding_condition_category:
+    description: Code defined by a terminology system.
+    type:
+    - string
+    - 'null'
+  clinicalStatus_coding_condition_clinical:
+    description: Code defined by a terminology system.
+    type:
+    - string
+    - 'null'
+  code_coding_sct:
+    description: Code defined by a terminology system.
+    type:
+    - string
+    - 'null'
+  code_text:
+    description: Plain text representation of the concept.
+    type:
+    - string
+    - 'null'
+  created_datetime:
+    $ref: _definitions.yaml#/datetime
+  encounter_reference:
+    description: Literal reference, Relative, internal or absolute URL.
+    type:
+    - string
+    - 'null'
+  id:
+    description: Logical id of this artifact.
+    type:
+    - string
+    - 'null'
+  meta_profile:
+    description: Profiles this resource claims to conform to.
+    type:
+    - string
+    - 'null'
+  onsetDateTime:
+    description: Estimated or actual date,  date-time, or age.
+    type:
+    - string
+    - 'null'
+  project_id:
+    $ref: _definitions.yaml#/project_id
+  recordedDate:
+    description: Date record was first recorded.
+    type:
+    - string
+    - 'null'
+  resourceType:
+    description: One of the resource types defined as part of this version of FHIR
+    type:
+    - string
+    - 'null'
+  state:
+    $ref: _definitions.yaml#/state
+  subject_reference:
+    description: Literal reference, Relative, internal or absolute URL.
+    type:
+    - string
+    - 'null'
+  submitter_id:
+    type:
+    - string
+    - 'null'
+  type:
+    type: string
+  updated_datetime:
+    $ref: _definitions.yaml#/datetime
+  verificationStatus_coding_condition_ver_status:
+    description: Code defined by a terminology system.
+    type:
+    - string
+    - 'null'
+required:
+- submitter_id
+- type
+submittable: true
+systemProperties:
+- id
+- project_id
+- created_datetime
+- updated_datetime
+- state
+title: Condition
+type: object
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+validators: null

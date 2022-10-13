@@ -1,0 +1,106 @@
+$schema: http://json-schema.org/draft-04/schema#
+additionalProperties: false
+category: Administrative
+description: " Physical entity which is the primary unit of interest in the study.\n\
+  \    \n    A physical entity which is the primary unit of operational and/or\n \
+  \   administrative interest in a study.\n    "
+id: ResearchSubject
+links:
+- backref: ResearchSubjects
+  label: Patients
+  multiplicity: many_to_many
+  name: Patients
+  required: true
+  target_type: Patient
+- backref: ResearchSubjects
+  label: ResearchStudies
+  multiplicity: many_to_many
+  name: ResearchStudies
+  required: true
+  target_type: ResearchStudy
+namespace: http://hl7.org/fhir
+program: '*'
+project: '*'
+properties:
+  created_datetime:
+    $ref: _definitions.yaml#/datetime
+  id:
+    description: Logical id of this artifact.
+    type:
+    - string
+    - 'null'
+  individual_reference:
+    description: Literal reference, Relative, internal or absolute URL.
+    type:
+    - string
+    - 'null'
+  meta_source:
+    description: Identifies where the resource comes from.
+    type:
+    - string
+    - 'null'
+  project_id:
+    $ref: _definitions.yaml#/project_id
+  resourceType:
+    description: One of the resource types defined as part of this version of FHIR
+    type:
+    - string
+    - 'null'
+  state:
+    $ref: _definitions.yaml#/state
+  status:
+    description: The current state of the subject.. http://hl7.org/fhir/research-subject-status
+    enum:
+    - candidate
+    - eligible
+    - follow-up
+    - ineligible
+    - not-registered
+    - off-study
+    - on-study
+    - on-study-intervention
+    - on-study-observation
+    - pending-on-study
+    - potential-candidate
+    - screening
+    - withdrawn
+    term:
+      description: The current state of the subject.. http://hl7.org/fhir/research-subject-status
+      termDef:
+        cde_id: http://hl7.org/fhir/research-subject-status
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/research-subject-status
+        term_url: http://hl7.org/fhir/research-subject-status
+  study_reference:
+    description: Literal reference, Relative, internal or absolute URL.
+    type:
+    - string
+    - 'null'
+  submitter_id:
+    type:
+    - string
+    - 'null'
+  type:
+    type: string
+  updated_datetime:
+    $ref: _definitions.yaml#/datetime
+required:
+- submitter_id
+- type
+- status
+submittable: true
+systemProperties:
+- id
+- project_id
+- created_datetime
+- updated_datetime
+- state
+title: ResearchSubject
+type: object
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+validators: null

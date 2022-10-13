@@ -1,0 +1,102 @@
+$schema: http://json-schema.org/draft-04/schema#
+additionalProperties: false
+category: Administrative
+description: " A grouping of people or organizations with a common purpose.\n    \n\
+  \    A formally or informally recognized grouping of people or organizations\n \
+  \   formed for the purpose of achieving some form of collective action.\n    Includes\
+  \ companies, institutions, corporations, departments, community\n    groups, healthcare\
+  \ practice groups, payer/insurer, etc.\n    "
+id: Organization
+links:
+- backref: Organizations
+  label: Organizations
+  multiplicity: many_to_many
+  name: Organizations
+  required: false
+  target_type: Organization
+namespace: http://hl7.org/fhir
+program: '*'
+project: '*'
+properties:
+  created_datetime:
+    $ref: _definitions.yaml#/datetime
+  id:
+    description: Logical id of this artifact.
+    type:
+    - string
+    - 'null'
+  identifier_name:
+    description: Identifies this organization  across multiple systems.
+    type:
+    - string
+    - 'null'
+  identifier_synthea:
+    description: Identifies this organization  across multiple systems.
+    type:
+    - string
+    - 'null'
+  name:
+    description: Name used for the organization.
+    type:
+    - string
+    - 'null'
+  project_id:
+    $ref: _definitions.yaml#/project_id
+  resourceType:
+    description: One of the resource types defined as part of this version of FHIR
+    type:
+    - string
+    - 'null'
+  state:
+    $ref: _definitions.yaml#/state
+  submitter_id:
+    type:
+    - string
+    - 'null'
+  telecom_system:
+    description: Telecommunications form for contact point - what communications system
+      is required to make use of the contact.. http://hl7.org/fhir/contact-point-system
+    enum:
+    - phone
+    - fax
+    - email
+    - pager
+    - url
+    - sms
+    - other
+    term:
+      description: Telecommunications form for contact point - what communications
+        system is required to make use of the contact.. http://hl7.org/fhir/contact-point-system
+      termDef:
+        cde_id: http://hl7.org/fhir/contact-point-system
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/contact-point-system
+        term_url: http://hl7.org/fhir/contact-point-system
+  telecom_value:
+    description: The actual contact point details.
+    type:
+    - string
+    - 'null'
+  type:
+    type: string
+  updated_datetime:
+    $ref: _definitions.yaml#/datetime
+required:
+- submitter_id
+- type
+submittable: true
+systemProperties:
+- id
+- project_id
+- created_datetime
+- updated_datetime
+- state
+title: Organization
+type: object
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+validators: null

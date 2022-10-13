@@ -1,0 +1,177 @@
+$schema: http://json-schema.org/draft-04/schema#
+additionalProperties: false
+category: Clinical
+description: " A set of images produced in single study (one or more series of references\n\
+  \    images).\n    \n    Representation of the content produced in a DICOM imaging\
+  \ study. A study\n    comprises a set of series, each of which includes a set of\
+  \ Service-Object\n    Pair Instances (SOP Instances - images or other data) acquired\
+  \ or produced\n    in a common context.  A series is of only one modality (e.g.\
+  \ X-ray, CT, MR,\n    ultrasound), but a study may have multiple series of different\
+  \ modalities.\n    "
+id: ImagingStudy
+links:
+- backref: ImagingStudies
+  label: Patients
+  multiplicity: many_to_many
+  name: Patients
+  required: true
+  target_type: Patient
+- backref: ImagingStudies
+  label: Encounters
+  multiplicity: many_to_many
+  name: Encounters
+  required: false
+  target_type: Encounter
+namespace: http://hl7.org/fhir
+program: '*'
+project: '*'
+properties:
+  created_datetime:
+    $ref: _definitions.yaml#/datetime
+  encounter_reference:
+    description: Literal reference, Relative, internal or absolute URL.
+    type:
+    - string
+    - 'null'
+  id:
+    description: Logical id of this artifact.
+    type:
+    - string
+    - 'null'
+  identifier_urn_ietf_rfc_3986:
+    description: Identifiers for the whole study.
+    type:
+    - string
+    - 'null'
+  location_display:
+    description: Text alternative for the resource.
+    type:
+    - string
+    - 'null'
+  location_reference:
+    description: Literal reference, Relative, internal or absolute URL.
+    type:
+    - string
+    - 'null'
+  numberOfInstances:
+    description: Number of Study Related Instances.
+    type:
+    - number
+    - 'null'
+  numberOfSeries:
+    description: Number of Study Related Series.
+    type:
+    - number
+    - 'null'
+  project_id:
+    $ref: _definitions.yaml#/project_id
+  resourceType:
+    description: One of the resource types defined as part of this version of FHIR
+    type:
+    - string
+    - 'null'
+  series_bodySite_sct:
+    description: Body part examined.
+    type:
+    - string
+    - 'null'
+  series_instance_number:
+    description: The number of this instance in the series.
+    type:
+    - number
+    - 'null'
+  series_instance_sopClass_urn_ietf_rfc_3986:
+    description: DICOM class type.
+    type:
+    - string
+  series_instance_title:
+    description: Description of instance.
+    type:
+    - string
+    - 'null'
+  series_instance_uid:
+    description: DICOM SOP Instance UID.
+    type:
+    - string
+  series_modality_sect_CID_29_html:
+    description: The modality of the instances in the series.
+    type:
+    - string
+  series_number:
+    description: Numeric identifier of this series.
+    type:
+    - number
+    - 'null'
+  series_numberOfInstances:
+    description: Number of Series Related Instances.
+    type:
+    - number
+    - 'null'
+  series_started:
+    description: When the series started.
+    type:
+    - string
+    - 'null'
+  series_uid:
+    description: DICOM Series Instance UID for the series.
+    type:
+    - string
+  started:
+    description: When the study was started.
+    type:
+    - string
+    - 'null'
+  state:
+    $ref: _definitions.yaml#/state
+  status:
+    description: The current state of the ImagingStudy.. http://hl7.org/fhir/imagingstudy-status
+    enum:
+    - registered
+    - available
+    - cancelled
+    - entered-in-error
+    - unknown
+    term:
+      description: The current state of the ImagingStudy.. http://hl7.org/fhir/imagingstudy-status
+      termDef:
+        cde_id: http://hl7.org/fhir/imagingstudy-status
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/imagingstudy-status
+        term_url: http://hl7.org/fhir/imagingstudy-status
+  subject_reference:
+    description: Literal reference, Relative, internal or absolute URL.
+    type:
+    - string
+    - 'null'
+  submitter_id:
+    type:
+    - string
+    - 'null'
+  type:
+    type: string
+  updated_datetime:
+    $ref: _definitions.yaml#/datetime
+required:
+- submitter_id
+- type
+- status
+- series_uid
+- series_modality_sect_CID_29_html
+- series_instance_uid
+- series_instance_sopClass_urn_ietf_rfc_3986
+submittable: true
+systemProperties:
+- id
+- project_id
+- created_datetime
+- updated_datetime
+- state
+title: ImagingStudy
+type: object
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+validators: null

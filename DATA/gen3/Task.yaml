@@ -1,0 +1,156 @@
+$schema: http://json-schema.org/draft-04/schema#
+additionalProperties: false
+category: Analysis
+description: " A task to be performed.\n    "
+id: Task
+links:
+- backref: Tasks
+  label: Patients
+  multiplicity: many_to_many
+  name: Patients
+  required: true
+  target_type: Patient
+- backref: Tasks
+  label: Specimen
+  multiplicity: many_to_many
+  name: Specimen
+  required: true
+  target_type: Specimen
+- backref: Tasks
+  label: DocumentReferences
+  multiplicity: many_to_many
+  name: DocumentReferences
+  required: true
+  target_type: DocumentReference
+namespace: http://hl7.org/fhir
+program: '*'
+project: '*'
+properties:
+  created_datetime:
+    $ref: _definitions.yaml#/datetime
+  focus_reference:
+    description: Literal reference, Relative, internal or absolute URL.
+    type:
+    - string
+    - 'null'
+  for_reference:
+    description: Literal reference, Relative, internal or absolute URL.
+    type:
+    - string
+    - 'null'
+  id:
+    description: Logical id of this artifact.
+    type:
+    - string
+    - 'null'
+  input_type_coding_:
+    description: Code defined by a terminology system.
+    type:
+    - string
+    - 'null'
+  input_valueReference_reference:
+    description: Literal reference, Relative, internal or absolute URL.
+    type:
+    - string
+    - 'null'
+  intent:
+    description: unknown | proposal | plan | order | original-order | reflex-order
+      | filler-order | instance-order | option.
+    type:
+    - string
+  output_type_coding_:
+    description: Code defined by a terminology system.
+    type:
+    - string
+    - 'null'
+  output_valueReference_reference:
+    description: Literal reference, Relative, internal or absolute URL.
+    type:
+    - string
+    - 'null'
+  project_id:
+    $ref: _definitions.yaml#/project_id
+  resourceType:
+    description: One of the resource types defined as part of this version of FHIR
+    type:
+    - string
+    - 'null'
+  state:
+    $ref: _definitions.yaml#/state
+  status:
+    description: The current status of the task.. http://hl7.org/fhir/task-status
+    enum:
+    - draft
+    - requested
+    - received
+    - accepted
+    - rejected
+    - ready
+    - cancelled
+    - in-progress
+    - on-hold
+    - failed
+    - completed
+    - entered-in-error
+    term:
+      description: The current status of the task.. http://hl7.org/fhir/task-status
+      termDef:
+        cde_id: http://hl7.org/fhir/task-status
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/task-status
+        term_url: http://hl7.org/fhir/task-status
+  submitter_id:
+    type:
+    - string
+    - 'null'
+  text_div:
+    description: Limited xhtml content.
+    type:
+    - string
+  text_status:
+    description: The status of the narrative - whether it's entirely generated (from
+      just the defined data or the extensions too), or whether a human authored it
+      and it may contain additional data.. http://hl7.org/fhir/narrative-status
+    enum:
+    - generated
+    - extensions
+    - additional
+    - empty
+    term:
+      description: The status of the narrative - whether it's entirely generated (from
+        just the defined data or the extensions too), or whether a human authored
+        it and it may contain additional data.. http://hl7.org/fhir/narrative-status
+      termDef:
+        cde_id: http://hl7.org/fhir/narrative-status
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/narrative-status
+        term_url: http://hl7.org/fhir/narrative-status
+  type:
+    type: string
+  updated_datetime:
+    $ref: _definitions.yaml#/datetime
+required:
+- submitter_id
+- type
+- text_status
+- text_div
+- status
+- intent
+submittable: true
+systemProperties:
+- id
+- project_id
+- created_datetime
+- updated_datetime
+- state
+title: Task
+type: object
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+validators: null

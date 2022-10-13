@@ -1,0 +1,135 @@
+$schema: http://json-schema.org/draft-04/schema#
+additionalProperties: false
+category: Administrative
+description: " Investigation to increase healthcare-related patient-independent knowledge.\n\
+  \    \n    A process where a researcher or organization plans and then executes\
+  \ a\n    series of steps intended to increase the field of healthcare-related\n\
+  \    knowledge.  This includes studies of safety, efficacy, comparative\n    effectiveness\
+  \ and other information about medications, devices, therapies\n    and other interventional\
+  \ and investigative techniques.  A ResearchStudy\n    involves the gathering of\
+  \ information about human or animal subjects.\n    "
+id: ResearchStudy
+links:
+- backref: ResearchStudies
+  label: ResearchStudies
+  multiplicity: many_to_many
+  name: ResearchStudies
+  required: false
+  target_type: ResearchStudy
+- backref: ResearchStudies
+  label: Practitioners
+  multiplicity: many_to_many
+  name: Practitioners
+  required: false
+  target_type: Practitioner
+- backref: ResearchStudies
+  label: Organizations
+  multiplicity: many_to_many
+  name: Organizations
+  required: false
+  target_type: Organization
+- backref: ResearchStudies
+  label: projects
+  multiplicity: many_to_many
+  name: projects
+  required: true
+  target_type: project
+namespace: http://hl7.org/fhir
+program: '*'
+project: '*'
+properties:
+  condition_0_coding_sct:
+    description: Code defined by a terminology system.
+    type:
+    - string
+    - 'null'
+  condition_0_text:
+    description: Plain text representation of the concept.
+    type:
+    - string
+    - 'null'
+  condition_1_coding_sct:
+    description: Code defined by a terminology system.
+    type:
+    - string
+    - 'null'
+  condition_1_text:
+    description: Plain text representation of the concept.
+    type:
+    - string
+    - 'null'
+  created_datetime:
+    $ref: _definitions.yaml#/datetime
+  description:
+    description: What this is study doing.
+    type:
+    - string
+    - 'null'
+  id:
+    description: Logical id of this artifact.
+    type:
+    - string
+    - 'null'
+  project_id:
+    $ref: _definitions.yaml#/project_id
+  resourceType:
+    description: One of the resource types defined as part of this version of FHIR
+    type:
+    - string
+    - 'null'
+  state:
+    $ref: _definitions.yaml#/state
+  status:
+    description: The current state of the study.. http://hl7.org/fhir/research-study-status
+    enum:
+    - active
+    - administratively-completed
+    - approved
+    - closed-to-accrual
+    - closed-to-accrual-and-intervention
+    - completed
+    - disapproved
+    - in-review
+    - temporarily-closed-to-accrual
+    - temporarily-closed-to-accrual-and-intervention
+    - withdrawn
+    term:
+      description: The current state of the study.. http://hl7.org/fhir/research-study-status
+      termDef:
+        cde_id: http://hl7.org/fhir/research-study-status
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/research-study-status
+        term_url: http://hl7.org/fhir/research-study-status
+  submitter_id:
+    type:
+    - string
+    - 'null'
+  title:
+    description: Name for this study.
+    type:
+    - string
+    - 'null'
+  type:
+    type: string
+  updated_datetime:
+    $ref: _definitions.yaml#/datetime
+required:
+- submitter_id
+- type
+- status
+submittable: true
+systemProperties:
+- id
+- project_id
+- created_datetime
+- updated_datetime
+- state
+title: ResearchStudy
+type: object
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+validators: null

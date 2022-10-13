@@ -1,0 +1,84 @@
+$schema: http://json-schema.org/draft-04/schema#
+additionalProperties: false
+category: Clinical
+description: " Definition of a Medication.\n    \n    This resource is primarily used\
+  \ for the identification and definition of a\n    medication for the purposes of\
+  \ prescribing, dispensing, and administering a\n    medication as well as for making\
+  \ statements about medication use.\n    "
+id: Medication
+links: []
+namespace: http://hl7.org/fhir
+program: '*'
+project: '*'
+properties:
+  code_coding_rxnorm:
+    description: Code defined by a terminology system.
+    type:
+    - string
+    - 'null'
+  code_text:
+    description: Plain text representation of the concept.
+    type:
+    - string
+    - 'null'
+  created_datetime:
+    $ref: _definitions.yaml#/datetime
+  id:
+    description: Logical id of this artifact.
+    type:
+    - string
+    - 'null'
+  meta_profile:
+    description: Profiles this resource claims to conform to.
+    type:
+    - string
+    - 'null'
+  project_id:
+    $ref: _definitions.yaml#/project_id
+  resourceType:
+    description: One of the resource types defined as part of this version of FHIR
+    type:
+    - string
+    - 'null'
+  state:
+    $ref: _definitions.yaml#/state
+  status:
+    description: A code to indicate if the medication is in active use.. http://hl7.org/fhir/CodeSystem/medication-status
+    enum:
+    - active
+    - inactive
+    - entered-in-error
+    term:
+      description: A code to indicate if the medication is in active use.. http://hl7.org/fhir/CodeSystem/medication-status
+      termDef:
+        cde_id: http://hl7.org/fhir/CodeSystem/medication-status
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/CodeSystem/medication-status
+        term_url: http://hl7.org/fhir/CodeSystem/medication-status
+  submitter_id:
+    type:
+    - string
+    - 'null'
+  type:
+    type: string
+  updated_datetime:
+    $ref: _definitions.yaml#/datetime
+required:
+- submitter_id
+- type
+submittable: true
+systemProperties:
+- id
+- project_id
+- created_datetime
+- updated_datetime
+- state
+title: Medication
+type: object
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+validators: null

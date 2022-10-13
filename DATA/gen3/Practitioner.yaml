@@ -1,0 +1,101 @@
+$schema: http://json-schema.org/draft-04/schema#
+additionalProperties: false
+category: Administrative
+description: " A person with a  formal responsibility in the provisioning of healthcare\
+  \ or\n    related services.\n    \n    A person who is directly or indirectly involved\
+  \ in the provisioning of\n    healthcare.\n    "
+id: Practitioner
+links: []
+namespace: http://hl7.org/fhir
+program: '*'
+project: '*'
+properties:
+  created_datetime:
+    $ref: _definitions.yaml#/datetime
+  gender:
+    description: Administrative Gender - the gender that the person is considered
+      to have for administration and record keeping purposes.. http://hl7.org/fhir/administrative-gender
+    enum:
+    - male
+    - female
+    - other
+    - unknown
+    term:
+      description: Administrative Gender - the gender that the person is considered
+        to have for administration and record keeping purposes.. http://hl7.org/fhir/administrative-gender
+      termDef:
+        cde_id: http://hl7.org/fhir/administrative-gender
+        cde_version: null
+        source: fhir
+        strength: required
+        term: http://hl7.org/fhir/administrative-gender
+        term_url: http://hl7.org/fhir/administrative-gender
+  id:
+    description: Logical id of this artifact.
+    type:
+    - string
+    - 'null'
+  identifier_name:
+    description: An identifier for the person as this agent.
+    type:
+    - string
+    - 'null'
+  identifier_synthea:
+    description: An identifier for the person as this agent.
+    type:
+    - string
+    - 'null'
+  name_text:
+    description: Text representation of the full name.
+    type:
+    - string
+    - 'null'
+  project_id:
+    $ref: _definitions.yaml#/project_id
+  qualification_code_coding_synthea:
+    description: Code defined by a terminology system.
+    type:
+    - string
+    - 'null'
+  qualification_code_text:
+    description: Plain text representation of the concept.
+    type:
+    - string
+    - 'null'
+  qualification_issuer_reference:
+    description: Literal reference, Relative, internal or absolute URL.
+    type:
+    - string
+    - 'null'
+  resourceType:
+    description: One of the resource types defined as part of this version of FHIR
+    type:
+    - string
+    - 'null'
+  state:
+    $ref: _definitions.yaml#/state
+  submitter_id:
+    type:
+    - string
+    - 'null'
+  type:
+    type: string
+  updated_datetime:
+    $ref: _definitions.yaml#/datetime
+required:
+- submitter_id
+- type
+submittable: true
+systemProperties:
+- id
+- project_id
+- created_datetime
+- updated_datetime
+- state
+title: Practitioner
+type: object
+uniqueKeys:
+- - id
+- - project_id
+  - submitter_id
+validators: null
