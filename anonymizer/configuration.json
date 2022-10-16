@@ -1,0 +1,18 @@
+{
+  "fhirVersion": "R4",
+  "processingError":"raise",
+  "fhirPathRules": [
+    {"path": "Patient.identifier", "method": "redact"},
+    {"path": "Patient.birthDate", "method": "dateshift"},
+    {"path": "nodesByType('HumanName')", "method": "redact"},
+    {"path": "nodesByType('Address').line", "method": "redact"},
+    {"path": "nodesByType('ContactPoint')", "method": "redact"},
+    {"path": "nodesByType('date') | nodesByType('dateTime') | nodesByType('instant')", "method": "dateshift"}
+  ],
+  "parameters": {
+    "dateShiftKey": "",
+    "cryptoHashKey": "",
+    "encryptKey": "",
+    "enablePartialAgesForRedact": true
+  }
+}
