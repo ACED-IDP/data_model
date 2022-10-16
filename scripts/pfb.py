@@ -31,7 +31,7 @@ def pfb(input_path, file_name_pattern):
         bundle = Bundle(json.load(open(file_path)))
         research_subjects = [bundle_entry.resource for bundle_entry in bundle.entry if bundle_entry.resource.resource_type == "ResearchSubject"]
         sources = sorted(research_subject.meta.source for research_subject in research_subjects if research_subject.meta.source not in already_added)
-        # sources = sources[:4]
+        sources = sources[:4]
         sources.append(file_path)  # add study bundle
         already_added.extend(sources)
         input_paths = [f"--input_path \"{source}\" \\\n" for source in sources]

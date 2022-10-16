@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+id: "TODO"
+title: TODO
+type: object
+namespace: http://hl7.org/fhir
+category: TODO
+program: '*'
+project: '*'
+description: TODO
+additionalProperties: false
+submittable: true
+validators: null
+
+systemProperties:
+  - id
+  - project_id
+  - created_datetime
+  - updated_datetime
+  - state
+
+links: [] # TODO
+#  - name: protocols
+#    backref: participants
+#    label: recruited_at
+#    target_type: protocol
+#    multiplicity: many_to_one
+#    required: true
+
+required:
+  - submitter_id
+  - type
+  - TODO
+
+uniqueKeys:
+  - [id]
+  - [project_id, submitter_id]
+
+properties:
+#  type:
+#    type: string
+  id:
+    $ref: "_definitions.yaml#/UUID"
+    systemAlias: node_id
+  state:
+    $ref: "_definitions.yaml#/state"
+  submitter_id:
+    type:
+      - string
+      - "null"
+
+# - TODO
+
+  project_id:
+    $ref: "_definitions.yaml#/project_id"
+  created_datetime:
+    $ref: "_definitions.yaml#/datetime"
+  updated_datetime:
+    $ref: "_definitions.yaml#/datetime"
+
