@@ -67,10 +67,9 @@ entities:
         targetProfile:
         - http://hl7.org/fhir/StructureDefinition/CodeableConcept
       encounter:
-        ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+        - http://hl7.org/fhir/StructureDefinition/Encounter
       recorder:
         ignore: true
         required: false
@@ -82,10 +81,9 @@ entities:
         targetProfile:
         - http://hl7.org/fhir/StructureDefinition/CodeableConcept
       subject:
-        ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+        - http://hl7.org/fhir/StructureDefinition/Patient
       verificationStatus:
         ignore: false
         required: false
@@ -193,10 +191,9 @@ entities:
         targetProfile:
         - http://hl7.org/fhir/StructureDefinition/CodeableConcept
       subject:
-        ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+        - http://hl7.org/fhir/StructureDefinition/Patient
       type:
         ignore: false
         required: false
@@ -488,10 +485,9 @@ entities:
         targetProfile:
         - http://hl7.org/fhir/StructureDefinition/CodeableConcept
       subject:
-        ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+        - http://hl7.org/fhir/StructureDefinition/Patient
       supportingInformation:
         ignore: true
         required: false

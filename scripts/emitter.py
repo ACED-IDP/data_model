@@ -12,7 +12,6 @@ from copy import deepcopy
 from datetime import datetime
 from itertools import islice
 from pathlib import Path
-from pprint import pprint
 from typing import Dict, Iterator, List, Optional, OrderedDict, Any, ClassVar, IO
 
 import click
@@ -344,20 +343,42 @@ class DictionaryEmitter(Emitter):
         for link_key, link in entity.links.items():
             if link.ignore:
                 continue
-            _neighbors = link.targetProfile
-            if not isinstance(_neighbors, list):
-                _neighbors = [_neighbors]
-            for _neighbor in _neighbors:
-                target_type = _neighbor.split('/')[-1]
+            target_profiles = link.targetProfile
+            if not isinstance(target_profiles, list):
+                target_profiles = [target_profiles]
+
+            # # should we disambiguate the srcdstassoc
+            # disambiguate = False
+            # if len(target_profiles) > 1:
+            #     disambiguate = True
+            # if link_key == 'type':
+            #     disambiguate = True
+            disambiguate = True
+
+            for target_profile in target_profiles:
+                target_type = target_profile.split('/')[-1]
                 # ent = inflection.camelize(entity.id, uppercase_first_letter=False)
                 backref = f"{link_key}_{inflection.pluralize(entity.id)}"
                 # f"{ent}_{inflection.pluralize(link_key)}"
                 # inflection.camelize(inflection.pluralize(entity.id),uppercase_first_letter=False)
                 # name = inflection.pluralize(target_type)
+
+                # srcdstassoc = link_key
+                # TODO - come up with a better way to name src property, make this configurable,
+                # TODO as it is, ddt apparently uses name (aka srcdstassoc) as PK
+                # TODO a multi typed targetProfile needs to be disambiguated
+                # if link_key in ['type']:
+                #     srcdstassoc = f"{link_key}_{target_type}"
+                srcdstassoc = link_key
+                if disambiguate:
+                    srcdstassoc = f"{link_key}_{target_type}"
+
+                label = f"{entity.id}_{link_key}_{target_type}"
+
                 yield {
-                    'name':  f"{link_key}_{target_type}",  # srcdstassoc  {entity.id}_
+                    'name':  f"{srcdstassoc}",  # srcdstassoc
                     'backref':  backref,  # dstsrcassoc,
-                    'label': link_key,  # label,
+                    'label': label,  # label,
                     'target_type': target_type,
                     'multiplicity': 'many_to_many',
                     'required': link.required
@@ -653,21 +674,20 @@ class TransformerEmitter(Emitter):
                 ids = []
                 if extracted_resource.coding:
                     for coding in extracted_resource.coding:
-                        id_ = f"{coding.system}?code={coding.code}"
+                        coding_id = f"{coding.system}?code={coding.code}"
                         if coding.version:
-                            id_ = f"{id_}&{coding.version}"
-                        ids.append(id_)
+                            coding_id = f"{id_}&{coding.version}"
+                        ids.append(coding_id)
                 else:
                     ids.append(extracted_resource.text)
                 id_ = str(uuid.uuid3(ACED_CODEABLE_CONCEPT, '~'.join(ids)))
             assert id_, "We should have calculated an id"
             extracted_resource.id = id_
             resource_model = self._data_dictionary[f"{type(extracted_resource).__name__}.yaml"]
-            flattened = {k: v for k, v in flatten(extracted_resource.as_json(), separator='_').items() if
-                         k in resource_model['properties'].keys()}
 
             if id_ not in self._seen_already:
-                object_ = extracted_resource.as_json()
+                flattened = {k: v for k, v in flatten(extracted_resource.as_json(), separator='_').items() if
+                             k in resource_model['properties'].keys()}
                 json.dump(
                     {
                         'id': id_,
@@ -713,8 +733,6 @@ class TransformerEmitter(Emitter):
                 else:
                     dst_id = er.id
                     dst_name = type(er).__name__
-                if not dst_id:
-                    print("?")
                 links_to_return.append(LinkInstance(dst_id=dst_id, dst_name=dst_name, label=link.id))
         return links_to_return
 
@@ -812,7 +830,7 @@ def schema_generate(input_path, file_name_pattern, config_path, anonymizer_confi
         file_paths) >= 1, f"{str(input_path)}/{file_name_pattern} only returned {len(file_paths)} expected at least 1"
     model = initialize_model(config_path=config_path)
 
-    path = 'scripts/gen3_schema_template.yaml'  # Do not use os.path.join()
+    path = 'scripts/gen3_schema_template.yaml'
     template = yaml.load(open(path), Loader=yaml.SafeLoader)
     anonymizer = yaml.load(open(anonymizer_config_path), Loader=yaml.SafeLoader)
     emitter = DictionaryEmitter(template=template, model=model, work_dir='output/', anonymizer=anonymizer)
@@ -861,11 +879,23 @@ def schema_publish(dictionary_path, bucket):
               show_default=True,
               help='Gen3 yaml files')
 def schema_tables(dictionary_path, dictionary_url=None):
-    """Show dictionary to postgres table mappings."""
+    """Show dictionary to psqlgraph table mappings."""
 
     mapping = _table_mappings(dictionary_path, dictionary_url)
 
     print(json.dumps([mapping for mapping in mapping]))
+
+
+@schema.command(name='cytoscape')
+@click.option('--dictionary_path',
+              default='output/gen3',
+              show_default=True,
+              help='Gen3 yaml files')
+def schema_cytoscape(dictionary_path, dictionary_url=None):
+    """Show  psqlgraph mappings."""
+
+    print('Use jq with mapping command:')
+    print(" python3 scripts/emitter.py schema tables | jq -r '(map(keys) | add | unique) as $cols | map(. as $row | $cols | map($row[.])) as $rows | $cols, $rows[] | @csv' > psqlgraph_mapping.csv")
 
 
 def _table_mappings(dictionary_path, dictionary_url):
@@ -930,7 +960,6 @@ def data_transform(input_path, file_name_pattern, config_path, anonymizer_config
     data_dictionary = json.load(open(dictionary_path))
 
     emitters = [
-        # ExtractorEmitter(template=template, model=model, work_dir='output/', anonymizer=anonymizer),
         TransformerEmitter(model=model, work_dir='output/', anonymizer=anonymizer, data_dictionary=data_dictionary)
     ]
 
@@ -942,6 +971,7 @@ def data_transform(input_path, file_name_pattern, config_path, anonymizer_config
         sources = sorted(research_subject.meta.source for research_subject in research_subjects if
                          research_subject.meta.source not in already_added)
         # sources = sources[:4]  # truncate for testing
+        # sources = [s for s in sources if "Adam631_" in s]  # testing
         sources.append(file_path)  # add study bundle
         for source in sources:
             for bundle_entry in Bundle(json.load(open(source))).entry:
@@ -979,7 +1009,7 @@ def load_vertices(files, connection, model, project_id, mapping):
             with open(path) as f:
                 # copy a block of records into a file like stringIO buffer
                 record_count = 0
-                for lines in chunk(f.readlines(), 100):
+                for lines in chunk(f.readlines(), 1000):
                     buf = io.StringIO()
                     for line in lines:
                         record_count += 1
@@ -987,14 +1017,13 @@ def load_vertices(files, connection, model, project_id, mapping):
                         d_['object']['project_id'] = project_id
                         obj_str = json.dumps(d_['object'])
                         csv = f"{d_['id']}|{obj_str}|{{}}|{{}}|{datetime.now()}".replace('\n', '\\n').replace("\\","\\\\")
-                        if d_['id'] == "3452ba4b-b85e-4175-d139-4b453e1bfddb":
-                            print("?")
                         csv = csv + '\n'
                         buf.write(csv)
                     buf.seek(0)
                     # efficient way to write to postgres
                     cursor.copy_from(buf, data_table_name, sep='|', columns=['node_id', '_props', 'acl', '_sysan', 'created'])
                     logger.info(f"wrote {record_count} records to {data_table_name} from {path}")
+                    connection.commit()
         connection.commit()
 
 
@@ -1022,6 +1051,7 @@ def load_edges(files, connection, model, project_id, mapping, project_node_id):
 
                         if len(relations) == 0:
                             continue
+
                         record_count += 1
                         for relation in relations:
                             # get destination table
@@ -1029,9 +1059,7 @@ def load_edges(files, connection, model, project_id, mapping, project_node_id):
                                 iter(
                                     [
                                         m for m in mapping
-                                        if m['srcclass'].lower() == entity_name.lower()
-                                        and m['label'].lower() == relation['label'].lower()
-                                        and m['dstclass'].lower() == relation['dst_name'].lower()
+                                        if m['label'].lower() == f"{entity_name}_{relation['label']}_{relation['dst_name']}".lower()
                                      ]
                                 ),
                                 None
@@ -1095,6 +1123,7 @@ def data_load(input_path, file_name_pattern, sheepdog_creds_path, program_name, 
     """Load transformed data to postgres."""
     # check config
     model = initialize_model(config_path=config_path)
+
     # check db connection
     sheepdog_creds = json.load(open(sheepdog_creds_path))
     db_username = sheepdog_creds['db_username']
@@ -1110,7 +1139,8 @@ def data_load(input_path, file_name_pattern, sheepdog_creds_path, program_name, 
         # port=DATABASE_CONFIG.get('port'),
     )
     assert conn
-    print("Connected to postgres")
+    logger.info("Connected to postgres")
+
     # check program/project exist
     cur = conn.cursor()
     cur.execute("select node_id, _props from \"node_program\";")
@@ -1124,20 +1154,122 @@ def data_load(input_path, file_name_pattern, sheepdog_creds_path, program_name, 
     project_node_id = next(iter([p['node_id'] for p in projects if p['_props']['code'] == project_code]), None)
     assert project_node_id, f"{project_code} not found in node_project"
     project_id = f"{program_name}-{project_code}"
-    print(f"Program and project exist: {project_id}")
+    logger.info(f"Program and project exist: {project_id} {project_node_id}")
+
     # check files
     input_path = Path(input_path)
     assert input_path.is_dir(), f"{input_path} should be a directory"
     files = [fn for fn in input_path.glob(file_name_pattern)]
     assert len(files) > 0, f"No files found at {input_path}/{file_name_pattern}"
+
     # check the mappings
     mappings = [mapping for mapping in _table_mappings(dictionary_path, dictionary_url)]
+
     # load the files
     logger.info("Loading vertices")
     load_vertices(files, conn, model, project_id, mappings)
+
     logger.info("Loading edges")
     load_edges(files, conn, model, project_id, mappings, project_node_id)
     logger.info("Done")
+
+
+@data.command(name='load-elastic')
+def data_load_elastic():
+    """TODO - example queries provided"""
+    expected_counts_query = """{
+          _Patient_count
+          _DocumentReference_count
+        }"""
+    expected_counts_results = {
+          "data": {
+            "_DocumentReference_count": 48354,
+            "_Patient_count": 287
+          }
+        }
+    patient_query = """
+        {
+          Patient(first:1, offset:0) {
+                id
+            project_id
+            active
+            deceasedBoolean 
+            deceasedDateTime
+            gender
+            maritalStatus_CodeableConcept {
+              coding_0_code
+            }
+            subject_Specimen {
+              type_CodeableConcept {
+                coding_0_code
+              }
+            }
+          }
+        }    
+    """
+    # note not all patients have specimens
+    patient_query_expected_results = {
+      "data": {
+        "Patient": [
+          {
+            "active": None,
+            "deceasedBoolean": None,
+            "deceasedDateTime": "1993-01-19T21:18:07-05:00",
+            "gender": "male",
+            "id": "6f60d183-2b8d-8c3c-77d0-2b684653651e",
+            "maritalStatus_CodeableConcept": [
+              {
+                "coding_0_code": "M"
+              }
+            ],
+            "project_id": "MyFirstProgram-MyFirstProject",
+            "subject_Specimen": [
+              {
+                "type_CodeableConcept": []
+              }
+            ]
+          }
+        ]
+      }
+    }
+    document_reference_query = """
+        {
+          DocumentReference(first:1, offset:0) {
+                id
+            project_id    
+            object_id
+            type_CodeableConcept {
+              coding_0_display
+            }
+            subject_Patient {
+              id
+            }
+            content_0_attachment_url
+          }
+        }    
+    """
+    document_reference_expected_results = {
+        "data": {
+            "DocumentReference": [
+              {
+                "content_0_attachment_url": None,
+                "id": "990de556-dfb4-45c4-f119-73c979720201",
+                "object_id": None,
+                "project_id": "MyFirstProgram-MyFirstProject",
+                "subject_Patient": [
+                  {
+                    "id": "6f60d183-2b8d-8c3c-77d0-2b684653651e"
+                  }
+                ],
+                "type_CodeableConcept": [
+                  {
+                    "coding_0_display": "Clinical Note"
+                  }
+                ]
+              }
+            ]
+            }
+        }
 
 
 if __name__ == '__main__':
