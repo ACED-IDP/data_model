@@ -281,8 +281,9 @@ class DictionaryEmitter(Emitter):
                 template=self.template,
                 model=self.model,
                 resource_type=resource.__class__)
+
             if schema_:
-                path = f'{self.work_dir}/{type(resource).__name__}.yaml'
+                path = f'{self.work_dir}/{inflection.underscore(type(resource).__name__)}.yaml'
                 self.open_files[path] = open(path, "w")
                 yaml.dump(
                     schema_,
@@ -303,7 +304,7 @@ class DictionaryEmitter(Emitter):
             return None
         schema_ = deepcopy(template)
         entity = model.entities[resource_type.__name__]
-        schema_['id'] = entity.id
+        schema_['id'] = inflection.underscore(entity.id)
         schema_['title'] = entity.id
         schema_['category'] = entity.category
         schema_['description'] = resource.__doc__ + f" http://hl7.org/fhir/{entity.id.lower()}"
@@ -356,9 +357,9 @@ class DictionaryEmitter(Emitter):
             disambiguate = True
 
             for target_profile in target_profiles:
-                target_type = target_profile.split('/')[-1]
+                target_type = inflection.underscore(target_profile.split('/')[-1])
                 # ent = inflection.camelize(entity.id, uppercase_first_letter=False)
-                backref = f"{link_key}_{inflection.pluralize(entity.id)}"
+                backref = inflection.underscore(inflection.pluralize(entity.id))
                 # f"{ent}_{inflection.pluralize(link_key)}"
                 # inflection.camelize(inflection.pluralize(entity.id),uppercase_first_letter=False)
                 # name = inflection.pluralize(target_type)
@@ -404,6 +405,7 @@ class DictionaryEmitter(Emitter):
     def flatten_embedded_property(self, name, jsname, typ, is_list, of_many, not_optional, docstrings, depth_counter=0,
                                   parent_name=None):
         """Flatten a complex type."""
+
         # maximum depth, prevent RecursionError
         if depth_counter == 3:
             return
@@ -422,10 +424,9 @@ class DictionaryEmitter(Emitter):
         resource = typ()
         # iterate through children
 
-        # max 2
-        range_limit = 2
+        range_limit = 1
         if is_list:
-            range_limit = 1
+            range_limit = 1  # max 2 ?
 
         for list_counter in range(range_limit):
             is_first = True
@@ -437,11 +438,18 @@ class DictionaryEmitter(Emitter):
                 if typ.__name__ == 'Identifier' and c_name not in ['system', 'value', 'use']:
                     continue
                 # TODO add to model config
-                if typ.__name__ == 'Reference' and c_name not in ['reference', 'type']:
+                if typ.__name__ == 'FHIRReference' and c_name not in ['reference', 'type']:
+                    continue
+                # TODO add to model config
+                if typ.__name__ == 'CodeableConcept' and c_name not in ['code', 'display', 'system', 'coding']:
+                    continue
+                # TODO add to model config
+                if typ.__name__ == 'Coding' and c_name not in ['code', 'display', 'system']:
                     continue
 
                 if c_name in self.model.ignored_properties:
                     continue
+
                 c_docstring = ''
                 if c_name in resource.attribute_docstrings():
                     c_docstring = resource.attribute_docstrings()[c_name]
@@ -637,7 +645,7 @@ class TransformerEmitter(Emitter):
         if path not in self.open_files:
             self.open_files[path] = open(path, "w")
 
-        resource_model = self._data_dictionary[f"{type(resource).__name__}.yaml"]
+        resource_model = self._data_dictionary[f"{inflection.underscore(type(resource).__name__)}.yaml"]
         flattened = {k: v for k, v in flatten(resource.as_json(), separator='_').items() if
                      k in resource_model['properties'].keys()}
         id_ = resource.id
@@ -651,56 +659,6 @@ class TransformerEmitter(Emitter):
             self.open_files[path])
         self.open_files[path].write('\n')
 
-    def extract_resource(self, resource, link) -> List[LinkInstance]:
-        """Emit embedded resource."""
-        extracted_resources = getattr(resource, link.id)
-        if not extracted_resources:
-            return
-        if not isinstance(extracted_resources, list):
-            extracted_resources = [extracted_resources]
-        for extracted_resource in extracted_resources:
-            extracted_class = type(extracted_resource)
-
-            extracted_class_name = extracted_class.__name__
-            path = f'{self.work_dir}/{extracted_class_name}.ndjson'
-            if path not in self.open_files:
-                self.open_files[path] = open(path, "w")
-            id_ = None
-            if extracted_class_name == 'Coding':
-                id_ = f"{extracted_resource.system}?code={extracted_resource.code}"
-                if extracted_resource.version:
-                    id_ = f"{id_}&{extracted_resource.version}"
-            elif extracted_class_name == 'CodeableConcept':
-                ids = []
-                if extracted_resource.coding:
-                    for coding in extracted_resource.coding:
-                        coding_id = f"{coding.system}?code={coding.code}"
-                        if coding.version:
-                            coding_id = f"{id_}&{coding.version}"
-                        ids.append(coding_id)
-                else:
-                    ids.append(extracted_resource.text)
-                id_ = str(uuid.uuid3(ACED_CODEABLE_CONCEPT, '~'.join(ids)))
-            assert id_, "We should have calculated an id"
-            extracted_resource.id = id_
-            resource_model = self._data_dictionary[f"{type(extracted_resource).__name__}.yaml"]
-
-            if id_ not in self._seen_already:
-                flattened = {k: v for k, v in flatten(extracted_resource.as_json(), separator='_').items() if
-                             k in resource_model['properties'].keys()}
-                json.dump(
-                    {
-                        'id': id_,
-                        'object': flattened,
-                        "relations": [],
-                        "name": type(extracted_resource).__name__,
-                    },
-                    self.open_files[path]
-                )
-                self.open_files[path].write('\n')
-                self._seen_already.append(id_)
-            yield LinkInstance(dst_id=id_, dst_name=extracted_class_name, label=link.id)
-
     def process_links(self, resource) -> List[LinkInstance]:
         """Emits any embedded objects, returns a list of links."""
         links = self.model.entities[type(resource).__name__].links.values()
@@ -708,9 +666,7 @@ class TransformerEmitter(Emitter):
         for link in links:
             if link.ignore:
                 continue
-            if len([tp for tp in link.targetProfile if tp.split('/')[-1] in ['Coding', 'CodeableConcept']]) > 0:
-                links_to_return.extend(self.extract_resource(resource, link))
-                continue
+
             link_id = link.id
             if link_id not in vars(resource):
                 link_id = link_id + "_fhir"
@@ -729,10 +685,10 @@ class TransformerEmitter(Emitter):
                     er = getattr(er, 'valueReference')
                 if type(er) == FHIRReference:
                     dst_id = er.reference.split('/')[-1]
-                    dst_name = er.reference.split('/')[0]
+                    dst_name = inflection.underscore(er.reference.split('/')[0])
                 else:
                     dst_id = er.id
-                    dst_name = type(er).__name__
+                    dst_name = inflection.underscore(type(er).__name__)
                 links_to_return.append(LinkInstance(dst_id=dst_id, dst_name=dst_name, label=link.id))
         return links_to_return
 
@@ -743,19 +699,19 @@ def cli():
     pass
 
 
-@cli.group()
+@cli.group(chain=True)
 def schema():
     """Manage schema."""
     pass
 
 
-@cli.group()
+@cli.group(chain=True)
 def config():
     """Manage config."""
     pass
 
 
-@cli.group()
+@cli.group(chain=True)
 def data():
     """Manage data."""
     pass
@@ -1081,6 +1037,25 @@ def load_edges(files, connection, model, project_id, mapping, project_node_id):
         connection.commit()
 
 
+@data.command(name='init')
+@click.option('--db_host',
+              default=None,
+              show_default=True,
+              help='Connect to db using this host')
+@click.option('--input_path',
+              default='output/init_data',
+              show_default=True,
+              help='Path to static init data.')
+@click.option('--sheepdog_creds_path',
+              default='../compose-services/Secrets/sheepdog_creds.json',
+              show_default=True,
+              help='Path to sheepdog credentials.')
+def data_init(input_path,  sheepdog_creds_path, db_host, config_path):
+    """Add our program and project to a brand new gen3 instance."""
+    conn = connect_to_postgres(db_host=db_host, sheepdog_creds_path=sheepdog_creds_path)
+    assert conn
+
+
 @data.command(name='load')
 @click.option('--file_name_pattern',
               default='*.ndjson',
@@ -1125,19 +1100,7 @@ def data_load(input_path, file_name_pattern, sheepdog_creds_path, program_name, 
     model = initialize_model(config_path=config_path)
 
     # check db connection
-    sheepdog_creds = json.load(open(sheepdog_creds_path))
-    db_username = sheepdog_creds['db_username']
-    db_password = sheepdog_creds['db_password']
-    db_database = sheepdog_creds['db_database']
-    if not db_host:
-        db_host = sheepdog_creds['db_host']
-    conn = psycopg2.connect(
-        database=db_database,
-        user=db_username,
-        password=db_password,
-        host=db_host,
-        # port=DATABASE_CONFIG.get('port'),
-    )
+    conn = connect_to_postgres(db_host, sheepdog_creds_path)
     assert conn
     logger.info("Connected to postgres")
 
@@ -1172,6 +1135,24 @@ def data_load(input_path, file_name_pattern, sheepdog_creds_path, program_name, 
     logger.info("Loading edges")
     load_edges(files, conn, model, project_id, mappings, project_node_id)
     logger.info("Done")
+
+
+def connect_to_postgres(db_host, sheepdog_creds_path):
+    """Use credential file, overloaded with passed db host to connect."""
+    sheepdog_creds = json.load(open(sheepdog_creds_path))
+    db_username = sheepdog_creds['db_username']
+    db_password = sheepdog_creds['db_password']
+    db_database = sheepdog_creds['db_database']
+    if not db_host:
+        db_host = sheepdog_creds['db_host']
+    conn = psycopg2.connect(
+        database=db_database,
+        user=db_username,
+        password=db_password,
+        host=db_host,
+        # port=DATABASE_CONFIG.get('port'),
+    )
+    return conn
 
 
 @data.command(name='load-elastic')

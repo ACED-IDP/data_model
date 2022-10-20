@@ -1,42 +1,38 @@
 dependency_order:
-- Coding
-- CodeableConcept
-- Organization
-- Location
-- Practitioner
-- PractitionerRole
-- ResearchStudy
-- Patient
-- ResearchSubject
-- Specimen
-- Encounter
-- Observation
-- DiagnosticReport
-- Condition
-- Medication
-- MedicationRequest
-- ImagingStudy
-- Procedure
-- Questionnaire
-- QuestionnaireResponse
-- DocumentReference
-- Task
+  - Program
+  - Project
+  - Organization
+  - Location
+  - Practitioner
+  - PractitionerRole
+  - ResearchStudy
+  - Patient
+  - ResearchSubject
+  - Specimen
+  - Encounter
+  - Observation
+  - DiagnosticReport
+  - Condition
+  - Medication
+  - MedicationRequest
+  - ImagingStudy
+  - Procedure
+  - Questionnaire
+  - QuestionnaireResponse
+  - DocumentReference
+  - Task
 entities:
-  CodeableConcept:
-    category: Administrative
-    id: CodeableConcept
-    links: {}
-#      coding:
-#        ignore: false
-#        required: false
-#        targetProfile:
-#        - http://hl7.org/fhir/StructureDefinition/Coding
-    source: null
-  Coding:
-    category: Administrative
-    id: Coding
-    links: {}
-    source: null
+#  CodeableConcept:
+#    category: Administrative
+#    id: CodeableConcept
+#    links: {}
+#    source: null
+#  Coding:
+#    category: Administrative
+#    id: Coding
+#    links: {}
+#    source: null
+
   Condition:
     category: Clinical
     id: Condition
@@ -45,50 +41,20 @@ entities:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      bodySite:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      category:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      clinicalStatus:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      code:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       encounter:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Encounter
+          - 'http://hl7.org/fhir/StructureDefinition/Encounter'
       recorder:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      severity:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       subject:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Patient
-      verificationStatus:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/Patient'
     source: null
   DiagnosticReport:
     category: Clinical
@@ -98,53 +64,38 @@ entities:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      category:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      code:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      conclusionCode:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       encounter:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Encounter
+          - 'http://hl7.org/fhir/StructureDefinition/Encounter'
       imagingStudy:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/ImagingStudy
+          - 'http://hl7.org/fhir/StructureDefinition/ImagingStudy'
       performer:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Practitioner
-        - http://hl7.org/fhir/StructureDefinition/Organization
-        - http://hl7.org/fhir/StructureDefinition/PractitionerRole
+          - 'http://hl7.org/fhir/StructureDefinition/Practitioner'
+          - 'http://hl7.org/fhir/StructureDefinition/Organization'
+          - 'http://hl7.org/fhir/StructureDefinition/PractitionerRole'
       result:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Observation
+          - 'http://hl7.org/fhir/StructureDefinition/Observation'
       resultsInterpreter:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       specimen:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Specimen
+          - 'http://hl7.org/fhir/StructureDefinition/Specimen'
       subject:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Patient
+          - 'http://hl7.org/fhir/StructureDefinition/Patient'
     source: null
   DocumentReference:
     category: data_file
@@ -154,52 +105,28 @@ entities:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       author:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      category:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-#      content:
-#        ignore: false
-#        required: false
-#        targetProfile:
-#        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      context:
-        ignore: true
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       custodian:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       relatesTo:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      securityLabel:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       subject:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Patient
-      type:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-    source: https://nih-ncpi.github.io/ncpi-fhir-ig/StructureDefinition-ncpi-drs-document-reference.json
+          - 'http://hl7.org/fhir/StructureDefinition/Patient'
+    source: >-
+      https://nih-ncpi.github.io/ncpi-fhir-ig/StructureDefinition-ncpi-drs-document-reference.json
   Encounter:
     category: Clinical
     id: Encounter
@@ -208,67 +135,41 @@ entities:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       appointment:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       basedOn:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      class_fhir:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Coding
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       episodeOfCare:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       partOf:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      priority:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      reasonCode:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       reasonReference:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       serviceProvider:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      serviceType:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       subject:
-        ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      type:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/Patient'
     source: null
   ImagingStudy:
     category: Clinical
@@ -278,62 +179,47 @@ entities:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       encounter:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       endpoint:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       interpreter:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       location:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      modality:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Coding
-      procedureCode:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       procedureReference:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      reasonCode:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       reasonReference:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       referrer:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       subject:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/Patient'
     source: null
   Location:
     category: Administrative
@@ -343,52 +229,27 @@ entities:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       managingOrganization:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      operationalStatus:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Coding
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       partOf:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      physicalType:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      type:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
     source: null
   Medication:
     category: Clinical
     id: Medication
     links:
-      code:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      form:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
       manufacturer:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
     source: null
   MedicationRequest:
     category: Clinical
@@ -398,101 +259,69 @@ entities:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      category:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      courseOfTherapyType:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       detectedIssue:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       encounter:
-        ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/Encounter'
       eventHistory:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       insurance:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      medicationCodeableConcept:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       medicationReference:
-        ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/Medication'
       performer:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      performerType:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       priorPrescription:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      reasonCode:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       reasonReference:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       recorder:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       reportedReference:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       requester:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      statusReason:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       subject:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Patient
+          - 'http://hl7.org/fhir/StructureDefinition/Patient'
       supportingInformation:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
     source: null
   Observation:
     category: Clinical
@@ -502,91 +331,51 @@ entities:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      bodySite:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      category:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      code:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      dataAbsentReason:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       derivedFrom:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       device:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       encounter:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Encounter
+          - 'http://hl7.org/fhir/StructureDefinition/Encounter'
       focus:
+        ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Patient
-        - http://hl7.org/fhir/StructureDefinition/Specimen
+          - 'http://hl7.org/fhir/StructureDefinition/Patient'
+          - 'http://hl7.org/fhir/StructureDefinition/Specimen'
       hasMember:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      interpretation:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      method:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       partOf:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       performer:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      referenceRange:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       specimen:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Specimen
+          - 'http://hl7.org/fhir/StructureDefinition/Specimen'
       subject:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Patient
-        - http://hl7.org/fhir/StructureDefinition/Specimen
-        - http://hl7.org/fhir/StructureDefinition/ResearchStudy
-      valueCodeableConcept:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/Patient'
+          - 'http://hl7.org/fhir/StructureDefinition/ResearchStudy'
     source: null
   Organization:
     category: Administrative
@@ -596,17 +385,12 @@ entities:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       partOf:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      type:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
     source: null
   Patient:
     category: Administrative
@@ -615,66 +399,44 @@ entities:
       generalPractitioner:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Practitioner
+          - 'http://hl7.org/fhir/StructureDefinition/Practitioner'
       managingOrganization:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Organization
-      maritalStatus:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/Organization'
     source: null
   Practitioner:
     category: Administrative
     id: Practitioner
-    links:
-      communication:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+    links: {}
     source: null
   PractitionerRole:
     category: Administrative
     id: PractitionerRole
     links:
-      code:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
       endpoint:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       healthcareService:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       location:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       organization:
-        ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/Organization'
       practitioner:
-        ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      specialty:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/Practitioner'
     source: null
   Procedure:
     category: Clinical
@@ -684,182 +446,95 @@ entities:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       basedOn:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      bodySite:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      category:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      code:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      complication:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       complicationDetail:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       encounter:
-        ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      followUp:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/Encounter'
       location:
-        ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      outcome:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/Location'
       partOf:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      reasonCode:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       reasonReference:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       recorder:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       report:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      statusReason:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       subject:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      usedCode:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       usedReference:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
     source: null
   ResearchStudy:
     category: Administrative
     id: ResearchStudy
     links:
-      category:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      condition:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
       enrollment:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      focus:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      keyword:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      location:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       partOf:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      phase:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      primaryPurposeType:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       principalInvestigator:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       project:
         ignore: false
         required: true
         targetProfile:
-        - project
+          - project
       protocol:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      reasonStopped:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       site:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       sponsor:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
     source: null
   ResearchSubject:
     category: Administrative
@@ -869,43 +544,33 @@ entities:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       individual:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Patient
+          - 'http://hl7.org/fhir/StructureDefinition/Patient'
       study:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/ResearchStudy
+          - 'http://hl7.org/fhir/StructureDefinition/ResearchStudy'
     source: null
   Specimen:
     category: Biospecimen
     id: Specimen
     links:
-      condition:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
       parent:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Specimen
+          - 'http://hl7.org/fhir/StructureDefinition/Specimen'
       request:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       subject:
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Patient
-      type:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/Patient'
     source: null
   Task:
     category: Analysis
@@ -915,99 +580,73 @@ entities:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      businessStatus:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      code:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       encounter:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       focus:
-        ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/Specimen'
       for:
         ignore: false
         required: true
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/Patient
+          - 'http://hl7.org/fhir/StructureDefinition/Patient'
       for_fhir:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       insurance:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       location:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       output:
         ignore: false
         required: true
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/DocumentReference
+          - 'http://hl7.org/fhir/StructureDefinition/DocumentReference'
       owner:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       partOf:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      performerType:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-      reasonCode:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       reasonReference:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       relevantHistory:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
       requester:
         ignore: true
         required: false
         targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/%UNKNOWN%
-      statusReason:
-        ignore: false
-        required: false
-        targetProfile:
-        - http://hl7.org/fhir/StructureDefinition/CodeableConcept
-    source: https://nih-ncpi.github.io/ncpi-fhir-ig/StructureDefinition-ncpi-specimen-task.json
+          - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
+    source: >-
+      https://nih-ncpi.github.io/ncpi-fhir-ig/StructureDefinition-ncpi-specimen-task.json
 ignored_properties:
-- contained
-- meta
-- implicitRules
-- language
-- contained
-- modifierExtension
-- assigner
-
+  - contained
+  - meta
+  - implicitRules
+#  - language
+  - contained
+  - modifierExtension
+  - assigner
