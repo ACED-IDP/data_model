@@ -1,5 +1,6 @@
 # CLI processor
 Click==8.1.3
+pyjwt
 
 # our fork of pelican that supports 3.9
 git+https://github.com/ACED-IDP/pelican.git@chore/python-version
@@ -18,3 +19,10 @@ inflection
 PyYAML==6.0
 
 pydantic
+
+# "stock" gen3 - the version on https://pypi.org/project/gen3/ 4.14.0 does not have the bucket change
+# gen3
+
+# uchicago official repo - has the bucket change https://github.com/uc-cdis/gen3sdk-python/pull/160
+https://github.com/uc-cdis/gen3sdk-python/archive/master.zip
+
