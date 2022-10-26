@@ -238,6 +238,7 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
     dna_document_references = []
     imaging_diagnostic_reports = []
     imaging_document_references = []
+    clinical_note_references = []
     patient = None
     additional_entries = []
     conditions = []
@@ -267,8 +268,10 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
             data = base64.b64decode(e.resource.content[0].attachment.data).decode("utf-8")
             if "_dna.csv" in data:
                 dna_document_references.append(e.resource)
-            if '.dcm' in data:
+            elif '.dcm' in data:
                 imaging_document_references.append(e.resource)
+            else:
+                clinical_note_references.append(e.resource)
 
         if e.resource.resource_type == 'Condition':
             conditions.append(e.resource)
@@ -307,6 +310,12 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
             document_reference = dna_document_references[0]
             # clone the document reference, create new one with url
             document_reference_with_url = DocumentReference(document_reference.as_json())
+
+            document_reference_with_url.status = "current"
+            document_reference_with_url.category[0].coding[0].system = "http://loinc.org"
+            document_reference_with_url.category[0].coding[0].code = "100029-8"
+            document_reference_with_url.category[0].coding[0].display = "Cancer related multigene analysis Molgen Doc (cfDNA)"
+
             data = base64.b64decode(document_reference_with_url.content[0].attachment.data).decode("utf-8")
             lines = data.split('\n')
             line_with_file_info = next(
@@ -314,6 +323,13 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
             assert line_with_file_info
             path_from_report = line_with_file_info.split(' ')[-1]
             assert '_dna.csv' in path_from_report, f"{file_path}\n{data}\n{line_with_file_info}"
+
+            # remove name from file
+            redacted_path_from_report = redact_file_name(path_from_report, patient)
+            if redacted_path_from_report != path_from_report:
+                os.rename(path_from_report, redacted_path_from_report)
+                path_from_report = redacted_path_from_report
+
             # alter attachment
             document_reference_with_url.content[0].attachment.data = None
             document_reference_with_url.content[0].attachment.url = path_from_report
@@ -357,6 +373,12 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
             document_reference = imaging_document_references[0]
             # clone the document reference, create new one with url
             document_reference_with_url = DocumentReference(document_reference.as_json())
+
+            document_reference_with_url.status = "current"
+            document_reference_with_url.category[0].coding[0].system = "http://terminology.hl7.org/CodeSystem/media-category"
+            document_reference_with_url.category[0].coding[0].code = "image"
+            document_reference_with_url.category[0].coding[0].display = "Image"
+
             data = base64.b64decode(document_reference_with_url.content[0].attachment.data).decode("utf-8")
             lines = data.split('\n')
             line_with_file_info = next(
@@ -365,6 +387,12 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
             path_from_report = line_with_file_info.split(' ')[-1]
             assert '.dcm' in path_from_report, f"{file_path}\n{data}\n{line_with_file_info}"
             # alter attachment
+
+            # remove name from file
+            redacted_path_from_report = redact_file_name(path_from_report, patient)
+            if redacted_path_from_report != path_from_report:
+                os.rename(path_from_report, redacted_path_from_report)
+                path_from_report = redacted_path_from_report
 
             document_reference_with_url.content[0].attachment.data = None
             document_reference_with_url.content[0].attachment.url = path_from_report
@@ -384,6 +412,29 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
             document_reference_with_url.id = str(uuid.uuid5(uuid.UUID(imaging_diagnostic_report.id), 'document_reference_with_url'))
             additional_entries.append(document_reference_with_url)
             # logging.info(f"Added dicom document_reference to bundle in {file_path}")
+
+    if len(clinical_note_references) > 0:
+        for document_reference in clinical_note_references:
+            # write data as a file
+            data = base64.b64decode(document_reference.content[0].attachment.data).decode("utf-8")
+            data = data.replace(patient.name[0].given[0], '')
+            path = f"./output/clinical_reports/{patient.id}_{document_reference.id}.txt"
+            with open(path, "w") as f:
+                f.write(data)
+            # alter attachment
+            document_reference.content[0].attachment.data = None
+            document_reference.content[0].attachment.url = path
+            md5, file_size = _file_attributes(path)
+            document_reference.content[0].attachment.size = file_size
+            if not document_reference.content[0].attachment.extension:
+                document_reference.content[0].attachment.extension = []
+            document_reference.content[0].attachment.extension.append(
+                Extension({
+                    "url": "http://aced-idp.org/fhir/StructureDefinition/md5",
+                    "valueString": md5
+                    }
+                )
+            )
 
     # add entries to bundle
     for additional_entry in additional_entries:
@@ -408,6 +459,17 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
         'bundle_file_path': output_file,
         'add_to_research_study_bundle': add_to_research_study_bundle
     }
+
+
+def redact_file_name(path, patient):
+    """Remove patient name from path, assumes given_family_XXXX.XXXX"""
+    file_name = path.split('/')[-1]
+    first_part = file_name.split('_')[:1][0].lower()
+    given_name = patient.name[0].given[0].lower()
+    if given_name != first_part:
+        return path
+    redacted_file_name = '_'.join(path.split('_')[2:])
+    return path.replace(file_name, redacted_file_name)
 
 
 class StudyManifest(BaseModel):
@@ -533,8 +595,7 @@ def ingest(coherent_path, output_path, file_name_pattern, minimum_file_count):
 
     # get coherent files
     file_paths = list(fhir_path.glob(file_name_pattern))
-    assert len(file_paths) >= minimum_file_count, f"{str(fhir_path)}.{file_name_pattern} only returned"
-    f"{len(file_paths)} expected at least {minimum_file_count}"
+    assert len(file_paths) >= minimum_file_count, f"{str(fhir_path)}.{file_name_pattern} only returned {len(file_paths)} expected at least {minimum_file_count}"
 
     # set up multi-processing
     tic = time.perf_counter()
