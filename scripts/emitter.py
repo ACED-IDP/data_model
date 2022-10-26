@@ -1,15 +1,19 @@
+#!/usr/bin/env python3
 import abc
+import base64
 import collections
 import importlib
 import io
 import json
 import logging
+import multiprocessing
 import os
 import pathlib
+import urllib
 import uuid
 from collections import defaultdict
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, time
 from itertools import islice
 from pathlib import Path
 from typing import Dict, Iterator, List, Optional, OrderedDict, Any, ClassVar, IO
@@ -17,12 +21,20 @@ from typing import Dict, Iterator, List, Optional, OrderedDict, Any, ClassVar, I
 import click
 import fhirclient
 import inflection
+import jwt
 import psycopg2
+import requests
 import yaml
 from dictionaryutils import DataDictionary, dictionary, dump_schemas_from_dir
+from fhirclient.models.attachment import Attachment
 from fhirclient.models.bundle import Bundle
 from fhirclient.models.fhirreference import FHIRReference
+from fhirclient.models.patient import Patient
 from flatten_json import flatten
+from gen3.auth import Gen3Auth
+from gen3.file import Gen3File
+from gen3.index import Gen3Index
+from gen3.submission import Gen3Submission
 from pelican.dictionary import DataDictionaryTraversal
 from pydantic import BaseModel, PrivateAttr
 
@@ -314,6 +326,80 @@ class DictionaryEmitter(Emitter):
         for property_name, schema_property in self.render_property(entity=entity, resource=resource):
             schema_['properties'][property_name] = schema_property
 
+        if entity.id == 'Patient':
+            for index_ in range(8):
+                snippet = f"""
+                  extension_{index_}_url:
+                    description: Additional content defined by implementations..
+                      identifies the meaning of the extension.
+                    type:
+                    - string
+                    - 'null'                    
+                  extension_{index_}_valueString:
+                    description: Value of extension.
+                    type:
+                    - string
+                    - 'null'                            
+                  extension_{index_}_valueDecimal:
+                    description: Value of extension.
+                    type:
+                    - number
+                    - 'null'
+                  extension_{index_}_valueCode:
+                    description: Value of extension.
+                    type:
+                    - string
+                    - 'null'                    
+                  extension_{index_}_extension_0_url:
+                    description: Additional content defined by implementations..
+                      identifies the meaning of the extension.
+                    type:
+                    - string
+                    - 'null'
+                  extension_{index_}_extension_1_url:
+                    description: Additional content defined by implementations..
+                      identifies the meaning of the extension.
+                    type:
+                    - string
+                    - 'null'
+                  extension_{index_}_extension_1_valueString:
+                    description: Value of extension.
+                    type:
+                    - string
+                    - 'null'                            
+                  extension_{index_}_extension_0_valueCoding_code:
+                    description: Symbol in syntax defined by the system.
+                    type:
+                    - string
+                    - 'null'
+                  extension_{index_}_extension_0_valueCoding_display:
+                    description: Representation defined by the system.
+                    type:
+                    - string
+                    - 'null'
+
+                """
+                snippet = yaml.load(snippet, Loader=yaml.SafeLoader)
+                for k, v in snippet.items():
+                    schema_['properties'][k] = v
+
+        if entity.id == 'DocumentReference':
+            snippet = """
+              content_0_attachment_extension_0_url:
+                description: Where to access the document.. Additional content defined by implementations..
+                  identifies the meaning of the extension.
+                type:
+                - string
+              content_0_attachment_extension_0_valueString:
+                description: Value of extension.
+                type:
+                - string
+                - 'null'            
+            """
+            snippet = yaml.load(snippet, Loader=yaml.SafeLoader)
+            for k, v in snippet.items():
+                schema_['properties'][k] = v
+
         if entity.id == 'DocumentReference':
             snippet = """
               $ref: "_definitions.yaml#/data_file_properties"
@@ -402,8 +488,38 @@ class DictionaryEmitter(Emitter):
             if not_optional:
                 yield name
 
+    def render_property(self, entity, resource) -> tuple[str, dict]:
+        """Render the property type and description."""
+
+        for name, jsname, typ, is_list, of_many, not_optional in self.resource_properties(resource):
+            # don't generate a property for edges
+            if name in entity.links:
+                continue
+            if name in self.model.ignored_properties:
+                # msg = f"Ignoring {entity.id} {name} (ignored_properties)"
+                # if first_occurrence(msg):
+                #     logger.warning(msg)
+                continue
+
+            docstring = ''
+            # TODO - hierarchy of docstrings?
+            if name in resource.attribute_docstrings():
+                docstring = resource.attribute_docstrings()[name]
+            docstrings = [docstring]
+
+            if typ.__name__ not in DictionaryEmitter.ALL_MAPPED_TYPES:
+                # expand embedded type
+                for expanded in self.flatten_embedded_property(name, jsname, typ, is_list, of_many, not_optional,
+                                                               docstrings, parent_type=typ):
+                    yield expanded
+                continue
+
+            schema_property = self.create_schema_property(docstrings, name, not_optional, resource, typ)
+
+            yield _normalize_property_name(name), schema_property
+
     def flatten_embedded_property(self, name, jsname, typ, is_list, of_many, not_optional, docstrings, depth_counter=0,
-                                  parent_name=None):
+                                  parent_name=None, parent_type=None):
         """Flatten a complex type."""
 
         # maximum depth, prevent RecursionError
@@ -411,15 +527,19 @@ class DictionaryEmitter(Emitter):
             return
         depth_counter += 1
 
+        check_redaction = True
+
         # ignore anything that is redacted
-        for path in self._redacted_classes:
-            if '.' in path:
-                continue
-            if typ.__name__ in path:
-                msg = f"Anonymizer Ignoring expansion of {typ.__name__}"
-                if first_occurrence(msg):
-                    logger.warning(msg)
-                return
+        if check_redaction:
+            for path in self._redacted_classes:
+                if '.' in path:
+                    continue
+                # TODO - move to config file
+                if typ.__name__ in path:
+                    msg = f"Ignoring {typ.__name__} (Anonymizer)"
+                    if first_occurrence(msg):
+                        logger.warning(msg)
+                    return
 
         resource = typ()
         # iterate through children
@@ -427,6 +547,9 @@ class DictionaryEmitter(Emitter):
         range_limit = 1
         if is_list:
             range_limit = 1  # max 2 ?
+
+        if parent_type == Patient:
+            print("?")
 
         for list_counter in range(range_limit):
             is_first = True
@@ -474,38 +597,13 @@ class DictionaryEmitter(Emitter):
                     # expand embedded type
                     for expanded in self.flatten_embedded_property(c_name, c_jsname, c_typ, c_is_list, c_of_many,
                                                                    c_not_optional, c_docstrings, depth_counter,
-                                                                   parent_name=property_name):
+                                                                   parent_name=property_name,
+                                                                   parent_type=typ):
                         yield expanded
                     continue
 
                 schema_property = self.create_schema_property(c_docstrings, c_name, c_not_optional, resource, c_typ)
                 yield _normalize_property_name(property_name), schema_property
-
-    def render_property(self, entity, resource) -> tuple[str, dict]:
-        """Render the property type and description."""
-        for name, jsname, typ, is_list, of_many, not_optional in self.resource_properties(resource):
-            # don't generate a property for edges
-            if name in entity.links:
-                continue
-            if name in self.model.ignored_properties:
-                continue
-
-            docstring = ''
-            # TODO - hierarchy of docstrings?
-            if name in resource.attribute_docstrings():
-                docstring = resource.attribute_docstrings()[name]
-            docstrings = [docstring]
-
-            if typ.__name__ not in DictionaryEmitter.ALL_MAPPED_TYPES:
-                # expand embedded type
-                for expanded in self.flatten_embedded_property(name, jsname, typ, is_list, of_many, not_optional,
-                                                               docstrings):
-                    yield expanded
-                continue
-
-            schema_property = self.create_schema_property(docstrings, name, not_optional, resource, typ)
-
-            yield _normalize_property_name(name), schema_property
 
     @staticmethod
     def create_schema_property(docstrings, name, not_optional, resource, typ):
@@ -648,7 +746,11 @@ class TransformerEmitter(Emitter):
         resource_model = self._data_dictionary[f"{inflection.underscore(type(resource).__name__)}.yaml"]
         flattened = {k: v for k, v in flatten(resource.as_json(), separator='_').items() if
                      k in resource_model['properties'].keys()}
+        # flattened = flatten(resource.as_json(), separator='_')
+
         id_ = resource.id
+        if 'submitter_id' not in flattened:
+            flattened['submitter_id'] = id_
         json.dump(
             {
                 'id': id_,
@@ -926,7 +1028,6 @@ def data_transform(input_path, file_name_pattern, config_path, anonymizer_config
                              bundle_entry.resource.resource_type == "ResearchSubject"]
         sources = sorted(research_subject.meta.source for research_subject in research_subjects if
                          research_subject.meta.source not in already_added)
-        # sources = sources[:4]  # truncate for testing
         # sources = [s for s in sources if "Adam631_" in s]  # testing
         sources.append(file_path)  # add study bundle
         for source in sources:
@@ -1037,6 +1138,127 @@ def load_edges(files, connection, model, project_id, mapping, project_node_id):
         connection.commit()
 
 
+def extract_endpoint(gen3_credentials_file):
+    """Get base url of jwt issuer claim."""
+    with open(gen3_credentials_file) as input_stream:
+        api_key = json.load(input_stream)['api_key']
+        claims = jwt.decode(api_key, options={"verify_signature": False})
+        assert 'iss' in claims
+        return claims['iss'].replace('/user', '')
+
+
+def upload_document_reference_and_decorate(document_reference, bucket_name, file_client, index_client, program,
+                                           project):
+    """Write to indexd."""
+
+    # map fields hard coded by windmill portal
+    # data_types & data_format, file_name
+    if 'content_0_attachment_url' not in document_reference:
+        logger.error(('content_0_attachment_url not set', document_reference))
+        return document_reference
+    document_reference['data_type'] = document_reference['content_0_attachment_url'].split('.')[-1]
+    if document_reference['data_type'] in ['csv']:
+        document_reference['data_format'] = 'variants'
+    if document_reference['data_type'] in ['dcm']:
+        document_reference['data_format'] = 'imaging'
+    if document_reference['data_type'] in ['txt']:
+        document_reference['data_format'] = 'note'
+    document_reference['file_name'] = document_reference['content_0_attachment_url']
+    document_reference['file_size'] = 0
+    if document_reference['content_0_attachment_size']:
+        document_reference['file_size'] = int(document_reference['content_0_attachment_size'])
+    assert document_reference['content_0_attachment_extension_0_url'] == "http://aced-idp.org/fhir/StructureDefinition/md5"
+    md5sum = document_reference["content_0_attachment_extension_0_valueString"]
+    object_name = document_reference['file_name'].lstrip('./')
+
+    # create a record in gen3, get a signed url
+    document = file_client.upload_file(object_name, bucket=bucket_name)
+    assert 'guid' in document, document
+    assert 'url' in document, document
+    signed_url = urllib.parse.unquote(document['url'])
+    guid = document['guid']
+    hashes = {'md5': md5sum}
+    metadata = {
+        **{
+            'datanode_type': 'DocumentReference',
+            'datanode_submitter_id': document_reference['submitter_id'],
+            'datanode_object_id': guid
+        },
+        **hashes}
+
+    with open(document_reference['file_name'], 'rb') as data_f:
+        # When you use this header, Amazon S3 checks the object against the provided MD5 value and,
+        # if they do not match, returns an error.
+        content_md5 = base64.b64encode(bytes.fromhex(md5sum))
+        headers = {'Content-MD5': content_md5}
+        # Our meta data
+        for key, value in metadata.items():
+            headers[f"x-amz-meta-{key}"] = value
+        r = requests.put(signed_url, data=data_f, headers=headers)
+        assert r.status_code == 200, (signed_url, r.text)
+        logger.info(f"Successfully uploaded file \"{document_reference['file_name']}\" to GUID {guid}")
+
+        # update the indexd record with urls, authz, size and hashes
+        indexd_record = index_client.get_record(guid)
+        assert 'rev' in indexd_record, indexd_record
+        rev = indexd_record['rev']
+        r = index_client.update_blank(guid, rev, hashes=hashes, size=document_reference["file_size"])
+
+        urls = [f"s3://{bucket_name}/{guid}/{object_name}"]
+        authz = [f'/programs/{program}/projects/{project}']
+
+        response_dict = index_client.update_record(guid=guid, version=rev,
+                                                   file_name=document_reference['file_name'],
+                                                   authz=authz, urls=urls,
+                                                   metadata=metadata)
+        assert response_dict
+        document_reference['object_id'] = guid
+        return document_reference
+
+
+@data.command(name='upload-files')
+@click.option('--bucket_name', default='aced-default', show_default=True,
+              help='Destination bucket name')
+@click.option('--document_reference_path', required=True, default=None, show_default=True,
+              help='Path to DocumentReference.ndjson')
+@click.option('--program', default='MyFirstProgram', show_default=True,
+              help='Gen3 program')
+@click.option('--project', default='MyFirstProject', show_default=True,
+              help='Gen3 project')
+@click.option('--credentials_file', default='credentials.json', show_default=True,
+              help='API credentials file downloaded from gen3 profile.')
+@click.pass_context
+def upload_document_reference(ctx, bucket_name, document_reference_path, program, project, credentials_file):
+    """Upload data file found in DocumentReference.ndjson"""
+    endpoint = extract_endpoint(credentials_file)
+    logger.info(endpoint)
+    logger.debug(f"Read {credentials_file} endpoint {endpoint}")
+    auth = Gen3Auth(endpoint, refresh_file=credentials_file)
+    file_client = Gen3File(endpoint, auth)
+    index_client = Gen3Index(endpoint, auth)
+
+    # tic = time.perf_counter()
+    # pool_count = max(multiprocessing.cpu_count() - 1, 1)
+    # pool = multiprocessing.Pool(pool_count)
+
+    with open(document_reference_path + '.tmp', "w") as output_f:
+        with open(document_reference_path) as input_f:
+            for line in input_f.readlines():
+                record = json.loads(line)
+                document_reference = record['object']
+                document_reference = upload_document_reference_and_decorate(
+                    document_reference=document_reference,
+                    file_client=file_client,
+                    bucket_name=bucket_name,
+                    index_client=index_client,
+                    program=program,
+                    project=project
+                )
+                record['object'] = document_reference
+                json.dump(record, output_f, separators=(',', ':'))
+                output_f.write('\n')
+
+
 @data.command(name='init')
 @click.option('--db_host',
               default=None,
@@ -1086,11 +1308,11 @@ def data_init(input_path,  sheepdog_creds_path, db_host, config_path):
               show_default=True,
               help='Path to config file.')
 @click.option('--dictionary_path',
-              default=None,
+              default='output/gen3',
               show_default=True,
               help='Path to data dictionary file.')
 @click.option('--dictionary_url',
-              default='https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json',
+              default=None,  # 'https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json',
               show_default=True,
               help='Data dictionary url.')
 def data_load(input_path, file_name_pattern, sheepdog_creds_path, program_name, project_code, db_host, config_path,
