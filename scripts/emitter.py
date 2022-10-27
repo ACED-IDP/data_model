@@ -1196,7 +1196,7 @@ def upload_document_reference_and_decorate(document_reference, bucket_name, file
             headers[f"x-amz-meta-{key}"] = value
         r = requests.put(signed_url, data=data_f, headers=headers)
         assert r.status_code == 200, (signed_url, r.text)
-        logger.info(f"Successfully uploaded file \"{document_reference['file_name']}\" to GUID {guid}")
+        logger.info(f"Successfully uploaded file \"{document_reference['file_name']}\" to {bucket_name} {guid} {signed_url}")
 
         # update the indexd record with urls, authz, size and hashes
         indexd_record = index_client.get_record(guid)
