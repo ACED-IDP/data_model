@@ -1,5 +1,9 @@
 # CLI processor
-Click==8.1.3
+# Click==8.1.3
+click
+pyjwt
+mergedeep
+flatten_json
 
 # our fork of pelican that supports 3.9
 git+https://github.com/ACED-IDP/pelican.git@chore/python-version
@@ -7,14 +11,21 @@ git+https://github.com/ACED-IDP/pelican.git@chore/python-version
 # python3 -c "from pelican.dictionary import init_dictionary, DataDictionaryTraversal; print('ok')"
 
 # postgres
-psycopg2
+psycopg2-binary
 
 # fhirclient
--e git+https://github.com/bmeg/client-py.git@25d9506696beb212d173b70788c1bcf10e30e9c9#egg=fhirclientr4e
+https://github.com/bmeg/client-py/archive/feature/embedded-schema.zip
 
 # pluralization
 inflection
 
-PyYAML==6.0
+PyYAML<6.0
 
 pydantic
+
+# "stock" gen3 - the version on https://pypi.org/project/gen3/ 4.14.0 does not have the bucket change
+# gen3
+
+# uchicago official repo - has the bucket change https://github.com/uc-cdis/gen3sdk-python/pull/160
+https://github.com/uc-cdis/gen3sdk-python/archive/master.zip
+

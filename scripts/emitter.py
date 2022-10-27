@@ -1,15 +1,19 @@
+#!/usr/bin/env python3
 import abc
+import base64
 import collections
 import importlib
 import io
 import json
 import logging
+import multiprocessing
 import os
 import pathlib
+import urllib
 import uuid
 from collections import defaultdict
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, time
 from itertools import islice
 from pathlib import Path
 from typing import Dict, Iterator, List, Optional, OrderedDict, Any, ClassVar, IO
@@ -17,12 +21,20 @@ from typing import Dict, Iterator, List, Optional, OrderedDict, Any, ClassVar, I
 import click
 import fhirclient
 import inflection
+import jwt
 import psycopg2
+import requests
 import yaml
 from dictionaryutils import DataDictionary, dictionary, dump_schemas_from_dir
+from fhirclient.models.attachment import Attachment
 from fhirclient.models.bundle import Bundle
 from fhirclient.models.fhirreference import FHIRReference
+from fhirclient.models.patient import Patient
 from flatten_json import flatten
+from gen3.auth import Gen3Auth
+from gen3.file import Gen3File
+from gen3.index import Gen3Index
+from gen3.submission import Gen3Submission
 from pelican.dictionary import DataDictionaryTraversal
 from pydantic import BaseModel, PrivateAttr
 
@@ -281,8 +293,9 @@ class DictionaryEmitter(Emitter):
                 template=self.template,
                 model=self.model,
                 resource_type=resource.__class__)
+
             if schema_:
-                path = f'{self.work_dir}/{type(resource).__name__}.yaml'
+                path = f'{self.work_dir}/{inflection.underscore(type(resource).__name__)}.yaml'
                 self.open_files[path] = open(path, "w")
                 yaml.dump(
                     schema_,
@@ -303,7 +316,7 @@ class DictionaryEmitter(Emitter):
             return None
         schema_ = deepcopy(template)
         entity = model.entities[resource_type.__name__]
-        schema_['id'] = entity.id
+        schema_['id'] = inflection.underscore(entity.id)
         schema_['title'] = entity.id
         schema_['category'] = entity.category
         schema_['description'] = resource.__doc__ + f" http://hl7.org/fhir/{entity.id.lower()}"
@@ -312,6 +325,80 @@ class DictionaryEmitter(Emitter):
                                self.render_required(resource=resource)]
         for property_name, schema_property in self.render_property(entity=entity, resource=resource):
             schema_['properties'][property_name] = schema_property
+
+        if entity.id == 'Patient':
+            for index_ in range(8):
+                snippet = f"""
+                  extension_{index_}_url:
+                    description: Additional content defined by implementations..
+                      identifies the meaning of the extension.
+                    type:
+                    - string
+                    - 'null'                    
+                  extension_{index_}_valueString:
+                    description: Value of extension.
+                    type:
+                    - string
+                    - 'null'                            
+                  extension_{index_}_valueDecimal:
+                    description: Value of extension.
+                    type:
+                    - number
+                    - 'null'
+                  extension_{index_}_valueCode:
+                    description: Value of extension.
+                    type:
+                    - string
+                    - 'null'                    
+                  extension_{index_}_extension_0_url:
+                    description: Additional content defined by implementations..
+                      identifies the meaning of the extension.
+                    type:
+                    - string
+                    - 'null'
+                  extension_{index_}_extension_1_url:
+                    description: Additional content defined by implementations..
+                      identifies the meaning of the extension.
+                    type:
+                    - string
+                    - 'null'
+                  extension_{index_}_extension_1_valueString:
+                    description: Value of extension.
+                    type:
+                    - string
+                    - 'null'                            
+                  extension_{index_}_extension_0_valueCoding_code:
+                    description: Symbol in syntax defined by the system.
+                    type:
+                    - string
+                    - 'null'
+                  extension_{index_}_extension_0_valueCoding_display:
+                    description: Representation defined by the system.
+                    type:
+                    - string
+                    - 'null'
+
+                """
+                snippet = yaml.load(snippet, Loader=yaml.SafeLoader)
+                for k, v in snippet.items():
+                    schema_['properties'][k] = v
+
+        if entity.id == 'DocumentReference':
+            snippet = """
+              content_0_attachment_extension_0_url:
+                description: Where to access the document.. Additional content defined by implementations..
+                  identifies the meaning of the extension.
+                type:
+                - string
+              content_0_attachment_extension_0_valueString:
+                description: Value of extension.
+                type:
+                - string
+                - 'null'            
+            """
+            snippet = yaml.load(snippet, Loader=yaml.SafeLoader)
+            for k, v in snippet.items():
+                schema_['properties'][k] = v
 
         if entity.id == 'DocumentReference':
             snippet = """
@@ -356,9 +443,9 @@ class DictionaryEmitter(Emitter):
             disambiguate = True
 
             for target_profile in target_profiles:
-                target_type = target_profile.split('/')[-1]
+                target_type = inflection.underscore(target_profile.split('/')[-1])
                 # ent = inflection.camelize(entity.id, uppercase_first_letter=False)
-                backref = f"{link_key}_{inflection.pluralize(entity.id)}"
+                backref = inflection.underscore(inflection.pluralize(entity.id))
                 # f"{ent}_{inflection.pluralize(link_key)}"
                 # inflection.camelize(inflection.pluralize(entity.id),uppercase_first_letter=False)
                 # name = inflection.pluralize(target_type)
@@ -401,31 +488,68 @@ class DictionaryEmitter(Emitter):
             if not_optional:
                 yield name
 
+    def render_property(self, entity, resource) -> tuple[str, dict]:
+        """Render the property type and description."""
+
+        for name, jsname, typ, is_list, of_many, not_optional in self.resource_properties(resource):
+            # don't generate a property for edges
+            if name in entity.links:
+                continue
+            if name in self.model.ignored_properties:
+                # msg = f"Ignoring {entity.id} {name} (ignored_properties)"
+                # if first_occurrence(msg):
+                #     logger.warning(msg)
+                continue
+
+            docstring = ''
+            # TODO - hierarchy of docstrings?
+            if name in resource.attribute_docstrings():
+                docstring = resource.attribute_docstrings()[name]
+            docstrings = [docstring]
+
+            if typ.__name__ not in DictionaryEmitter.ALL_MAPPED_TYPES:
+                # expand embedded type
+                for expanded in self.flatten_embedded_property(name, jsname, typ, is_list, of_many, not_optional,
+                                                               docstrings, parent_type=typ):
+                    yield expanded
+                continue
+
+            schema_property = self.create_schema_property(docstrings, name, not_optional, resource, typ)
+
+            yield _normalize_property_name(name), schema_property
+
     def flatten_embedded_property(self, name, jsname, typ, is_list, of_many, not_optional, docstrings, depth_counter=0,
-                                  parent_name=None):
+                                  parent_name=None, parent_type=None):
         """Flatten a complex type."""
+
         # maximum depth, prevent RecursionError
         if depth_counter == 3:
             return
         depth_counter += 1
 
+        check_redaction = True
+
         # ignore anything that is redacted
-        for path in self._redacted_classes:
-            if '.' in path:
-                continue
-            if typ.__name__ in path:
-                msg = f"Anonymizer Ignoring expansion of {typ.__name__}"
-                if first_occurrence(msg):
-                    logger.warning(msg)
-                return
+        if check_redaction:
+            for path in self._redacted_classes:
+                if '.' in path:
+                    continue
+                # TODO - move to config file
+                if typ.__name__ in path:
+                    msg = f"Ignoring {typ.__name__} (Anonymizer)"
+                    if first_occurrence(msg):
+                        logger.warning(msg)
+                    return
 
         resource = typ()
         # iterate through children
 
-        # max 2
-        range_limit = 2
+        range_limit = 1
         if is_list:
-            range_limit = 1
+            range_limit = 1  # max 2 ?
+
+        if parent_type == Patient:
+            print("?")
 
         for list_counter in range(range_limit):
             is_first = True
@@ -437,11 +561,18 @@ class DictionaryEmitter(Emitter):
                 if typ.__name__ == 'Identifier' and c_name not in ['system', 'value', 'use']:
                     continue
                 # TODO add to model config
-                if typ.__name__ == 'Reference' and c_name not in ['reference', 'type']:
+                if typ.__name__ == 'FHIRReference' and c_name not in ['reference', 'type']:
+                    continue
+                # TODO add to model config
+                if typ.__name__ == 'CodeableConcept' and c_name not in ['code', 'display', 'system', 'coding']:
+                    continue
+                # TODO add to model config
+                if typ.__name__ == 'Coding' and c_name not in ['code', 'display', 'system']:
                     continue
 
                 if c_name in self.model.ignored_properties:
                     continue
+
                 c_docstring = ''
                 if c_name in resource.attribute_docstrings():
                     c_docstring = resource.attribute_docstrings()[c_name]
@@ -466,38 +597,13 @@ class DictionaryEmitter(Emitter):
                     # expand embedded type
                     for expanded in self.flatten_embedded_property(c_name, c_jsname, c_typ, c_is_list, c_of_many,
                                                                    c_not_optional, c_docstrings, depth_counter,
-                                                                   parent_name=property_name):
+                                                                   parent_name=property_name,
+                                                                   parent_type=typ):
                         yield expanded
                     continue
 
                 schema_property = self.create_schema_property(c_docstrings, c_name, c_not_optional, resource, c_typ)
                 yield _normalize_property_name(property_name), schema_property
-
-    def render_property(self, entity, resource) -> tuple[str, dict]:
-        """Render the property type and description."""
-        for name, jsname, typ, is_list, of_many, not_optional in self.resource_properties(resource):
-            # don't generate a property for edges
-            if name in entity.links:
-                continue
-            if name in self.model.ignored_properties:
-                continue
-
-            docstring = ''
-            # TODO - hierarchy of docstrings?
-            if name in resource.attribute_docstrings():
-                docstring = resource.attribute_docstrings()[name]
-            docstrings = [docstring]
-
-            if typ.__name__ not in DictionaryEmitter.ALL_MAPPED_TYPES:
-                # expand embedded type
-                for expanded in self.flatten_embedded_property(name, jsname, typ, is_list, of_many, not_optional,
-                                                               docstrings):
-                    yield expanded
-                continue
-
-            schema_property = self.create_schema_property(docstrings, name, not_optional, resource, typ)
-
-            yield _normalize_property_name(name), schema_property
 
     @staticmethod
     def create_schema_property(docstrings, name, not_optional, resource, typ):
@@ -637,10 +743,14 @@ class TransformerEmitter(Emitter):
         if path not in self.open_files:
             self.open_files[path] = open(path, "w")
 
-        resource_model = self._data_dictionary[f"{type(resource).__name__}.yaml"]
+        resource_model = self._data_dictionary[f"{inflection.underscore(type(resource).__name__)}.yaml"]
         flattened = {k: v for k, v in flatten(resource.as_json(), separator='_').items() if
                      k in resource_model['properties'].keys()}
+        # flattened = flatten(resource.as_json(), separator='_')
+
         id_ = resource.id
+        if 'submitter_id' not in flattened:
+            flattened['submitter_id'] = id_
         json.dump(
             {
                 'id': id_,
@@ -651,56 +761,6 @@ class TransformerEmitter(Emitter):
             self.open_files[path])
         self.open_files[path].write('\n')
 
-    def extract_resource(self, resource, link) -> List[LinkInstance]:
-        """Emit embedded resource."""
-        extracted_resources = getattr(resource, link.id)
-        if not extracted_resources:
-            return
-        if not isinstance(extracted_resources, list):
-            extracted_resources = [extracted_resources]
-        for extracted_resource in extracted_resources:
-            extracted_class = type(extracted_resource)
-
-            extracted_class_name = extracted_class.__name__
-            path = f'{self.work_dir}/{extracted_class_name}.ndjson'
-            if path not in self.open_files:
-                self.open_files[path] = open(path, "w")
-            id_ = None
-            if extracted_class_name == 'Coding':
-                id_ = f"{extracted_resource.system}?code={extracted_resource.code}"
-                if extracted_resource.version:
-                    id_ = f"{id_}&{extracted_resource.version}"
-            elif extracted_class_name == 'CodeableConcept':
-                ids = []
-                if extracted_resource.coding:
-                    for coding in extracted_resource.coding:
-                        coding_id = f"{coding.system}?code={coding.code}"
-                        if coding.version:
-                            coding_id = f"{id_}&{coding.version}"
-                        ids.append(coding_id)
-                else:
-                    ids.append(extracted_resource.text)
-                id_ = str(uuid.uuid3(ACED_CODEABLE_CONCEPT, '~'.join(ids)))
-            assert id_, "We should have calculated an id"
-            extracted_resource.id = id_
-            resource_model = self._data_dictionary[f"{type(extracted_resource).__name__}.yaml"]
-
-            if id_ not in self._seen_already:
-                flattened = {k: v for k, v in flatten(extracted_resource.as_json(), separator='_').items() if
-                             k in resource_model['properties'].keys()}
-                json.dump(
-                    {
-                        'id': id_,
-                        'object': flattened,
-                        "relations": [],
-                        "name": type(extracted_resource).__name__,
-                    },
-                    self.open_files[path]
-                )
-                self.open_files[path].write('\n')
-                self._seen_already.append(id_)
-            yield LinkInstance(dst_id=id_, dst_name=extracted_class_name, label=link.id)
-
     def process_links(self, resource) -> List[LinkInstance]:
         """Emits any embedded objects, returns a list of links."""
         links = self.model.entities[type(resource).__name__].links.values()
@@ -708,9 +768,7 @@ class TransformerEmitter(Emitter):
         for link in links:
             if link.ignore:
                 continue
-            if len([tp for tp in link.targetProfile if tp.split('/')[-1] in ['Coding', 'CodeableConcept']]) > 0:
-                links_to_return.extend(self.extract_resource(resource, link))
-                continue
+
             link_id = link.id
             if link_id not in vars(resource):
                 link_id = link_id + "_fhir"
@@ -729,10 +787,10 @@ class TransformerEmitter(Emitter):
                     er = getattr(er, 'valueReference')
                 if type(er) == FHIRReference:
                     dst_id = er.reference.split('/')[-1]
-                    dst_name = er.reference.split('/')[0]
+                    dst_name = inflection.underscore(er.reference.split('/')[0])
                 else:
                     dst_id = er.id
-                    dst_name = type(er).__name__
+                    dst_name = inflection.underscore(type(er).__name__)
                 links_to_return.append(LinkInstance(dst_id=dst_id, dst_name=dst_name, label=link.id))
         return links_to_return
 
@@ -743,19 +801,19 @@ def cli():
     pass
 
 
-@cli.group()
+@cli.group(chain=True)
 def schema():
     """Manage schema."""
     pass
 
 
-@cli.group()
+@cli.group(chain=True)
 def config():
     """Manage config."""
     pass
 
 
-@cli.group()
+@cli.group(chain=True)
 def data():
     """Manage data."""
     pass
@@ -970,7 +1028,6 @@ def data_transform(input_path, file_name_pattern, config_path, anonymizer_config
                              bundle_entry.resource.resource_type == "ResearchSubject"]
         sources = sorted(research_subject.meta.source for research_subject in research_subjects if
                          research_subject.meta.source not in already_added)
-        # sources = sources[:4]  # truncate for testing
         # sources = [s for s in sources if "Adam631_" in s]  # testing
         sources.append(file_path)  # add study bundle
         for source in sources:
@@ -1081,6 +1138,146 @@ def load_edges(files, connection, model, project_id, mapping, project_node_id):
         connection.commit()
 
 
+def extract_endpoint(gen3_credentials_file):
+    """Get base url of jwt issuer claim."""
+    with open(gen3_credentials_file) as input_stream:
+        api_key = json.load(input_stream)['api_key']
+        claims = jwt.decode(api_key, options={"verify_signature": False})
+        assert 'iss' in claims
+        return claims['iss'].replace('/user', '')
+
+
+def upload_document_reference_and_decorate(document_reference, bucket_name, file_client, index_client, program,
+                                           project):
+    """Write to indexd."""
+
+    # map fields hard coded by windmill portal
+    # data_types & data_format, file_name
+    if 'content_0_attachment_url' not in document_reference:
+        logger.error(('content_0_attachment_url not set', document_reference))
+        return document_reference
+    document_reference['data_type'] = document_reference['content_0_attachment_url'].split('.')[-1]
+    if document_reference['data_type'] in ['csv']:
+        document_reference['data_format'] = 'variants'
+    if document_reference['data_type'] in ['dcm']:
+        document_reference['data_format'] = 'imaging'
+    if document_reference['data_type'] in ['txt']:
+        document_reference['data_format'] = 'note'
+    document_reference['file_name'] = document_reference['content_0_attachment_url']
+    document_reference['file_size'] = 0
+    if document_reference['content_0_attachment_size']:
+        document_reference['file_size'] = int(document_reference['content_0_attachment_size'])
+    assert document_reference['content_0_attachment_extension_0_url'] == "http://aced-idp.org/fhir/StructureDefinition/md5"
+    md5sum = document_reference["content_0_attachment_extension_0_valueString"]
+    object_name = document_reference['file_name'].lstrip('./')
+
+    # create a record in gen3, get a signed url
+    document = file_client.upload_file(object_name, bucket=bucket_name)
+    assert 'guid' in document, document
+    assert 'url' in document, document
+    signed_url = urllib.parse.unquote(document['url'])
+    guid = document['guid']
+    hashes = {'md5': md5sum}
+    metadata = {
+        **{
+            'datanode_type': 'DocumentReference',
+            'datanode_submitter_id': document_reference['submitter_id'],
+            'datanode_object_id': guid
+        },
+        **hashes}
+
+    with open(document_reference['file_name'], 'rb') as data_f:
+        # When you use this header, Amazon S3 checks the object against the provided MD5 value and,
+        # if they do not match, returns an error.
+        content_md5 = base64.b64encode(bytes.fromhex(md5sum))
+        headers = {'Content-MD5': content_md5}
+        # Our meta data
+        for key, value in metadata.items():
+            headers[f"x-amz-meta-{key}"] = value
+        r = requests.put(signed_url, data=data_f, headers=headers)
+        assert r.status_code == 200, (signed_url, r.text)
+        logger.info(f"Successfully uploaded file \"{document_reference['file_name']}\" to {bucket_name} {guid} {signed_url}")
+
+        # update the indexd record with urls, authz, size and hashes
+        indexd_record = index_client.get_record(guid)
+        assert 'rev' in indexd_record, indexd_record
+        rev = indexd_record['rev']
+        r = index_client.update_blank(guid, rev, hashes=hashes, size=document_reference["file_size"])
+
+        urls = [f"s3://{bucket_name}/{guid}/{object_name}"]
+        authz = [f'/programs/{program}/projects/{project}']
+
+        response_dict = index_client.update_record(guid=guid, version=rev,
+                                                   file_name=document_reference['file_name'],
+                                                   authz=authz, urls=urls,
+                                                   metadata=metadata)
+        assert response_dict
+        document_reference['object_id'] = guid
+        return document_reference
+
+
+@data.command(name='upload-files')
+@click.option('--bucket_name', default='aced-default', show_default=True,
+              help='Destination bucket name')
+@click.option('--document_reference_path', required=True, default=None, show_default=True,
+              help='Path to DocumentReference.ndjson')
+@click.option('--program', default='MyFirstProgram', show_default=True,
+              help='Gen3 program')
+@click.option('--project', default='MyFirstProject', show_default=True,
+              help='Gen3 project')
+@click.option('--credentials_file', default='credentials.json', show_default=True,
+              help='API credentials file downloaded from gen3 profile.')
+@click.pass_context
+def upload_document_reference(ctx, bucket_name, document_reference_path, program, project, credentials_file):
+    """Upload data file found in DocumentReference.ndjson"""
+    endpoint = extract_endpoint(credentials_file)
+    logger.info(endpoint)
+    logger.debug(f"Read {credentials_file} endpoint {endpoint}")
+    auth = Gen3Auth(endpoint, refresh_file=credentials_file)
+    file_client = Gen3File(endpoint, auth)
+    index_client = Gen3Index(endpoint, auth)
+
+    # tic = time.perf_counter()
+    # pool_count = max(multiprocessing.cpu_count() - 1, 1)
+    # pool = multiprocessing.Pool(pool_count)
+
+    with open(document_reference_path + '.tmp', "w") as output_f:
+        with open(document_reference_path) as input_f:
+            for line in input_f.readlines():
+                record = json.loads(line)
+                document_reference = record['object']
+                document_reference = upload_document_reference_and_decorate(
+                    document_reference=document_reference,
+                    file_client=file_client,
+                    bucket_name=bucket_name,
+                    index_client=index_client,
+                    program=program,
+                    project=project
+                )
+                record['object'] = document_reference
+                json.dump(record, output_f, separators=(',', ':'))
+                output_f.write('\n')
+
+
+@data.command(name='init')
+@click.option('--db_host',
+              default=None,
+              show_default=True,
+              help='Connect to db using this host')
+@click.option('--input_path',
+              default='output/init_data',
+              show_default=True,
+              help='Path to static init data.')
+@click.option('--sheepdog_creds_path',
+              default='../compose-services/Secrets/sheepdog_creds.json',
+              show_default=True,
+              help='Path to sheepdog credentials.')
+def data_init(input_path,  sheepdog_creds_path, db_host, config_path):
+    """Add our program and project to a brand new gen3 instance."""
+    conn = connect_to_postgres(db_host=db_host, sheepdog_creds_path=sheepdog_creds_path)
+    assert conn
+
+
 @data.command(name='load')
 @click.option('--file_name_pattern',
               default='*.ndjson',
@@ -1111,11 +1308,11 @@ def load_edges(files, connection, model, project_id, mapping, project_node_id):
               show_default=True,
               help='Path to config file.')
 @click.option('--dictionary_path',
-              default=None,
+              default='output/gen3',
               show_default=True,
               help='Path to data dictionary file.')
 @click.option('--dictionary_url',
-              default='https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json',
+              default=None,  # 'https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json',
               show_default=True,
               help='Data dictionary url.')
 def data_load(input_path, file_name_pattern, sheepdog_creds_path, program_name, project_code, db_host, config_path,
@@ -1125,19 +1322,7 @@ def data_load(input_path, file_name_pattern, sheepdog_creds_path, program_name, 
     model = initialize_model(config_path=config_path)
 
     # check db connection
-    sheepdog_creds = json.load(open(sheepdog_creds_path))
-    db_username = sheepdog_creds['db_username']
-    db_password = sheepdog_creds['db_password']
-    db_database = sheepdog_creds['db_database']
-    if not db_host:
-        db_host = sheepdog_creds['db_host']
-    conn = psycopg2.connect(
-        database=db_database,
-        user=db_username,
-        password=db_password,
-        host=db_host,
-        # port=DATABASE_CONFIG.get('port'),
-    )
+    conn = connect_to_postgres(db_host, sheepdog_creds_path)
     assert conn
     logger.info("Connected to postgres")
 
@@ -1172,6 +1357,24 @@ def data_load(input_path, file_name_pattern, sheepdog_creds_path, program_name, 
     logger.info("Loading edges")
     load_edges(files, conn, model, project_id, mappings, project_node_id)
     logger.info("Done")
+
+
+def connect_to_postgres(db_host, sheepdog_creds_path):
+    """Use credential file, overloaded with passed db host to connect."""
+    sheepdog_creds = json.load(open(sheepdog_creds_path))
+    db_username = sheepdog_creds['db_username']
+    db_password = sheepdog_creds['db_password']
+    db_database = sheepdog_creds['db_database']
+    if not db_host:
+        db_host = sheepdog_creds['db_host']
+    conn = psycopg2.connect(
+        database=db_database,
+        user=db_username,
+        password=db_password,
+        host=db_host,
+        # port=DATABASE_CONFIG.get('port'),
+    )
+    return conn
 
 
 @data.command(name='load-elastic')
