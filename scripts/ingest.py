@@ -513,7 +513,7 @@ http://snomed.info/sct,162573006,Suspected lung cancer (situation)
         "Diabetes": {'conditions': ['44054006']},
         "Breast Cancer": {'conditions': ['254837009']},
         "Colon Cancer": {'conditions': ['363406005', '68496003']},
-        "Prostrate Cancer": {'conditions': ['314994000', '126906006', '92691004']},
+        "Prostate Cancer": {'conditions': ['314994000', '126906006', '92691004']},
         "Lung Cancer": {'conditions': ['254637007', '424132000', '162573006']},
     }
     for study_name, study_dict in study_manifests.items():
