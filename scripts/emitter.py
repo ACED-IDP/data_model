@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
 import abc
+import asyncio
 import base64
 import collections
 import importlib
 import io
 import json
 import logging
-import multiprocessing
 import os
 import pathlib
+import time
 import urllib
 import uuid
 from collections import defaultdict
 from copy import deepcopy
-from datetime import datetime, time
+from datetime import datetime
 from itertools import islice
-from pathlib import Path
 from typing import Dict, Iterator, List, Optional, OrderedDict, Any, ClassVar, IO
 
+import aiohttp
 import click
 import fhirclient
 import inflection
@@ -34,7 +35,6 @@ from flatten_json import flatten
 from gen3.auth import Gen3Auth
 from gen3.file import Gen3File
 from gen3.index import Gen3Index
-from gen3.submission import Gen3Submission
 from pelican.dictionary import DataDictionaryTraversal
 from pydantic import BaseModel, PrivateAttr
 
@@ -403,7 +403,7 @@ class DictionaryEmitter(Emitter):
         if entity.id == 'DocumentReference':
             snippet = """
               $ref: "_definitions.yaml#/data_file_properties"
-            
+
               data_category:
                 term:
                   $ref: "_terms.yaml#/data_category"
@@ -463,8 +463,8 @@ class DictionaryEmitter(Emitter):
                 label = f"{entity.id}_{link_key}_{target_type}"
 
                 yield {
-                    'name':  f"{srcdstassoc}",  # srcdstassoc
-                    'backref':  backref,  # dstsrcassoc,
+                    'name': f"{srcdstassoc}",  # srcdstassoc
+                    'backref': backref,  # dstsrcassoc,
                     'label': label,  # label,
                     'target_type': target_type,
                     'multiplicity': 'many_to_many',
@@ -717,6 +717,32 @@ class DictionaryEmitter(Emitter):
 #             memo.remove(id(obj))
 
 
+def decorate_gen3(flattened, resource_type):
+    """Adds hard coded gen3 values values."""
+    # map fields hard coded by windmill portal
+    # data_types & data_format, file_name
+    if resource_type == 'DocumentReference':
+        document_reference = flattened
+        if 'content_0_attachment_url' not in document_reference:
+            logger.error(('decorate_gen3 content_0_attachment_url not set', document_reference))
+        else:
+            document_reference['data_type'] = document_reference['content_0_attachment_url'].split('.')[-1]
+            if document_reference['data_type'] in ['csv']:
+                document_reference['data_format'] = 'variants'
+            if document_reference['data_type'] in ['dcm']:
+                document_reference['data_format'] = 'imaging'
+            if document_reference['data_type'] in ['txt']:
+                document_reference['data_format'] = 'note'
+            document_reference['file_name'] = document_reference['content_0_attachment_url']
+            document_reference['file_size'] = 0
+            if document_reference['content_0_attachment_size']:
+                document_reference['file_size'] = int(document_reference['content_0_attachment_size'])
+            document_reference['object_id'] = document_reference['id']
+
+    if 'submitter_id' not in flattened:
+        flattened['submitter_id'] = flattened['id']
+
+
 class TransformerEmitter(Emitter):
     _data_dictionary: dict = PrivateAttr()
     _seen_already: List[str] = PrivateAttr()
@@ -744,13 +770,14 @@ class TransformerEmitter(Emitter):
             self.open_files[path] = open(path, "w")
 
         resource_model = self._data_dictionary[f"{inflection.underscore(type(resource).__name__)}.yaml"]
+
         flattened = {k: v for k, v in flatten(resource.as_json(), separator='_').items() if
                      k in resource_model['properties'].keys()}
-        # flattened = flatten(resource.as_json(), separator='_')
+
+        # add gen3 mappings
+        flattened = decorate_gen3(flattened, resource.resource_type)
 
         id_ = resource.id
-        if 'submitter_id' not in flattened:
-            flattened['submitter_id'] = id_
         json.dump(
             {
                 'id': id_,
@@ -776,7 +803,7 @@ class TransformerEmitter(Emitter):
                 msg = f"Could not find {link.id} in {type(resource).__name__} skipping."
                 if first_occurrence(msg):
                     logger.warning(msg)
-                    continue
+                continue
             extracted_resources = getattr(resource, link_id)
             if not extracted_resources:
                 continue
@@ -881,7 +908,7 @@ def schema_generate(input_path, file_name_pattern, config_path, anonymizer_confi
 
     # validate parameters
     assert os.path.isdir(input_path)
-    input_path = Path(input_path)
+    input_path = pathlib.Path(input_path)
     assert os.path.isdir(input_path)
     file_paths = list(input_path.glob(file_name_pattern))
     assert len(
@@ -953,7 +980,8 @@ def schema_cytoscape(dictionary_path, dictionary_url=None):
     """Show  psqlgraph mappings."""
 
     print('Use jq with mapping command:')
-    print(" python3 scripts/emitter.py schema tables | jq -r '(map(keys) | add | unique) as $cols | map(. as $row | $cols | map($row[.])) as $rows | $cols, $rows[] | @csv' > psqlgraph_mapping.csv")
+    print(
+        " python3 scripts/emitter.py schema tables | jq -r '(map(keys) | add | unique) as $cols | map(. as $row | $cols | map($row[.])) as $rows | $cols, $rows[] | @csv' > psqlgraph_mapping.csv")
 
 
 def _table_mappings(dictionary_path, dictionary_url):
@@ -1005,7 +1033,7 @@ def data_transform(input_path, file_name_pattern, config_path, anonymizer_config
 
     # validate parameters
     assert os.path.isdir(input_path)
-    input_path = Path(input_path)
+    input_path = pathlib.Path(input_path)
     assert os.path.isdir(input_path)
     file_paths = list(input_path.glob(file_name_pattern))
     assert len(
@@ -1017,28 +1045,28 @@ def data_transform(input_path, file_name_pattern, config_path, anonymizer_config
     anonymizer = yaml.load(open(anonymizer_config_path), Loader=yaml.SafeLoader)
     data_dictionary = json.load(open(dictionary_path))
 
-    emitters = [
-        TransformerEmitter(model=model, work_dir='output/', anonymizer=anonymizer, data_dictionary=data_dictionary)
-    ]
-
-    already_added = []
     for file_path in file_paths:
         bundle = Bundle(json.load(open(file_path)))
         research_subjects = [bundle_entry.resource for bundle_entry in bundle.entry if
                              bundle_entry.resource.resource_type == "ResearchSubject"]
-        sources = sorted(research_subject.meta.source for research_subject in research_subjects if
-                         research_subject.meta.source not in already_added)
+        sources = sorted(research_subject.meta.source for research_subject in research_subjects)
         # sources = [s for s in sources if "Adam631_" in s]  # testing
+        study_name = str(file_path).split('/')[-1].split('.')[0].replace('research_study_', '')
+        work_dir = f'output/{study_name}'
+        print(bundle.entry[0].resource.title, file_path)
+        pathlib.Path(work_dir).mkdir(parents=True, exist_ok=True)
+        emitters = [
+            TransformerEmitter(model=model, work_dir=work_dir, anonymizer=anonymizer,
+                               data_dictionary=data_dictionary)
+        ]
         sources.append(file_path)  # add study bundle
         for source in sources:
             for bundle_entry in Bundle(json.load(open(source))).entry:
                 for emitter in emitters:
                     emitter.emit(bundle_entry.resource)
-            already_added.append(source)
-        break  # only first study for testing
 
-    for emitter in emitters:
-        emitter.close()
+        for emitter in emitters:
+            emitter.close()
 
     return True
 
@@ -1073,12 +1101,14 @@ def load_vertices(files, connection, model, project_id, mapping):
                         d_ = json.loads(line)
                         d_['object']['project_id'] = project_id
                         obj_str = json.dumps(d_['object'])
-                        csv = f"{d_['id']}|{obj_str}|{{}}|{{}}|{datetime.now()}".replace('\n', '\\n').replace("\\","\\\\")
+                        csv = f"{d_['id']}|{obj_str}|{{}}|{{}}|{datetime.now()}".replace('\n', '\\n').replace("\\",
+                                                                                                              "\\\\")
                         csv = csv + '\n'
                         buf.write(csv)
                     buf.seek(0)
                     # efficient way to write to postgres
-                    cursor.copy_from(buf, data_table_name, sep='|', columns=['node_id', '_props', 'acl', '_sysan', 'created'])
+                    cursor.copy_from(buf, data_table_name, sep='|',
+                                     columns=['node_id', '_props', 'acl', '_sysan', 'created'])
                     logger.info(f"wrote {record_count} records to {data_table_name} from {path}")
                     connection.commit()
         connection.commit()
@@ -1116,8 +1146,9 @@ def load_edges(files, connection, model, project_id, mapping, project_node_id):
                                 iter(
                                     [
                                         m for m in mapping
-                                        if m['label'].lower() == f"{entity_name}_{relation['label']}_{relation['dst_name']}".lower()
-                                     ]
+                                        if m[
+                                               'label'].lower() == f"{entity_name}_{relation['label']}_{relation['dst_name']}".lower()
+                                    ]
                                 ),
                                 None
                             )
@@ -1147,37 +1178,18 @@ def extract_endpoint(gen3_credentials_file):
         return claims['iss'].replace('/user', '')
 
 
-def upload_document_reference_and_decorate(document_reference, bucket_name, file_client, index_client, program,
-                                           project):
+async def upload_and_decorate_document_reference(document_reference, bucket_name,
+                                                 file_client, index_client, program,
+                                                 project):
     """Write to indexd."""
 
-    # map fields hard coded by windmill portal
-    # data_types & data_format, file_name
-    if 'content_0_attachment_url' not in document_reference:
-        logger.error(('content_0_attachment_url not set', document_reference))
-        return document_reference
-    document_reference['data_type'] = document_reference['content_0_attachment_url'].split('.')[-1]
-    if document_reference['data_type'] in ['csv']:
-        document_reference['data_format'] = 'variants'
-    if document_reference['data_type'] in ['dcm']:
-        document_reference['data_format'] = 'imaging'
-    if document_reference['data_type'] in ['txt']:
-        document_reference['data_format'] = 'note'
-    document_reference['file_name'] = document_reference['content_0_attachment_url']
-    document_reference['file_size'] = 0
-    if document_reference['content_0_attachment_size']:
-        document_reference['file_size'] = int(document_reference['content_0_attachment_size'])
-    assert document_reference['content_0_attachment_extension_0_url'] == "http://aced-idp.org/fhir/StructureDefinition/md5"
+    assert document_reference[
+               'content_0_attachment_extension_0_url'] == "http://aced-idp.org/fhir/StructureDefinition/md5"
     md5sum = document_reference["content_0_attachment_extension_0_valueString"]
     object_name = document_reference['file_name'].lstrip('./')
 
-    # create a record in gen3, get a signed url
-    document = file_client.upload_file(object_name, bucket=bucket_name)
-    assert 'guid' in document, document
-    assert 'url' in document, document
-    signed_url = urllib.parse.unquote(document['url'])
-    guid = document['guid']
     hashes = {'md5': md5sum}
+    guid = document_reference['id']
     metadata = {
         **{
             'datanode_type': 'DocumentReference',
@@ -1186,34 +1198,58 @@ def upload_document_reference_and_decorate(document_reference, bucket_name, file
         },
         **hashes}
 
+    # SYNC
+    create_record_response = index_client.create_record(
+        did=document_reference["id"],
+        hashes=hashes,
+        size=document_reference["file_size"],
+        authz=[f'/programs/{program}/projects/{project}'],
+        file_name=document_reference['file_name'],
+        metadata=metadata,
+        urls=[f"s3://{bucket_name}/{guid}/{object_name}"]
+    )
+    # create a record in gen3 using document_reference's id as guid, get a signed url
+    # SYNC
+    document = file_client.upload_file_to_guid(guid=document_reference['id'], file_name=object_name, bucket=bucket_name)
+    assert 'url' in document, document
+    signed_url = urllib.parse.unquote(document['url'])
+    guid = document_reference['id']
+
     with open(document_reference['file_name'], 'rb') as data_f:
         # When you use this header, Amazon S3 checks the object against the provided MD5 value and,
         # if they do not match, returns an error.
         content_md5 = base64.b64encode(bytes.fromhex(md5sum))
         headers = {'Content-MD5': content_md5}
-        # Our meta data
+        # attach our metadata to s3 object
         for key, value in metadata.items():
             headers[f"x-amz-meta-{key}"] = value
+        # SYNC
         r = requests.put(signed_url, data=data_f, headers=headers)
         assert r.status_code == 200, (signed_url, r.text)
-        logger.info(f"Successfully uploaded file \"{document_reference['file_name']}\" to {bucket_name} {guid} {signed_url}")
-
-        # update the indexd record with urls, authz, size and hashes
-        indexd_record = index_client.get_record(guid)
-        assert 'rev' in indexd_record, indexd_record
-        rev = indexd_record['rev']
-        r = index_client.update_blank(guid, rev, hashes=hashes, size=document_reference["file_size"])
-
-        urls = [f"s3://{bucket_name}/{guid}/{object_name}"]
-        authz = [f'/programs/{program}/projects/{project}']
-
-        response_dict = index_client.update_record(guid=guid, version=rev,
-                                                   file_name=document_reference['file_name'],
-                                                   authz=authz, urls=urls,
-                                                   metadata=metadata)
-        assert response_dict
-        document_reference['object_id'] = guid
+        logger.info(
+            f"Successfully uploaded file \"{document_reference['file_name']}\" to {bucket_name} {guid} {signed_url}")
+        document_reference['object_id'] = document_reference['id']
         return document_reference
+
+
+async def upload_and_decorate_document_references(lines, bucket_name, program,
+                                                  project, file_client, index_client):
+    records = []
+
+    for line in lines:
+        record = json.loads(line)
+        document_reference = record['object']
+        document_reference = await upload_and_decorate_document_reference(
+            document_reference=document_reference,
+            file_client=file_client,
+            bucket_name=bucket_name,
+            index_client=index_client,
+            program=program,
+            project=project,
+        )
+        record['object'] = document_reference
+        records.append(record)
+    return records
 
 
 @data.command(name='upload-files')
@@ -1237,26 +1273,24 @@ def upload_document_reference(ctx, bucket_name, document_reference_path, program
     file_client = Gen3File(endpoint, auth)
     index_client = Gen3Index(endpoint, auth)
 
-    # tic = time.perf_counter()
-    # pool_count = max(multiprocessing.cpu_count() - 1, 1)
-    # pool = multiprocessing.Pool(pool_count)
-
     with open(document_reference_path + '.tmp', "w") as output_f:
         with open(document_reference_path) as input_f:
-            for line in input_f.readlines():
-                record = json.loads(line)
-                document_reference = record['object']
-                document_reference = upload_document_reference_and_decorate(
-                    document_reference=document_reference,
-                    file_client=file_client,
-                    bucket_name=bucket_name,
-                    index_client=index_client,
-                    program=program,
-                    project=project
+            for lines in chunk(input_f.readlines(), 10):
+                loop = asyncio.get_event_loop()
+                records = loop.run_until_complete(
+                    upload_and_decorate_document_references(
+                        lines=lines,
+                        bucket_name=bucket_name,
+                        program=program,
+                        project=project,
+                        file_client=file_client,
+                        index_client=index_client
+                    )
                 )
-                record['object'] = document_reference
-                json.dump(record, output_f, separators=(',', ':'))
-                output_f.write('\n')
+                for record in records:
+                    json.dump(record, output_f, separators=(',', ':'))
+                    output_f.write('\n')
+                output_f.flush()
 
 
 @data.command(name='init')
@@ -1272,7 +1306,7 @@ def upload_document_reference(ctx, bucket_name, document_reference_path, program
               default='../compose-services/Secrets/sheepdog_creds.json',
               show_default=True,
               help='Path to sheepdog credentials.')
-def data_init(input_path,  sheepdog_creds_path, db_host, config_path):
+def data_init(input_path, sheepdog_creds_path, db_host, config_path):
     """Add our program and project to a brand new gen3 instance."""
     conn = connect_to_postgres(db_host=db_host, sheepdog_creds_path=sheepdog_creds_path)
     assert conn
@@ -1375,104 +1409,6 @@ def connect_to_postgres(db_host, sheepdog_creds_path):
         # port=DATABASE_CONFIG.get('port'),
     )
     return conn
-
-
-@data.command(name='load-elastic')
-def data_load_elastic():
-    """TODO - example queries provided"""
-    expected_counts_query = """{
-          _Patient_count
-          _DocumentReference_count
-        }"""
-    expected_counts_results = {
-          "data": {
-            "_DocumentReference_count": 48354,
-            "_Patient_count": 287
-          }
-        }
-    patient_query = """
-        {
-          Patient(first:1, offset:0) {
-                id
-            project_id
-            active
-            deceasedBoolean 
-            deceasedDateTime
-            gender
-            maritalStatus_CodeableConcept {
-              coding_0_code
-            }
-            subject_Specimen {
-              type_CodeableConcept {
-                coding_0_code
-              }
-            }
-          }
-        }    
-    """
-    # note not all patients have specimens
-    patient_query_expected_results = {
-      "data": {
-        "Patient": [
-          {
-            "active": None,
-            "deceasedBoolean": None,
-            "deceasedDateTime": "1993-01-19T21:18:07-05:00",
-            "gender": "male",
-            "id": "6f60d183-2b8d-8c3c-77d0-2b684653651e",
-            "maritalStatus_CodeableConcept": [
-              {
-                "coding_0_code": "M"
-              }
-            ],
-            "project_id": "MyFirstProgram-MyFirstProject",
-            "subject_Specimen": [
-              {
-                "type_CodeableConcept": []
-              }
-            ]
-          }
-        ]
-      }
-    }
-    document_reference_query = """
-        {
-          DocumentReference(first:1, offset:0) {
-                id
-            project_id    
-            object_id
-            type_CodeableConcept {
-              coding_0_display
-            }
-            subject_Patient {
-              id
-            }
-            content_0_attachment_url
-          }
-        }    
-    """
-    document_reference_expected_results = {
-        "data": {
-            "DocumentReference": [
-              {
-                "content_0_attachment_url": None,
-                "id": "990de556-dfb4-45c4-f119-73c979720201",
-                "object_id": None,
-                "project_id": "MyFirstProgram-MyFirstProject",
-                "subject_Patient": [
-                  {
-                    "id": "6f60d183-2b8d-8c3c-77d0-2b684653651e"
-                  }
-                ],
-                "type_CodeableConcept": [
-                  {
-                    "coding_0_display": "Clinical Note"
-                  }
-                ]
-              }
-            ]
-            }
-        }
 
 
 if __name__ == '__main__':
