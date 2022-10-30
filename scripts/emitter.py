@@ -9,6 +9,7 @@ import json
 import logging
 import os
 import pathlib
+from pathlib import Path
 import urllib
 import uuid
 from collections import defaultdict
@@ -1191,6 +1192,9 @@ async def upload_and_decorate_document_reference(document_reference, bucket_name
                                                  project):
     """Write to indexd."""
 
+    if 'content_0_attachment_extension_0_url' not in document_reference:
+        logger.warning('content_0_attachment_extension_0_url not found')
+        return 
     assert document_reference[
                'content_0_attachment_extension_0_url'] == "http://aced-idp.org/fhir/StructureDefinition/md5"
     md5sum = document_reference["content_0_attachment_extension_0_valueString"]
@@ -1311,7 +1315,7 @@ def upload_document_reference(ctx, bucket_name, document_reference_path, program
               show_default=True,
               help='Path to static init data.')
 @click.option('--sheepdog_creds_path',
-              default='../compose-services/Secrets/sheepdog_creds.json',
+              default='../compose-services-training/Secrets/sheepdog_creds.json',
               show_default=True,
               help='Path to sheepdog credentials.')
 def data_init(input_path, sheepdog_creds_path, db_host, config_path):
@@ -1330,7 +1334,7 @@ def data_init(input_path, sheepdog_creds_path, db_host, config_path):
               show_default=True,
               help='Path to transformed data.')
 @click.option('--sheepdog_creds_path',
-              default='../compose-services/Secrets/sheepdog_creds.json',
+              default='../compose-services-training/Secrets/sheepdog_creds.json',
               show_default=True,
               help='Path to sheepdog credentials.')
 @click.option('--program_name',
@@ -1384,7 +1388,7 @@ def data_load(input_path, file_name_pattern, sheepdog_creds_path, program_name, 
     logger.info(f"Program and project exist: {project_id} {project_node_id}")
 
     # check files
-    input_path = Path(input_path)
+    input_path = pathlib.Path(input_path)
     assert input_path.is_dir(), f"{input_path} should be a directory"
     files = [fn for fn in input_path.glob(file_name_pattern)]
     assert len(files) > 0, f"No files found at {input_path}/{file_name_pattern}"
