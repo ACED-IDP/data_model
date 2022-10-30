@@ -9,7 +9,6 @@ import json
 import logging
 import os
 import pathlib
-import time
 import urllib
 import uuid
 from collections import defaultdict
@@ -18,7 +17,6 @@ from datetime import datetime
 from itertools import islice
 from typing import Dict, Iterator, List, Optional, OrderedDict, Any, ClassVar, IO
 
-import aiohttp
 import click
 import fhirclient
 import inflection
@@ -45,6 +43,7 @@ logger = logging.getLogger(__name__)
 LOGGED_ALREADY = set({})
 
 ACED_CODEABLE_CONCEPT = uuid.uuid3(uuid.NAMESPACE_DNS, 'aced.ipd/CodeableConcept')
+ACED_NAMESPACE = uuid.uuid3(uuid.NAMESPACE_DNS, 'aced-ipd.org')
 
 
 def chunk(arr_range, arr_size):
@@ -741,11 +740,15 @@ def decorate_gen3(flattened, resource_type):
 
     if 'submitter_id' not in flattened:
         flattened['submitter_id'] = flattened['id']
+    return flattened
 
 
 class TransformerEmitter(Emitter):
     _data_dictionary: dict = PrivateAttr()
     _seen_already: List[str] = PrivateAttr()
+    _study_uuid: uuid = PrivateAttr()
+
+    study_name: str
 
     def __init__(self, **data):
         """Append /extractions to output_path"""
@@ -753,6 +756,7 @@ class TransformerEmitter(Emitter):
         super().__init__(**data)
         self._data_dictionary = data["data_dictionary"]
         self._seen_already = []
+        self._study_uuid = uuid.uuid5(ACED_NAMESPACE, self.study_name)
 
     def emit(self, resource: fhirclient.models.fhirabstractresource) -> bool:
         if type(resource).__name__ not in self.model.entities:
@@ -777,7 +781,11 @@ class TransformerEmitter(Emitter):
         # add gen3 mappings
         flattened = decorate_gen3(flattened, resource.resource_type)
 
-        id_ = resource.id
+        # refactor ids, make them relative to study name
+        id_ = str(uuid.uuid5(self._study_uuid, resource.id))
+        for lnk in links:
+            lnk.dst_id = str(uuid.uuid5(self._study_uuid, lnk.dst_id))
+
         json.dump(
             {
                 'id': id_,
@@ -1057,7 +1065,7 @@ def data_transform(input_path, file_name_pattern, config_path, anonymizer_config
         pathlib.Path(work_dir).mkdir(parents=True, exist_ok=True)
         emitters = [
             TransformerEmitter(model=model, work_dir=work_dir, anonymizer=anonymizer,
-                               data_dictionary=data_dictionary)
+                               data_dictionary=data_dictionary, study_name=study_name)
         ]
         sources.append(file_path)  # add study bundle
         for source in sources:
