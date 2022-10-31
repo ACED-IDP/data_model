@@ -29,6 +29,7 @@ from dictionaryutils import DataDictionary, dictionary, dump_schemas_from_dir
 from fhirclient.models.attachment import Attachment
 from fhirclient.models.bundle import Bundle
 from fhirclient.models.fhirreference import FHIRReference
+from fhirclient.models.observation import Observation
 from fhirclient.models.patient import Patient
 from flatten_json import flatten
 from gen3.auth import Gen3Auth
@@ -509,8 +510,10 @@ class DictionaryEmitter(Emitter):
 
             if typ.__name__ not in DictionaryEmitter.ALL_MAPPED_TYPES:
                 # expand embedded type
+
                 for expanded in self.flatten_embedded_property(name, jsname, typ, is_list, of_many, not_optional,
-                                                               docstrings, parent_type=typ):
+                                                               docstrings, parent_type=typ,
+                                                               resource_type=resource.__class__):
                     yield expanded
                 continue
 
@@ -519,7 +522,7 @@ class DictionaryEmitter(Emitter):
             yield _normalize_property_name(name), schema_property
 
     def flatten_embedded_property(self, name, jsname, typ, is_list, of_many, not_optional, docstrings, depth_counter=0,
-                                  parent_name=None, parent_type=None):
+                                  parent_name=None, parent_type=None, resource_type=None):
         """Flatten a complex type."""
 
         # maximum depth, prevent RecursionError
@@ -548,8 +551,9 @@ class DictionaryEmitter(Emitter):
         if is_list:
             range_limit = 1  # max 2 ?
 
-        if parent_type == Patient:
-            print("?")
+        if resource_type == Observation and name == 'component':
+            # print(resource, name)
+            range_limit = 2
 
         for list_counter in range(range_limit):
             is_first = True
@@ -724,7 +728,7 @@ def decorate_gen3(flattened, resource_type):
     if resource_type == 'DocumentReference':
         document_reference = flattened
         if 'content_0_attachment_url' not in document_reference:
-            logger.error(('decorate_gen3 content_0_attachment_url not set', document_reference))
+            logger.error(('decorate_gen3 content_0_attachment_url not set?', document_reference))
         else:
             document_reference['data_type'] = document_reference['content_0_attachment_url'].split('.')[-1]
             if document_reference['data_type'] in ['csv']:
@@ -1059,7 +1063,7 @@ def data_transform(input_path, file_name_pattern, config_path, anonymizer_config
         research_subjects = [bundle_entry.resource for bundle_entry in bundle.entry if
                              bundle_entry.resource.resource_type == "ResearchSubject"]
         sources = sorted(research_subject.meta.source for research_subject in research_subjects)
-        # sources = [s for s in sources if "Adam631_" in s]  # testing
+        # sources = [s for s in sources if "Adam631_" in s]  # only add one subject for testing
         study_name = str(file_path).split('/')[-1].split('.')[0].replace('research_study_', '')
         work_dir = f'output/{study_name}'
         print(bundle.entry[0].resource.title, file_path)
@@ -1073,7 +1077,7 @@ def data_transform(input_path, file_name_pattern, config_path, anonymizer_config
             for bundle_entry in Bundle(json.load(open(source))).entry:
                 for emitter in emitters:
                     emitter.emit(bundle_entry.resource)
-
+            # break  # exit after one study for testing
         for emitter in emitters:
             emitter.close()
 
