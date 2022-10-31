@@ -1,5 +1,6 @@
 import csv
 import json
+import pathlib
 from typing import Mapping, Sequence, Set, List
 
 import click
@@ -268,8 +269,10 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
             data = base64.b64decode(e.resource.content[0].attachment.data).decode("utf-8")
             if "_dna.csv" in data:
                 dna_document_references.append(e.resource)
+                clinical_note_references.append(e.resource)
             elif '.dcm' in data:
                 imaging_document_references.append(e.resource)
+                clinical_note_references.append(e.resource)
             else:
                 clinical_note_references.append(e.resource)
 
@@ -327,7 +330,9 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
             # remove name from file
             redacted_path_from_report = redact_file_name(path_from_report, patient)
             if redacted_path_from_report != path_from_report:
-                os.rename(path_from_report, redacted_path_from_report)
+                # not the first run, we've already redacted
+                if not pathlib.Path(redacted_path_from_report).is_file():
+                    os.rename(path_from_report, redacted_path_from_report)
                 path_from_report = redacted_path_from_report
 
             # alter attachment
@@ -391,7 +396,9 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
             # remove name from file
             redacted_path_from_report = redact_file_name(path_from_report, patient)
             if redacted_path_from_report != path_from_report:
-                os.rename(path_from_report, redacted_path_from_report)
+                # not the first run, we've already redacted
+                if not pathlib.Path(redacted_path_from_report).is_file():
+                    os.rename(path_from_report, redacted_path_from_report)
                 path_from_report = redacted_path_from_report
 
             document_reference_with_url.content[0].attachment.data = None
