@@ -1,17 +1,20 @@
 #!/bin/bash
 
-dir_id=$1
+project=$1
 bucket_name=$2
 
-[[ -z "$dir_id" ]] && { echo "Error: dir_id not set (parameter position 1)"; exit 1; }
+[[ -z "$project" ]] && { echo "Error: project not set (parameter position 1)"; exit 1; }
 [[ -z "$bucket_name" ]] && { echo "Error: bucket_name not set (parameter position 2)"; exit 1; }
 
-echo working on $dir_id $bucket_name
+echo working on $project $bucket_name
 
+# clean up any prior run
+rm studies/$project/extractions/DocumentReference.ndjson.split.*
 # split the file into sets of 1000, the split files will have 'split' in the name
-split -l 1000 output/$dir_id/extractions/DocumentReference.ndjson output/$dir_id/extractions/DocumentReference.ndjson.split.
+split -l 1000 studies/$project/extractions/DocumentReference.ndjson studies/$project/extractions/DocumentReference.ndjson.split.
 
 # run 10 processes at a lower priority (10) via nice
 # The term niceness itself originates from the idea that a process with a higher niceness value is nicer to other processes in the system and to users by virtue of demanding less CPU power—freeing up processing time and power for the more demanding programs, who would in this case be less nice to the system from a CPU usage perspective.[1]
 
-ls -1 output/$dir_id/extractions/DocumentReference.ndjson.split.* | xargs -L 1 -P 10 nice -n 10 ./scripts/emitter.py data upload-files --bucket_name $bucket_name --credentials_file ../compose-services-training/Secrets/credentials.json --document_reference_path
+ls -1 studies/$project/extractions/DocumentReference.ndjson.split.* | xargs -L 1 -P 10 nice -n 10 ./scripts/gen3_emitter.py data upload-files --bucket_name $bucket_name --credentials_file ../compose-services/Secrets/credentials.json --program aced --project $project --document_reference_path
+rm studies/$project/extractions/DocumentReference.ndjson.split.*

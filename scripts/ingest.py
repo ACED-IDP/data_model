@@ -9,7 +9,7 @@ from pathlib import Path
 import time
 import multiprocessing
 import logging
-from fhirclient.models.bundle import Bundle, BundleEntry
+from fhirclient.models.bundle import Bundle, BundleEntry, BundleEntryRequest
 from fhirclient.models.documentreference import DocumentReference
 from fhirclient.models.researchstudy import ResearchStudy
 from fhirclient.models.researchsubject import ResearchSubject
@@ -447,6 +447,9 @@ def _transform_bundle(file_path: Path, output_path: Path, global_resources: list
     for additional_entry in additional_entries:
         bundle_entry = BundleEntry()
         bundle_entry.resource = additional_entry
+        bundle_entry.request = BundleEntryRequest()
+        bundle_entry.request.method = 'PUT'
+        bundle_entry.request.url = f"{bundle_entry.resource.resource_type}/{bundle_entry.resource.id}"
         bundle.entry.append(bundle_entry)
 
     # clean up references, make them ready for load

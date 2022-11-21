@@ -795,7 +795,7 @@ class TransformerEmitter(Emitter):
             {
                 'id': id_,
                 "name": type(resource).__name__,
-                'relations': [lnk.dict() for lnk in links],
+                'relations': [lnk.dict() for lnk in links if lnk.dst_name != "medication"],  # for now, don't follow to edge
                 'object': flattened
             },
             self.open_files[path])
@@ -1021,12 +1021,8 @@ def _table_mappings(dictionary_path, dictionary_url):
 
 
 @data.command(name='transform')
-@click.option('--file_name_pattern',
-              default='research_study*.json',
-              show_default=True,
-              help='File names to match.')
 @click.option('--input_path',
-              default='output/',
+              default='studies/',
               show_default=True,
               help='Path to output data dir.')
 @click.option('--config_path',
@@ -1038,19 +1034,18 @@ def _table_mappings(dictionary_path, dictionary_url):
               show_default=True,
               help='Path to config file.')
 @click.option('--dictionary_path',
-              default='aced-test.json',
+              default='aced.json',
               show_default=True,
               help='Path to data dictionary file.')
-def data_transform(input_path, file_name_pattern, config_path, anonymizer_config_path, dictionary_path):
+@click.option('--manifest', default="coherent_studies.manifest.yaml", show_default=True,
+              help='Study names, conditions, expected counts, etc.')
+def data_transform(input_path, config_path, anonymizer_config_path, dictionary_path, manifest):
     """Transform from FHIRBundles to Graph."""
 
     # validate parameters
     assert os.path.isdir(input_path)
     input_path = pathlib.Path(input_path)
-    assert os.path.isdir(input_path)
-    file_paths = list(input_path.glob(file_name_pattern))
-    assert len(
-        file_paths) >= 1, f"{str(input_path)}/{file_name_pattern} only returned {len(file_paths)} expected at least 1"
+
     model = initialize_model(config_path=config_path)
 
     # path = 'scripts/gen3_schema_template.yaml'  # Do not use os.path.join()
@@ -1058,22 +1053,21 @@ def data_transform(input_path, file_name_pattern, config_path, anonymizer_config
     anonymizer = yaml.load(open(anonymizer_config_path), Loader=yaml.SafeLoader)
     data_dictionary = json.load(open(dictionary_path))
 
-    for file_path in file_paths:
-        bundle = Bundle(json.load(open(file_path)))
-        research_subjects = [bundle_entry.resource for bundle_entry in bundle.entry if
-                             bundle_entry.resource.resource_type == "ResearchSubject"]
-        sources = sorted(research_subject.meta.source for research_subject in research_subjects)
-        # sources = [s for s in sources if "Adam631_" in s]  # only add one subject for testing
-        study_name = str(file_path).split('/')[-1].split('.')[0].replace('research_study_', '')
-        work_dir = f'output/{study_name}'
-        print(bundle.entry[0].resource.title, file_path)
+    # details
+    study_manifests = yaml.load(open(manifest), yaml.SafeLoader)
+
+    for study_name in study_manifests:
+        work_dir = f'{input_path}/{study_name}'
+        if Path(f"{work_dir}/extractions").is_dir():
+            logger.info(f"{work_dir}/extractions exists, skipping.")
+            continue
+        logger.info(f"working on {work_dir}")
         pathlib.Path(work_dir).mkdir(parents=True, exist_ok=True)
         emitters = [
             TransformerEmitter(model=model, work_dir=work_dir, anonymizer=anonymizer,
                                data_dictionary=data_dictionary, study_name=study_name)
         ]
-        sources.append(file_path)  # add study bundle
-        for source in sources:
+        for source in Path(work_dir).glob('*.bundle.json'):
             for bundle_entry in Bundle(json.load(open(source))).entry:
                 for emitter in emitters:
                     emitter.emit(bundle_entry.resource)
@@ -1273,9 +1267,9 @@ async def upload_and_decorate_document_references(lines, bucket_name, program,
               help='Destination bucket name')
 @click.option('--document_reference_path', required=True, default=None, show_default=True,
               help='Path to DocumentReference.ndjson')
-@click.option('--program', default='MyFirstProgram', show_default=True,
+@click.option('--program', required=True, show_default=True,
               help='Gen3 program')
-@click.option('--project', default='MyFirstProject', show_default=True,
+@click.option('--project', required=True, show_default=True,
               help='Gen3 project')
 @click.option('--credentials_file', default='credentials.json', show_default=True,
               help='API credentials file downloaded from gen3 profile.')
@@ -1326,6 +1320,8 @@ def data_init(input_path, sheepdog_creds_path, db_host, config_path):
     """Add our program and project to a brand new gen3 instance."""
     conn = connect_to_postgres(db_host=db_host, sheepdog_creds_path=sheepdog_creds_path)
     assert conn
+    # TODO
+    assert False, "Not implemented"
 
 
 @data.command(name='load')
@@ -1334,7 +1330,7 @@ def data_init(input_path, sheepdog_creds_path, db_host, config_path):
               show_default=True,
               help='File names to match.')
 @click.option('--input_path',
-              default='output/extractions',
+              default='studies/',
               show_default=True,
               help='Path to transformed data.')
 @click.option('--sheepdog_creds_path',
@@ -1342,11 +1338,12 @@ def data_init(input_path, sheepdog_creds_path, db_host, config_path):
               show_default=True,
               help='Path to sheepdog credentials.')
 @click.option('--program_name',
-              default='MyFirstProgram',
+              default='aced',
               show_default=True,
               help='Existing program in Gen3.')
 @click.option('--project_code',
-              default='MyFirstProject',
+              required=True,
+              default='aced',
               show_default=True,
               help='Existing project in Gen3.')
 @click.option('--db_host',
@@ -1392,7 +1389,7 @@ def data_load(input_path, file_name_pattern, sheepdog_creds_path, program_name, 
     logger.info(f"Program and project exist: {project_id} {project_node_id}")
 
     # check files
-    input_path = pathlib.Path(input_path)
+    input_path = pathlib.Path(input_path) / project_code / "extractions"
     assert input_path.is_dir(), f"{input_path} should be a directory"
     files = [fn for fn in input_path.glob(file_name_pattern)]
     assert len(files) > 0, f"No files found at {input_path}/{file_name_pattern}"

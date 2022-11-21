@@ -1,0 +1,181 @@
+import csv
+import json
+import pathlib
+from typing import Mapping, Sequence, Set, List
+
+import click
+import os
+from pathlib import Path
+import time
+import multiprocessing
+import logging
+from fhirclient.models.bundle import Bundle, BundleEntry, BundleEntryRequest
+from fhirclient.models.documentreference import DocumentReference
+from fhirclient.models.researchstudy import ResearchStudy
+from fhirclient.models.researchsubject import ResearchSubject
+from fhirclient.models.specimen import Specimen
+from fhirclient.models.task import Task, TaskInput, TaskOutput
+from fhirclient.models.fhirreference import FHIRReference
+from fhirclient.models.narrative import Narrative
+from fhirclient.models.organization import Organization
+from fhirclient.models.location import Location
+from fhirclient.models.practitioner import Practitioner
+from pydantic import BaseModel
+from fhirclient.models.extension import Extension
+
+import base64
+import uuid
+from itertools import repeat
+
+
+logging.basicConfig(level=logging.INFO, format='%(process)d - %(levelname)s - %(message)s')
+
+
+def practitioners(coherent_path):
+    """Reads CSV files for Organizations, Practitioners etc. used across bundles.
+
+    Required since Mitre did not provide FHIR resources for same.
+    """
+
+    with open(f'{coherent_path}/csv/providers.csv') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for organization_ in reader:
+            practitioner_ = {}
+            for k in ['Id', 'ORGANIZATION', 'NAME', 'GENDER', 'SPECIALITY']:
+                practitioner_[k.lower()] = organization_.pop(k)
+            practitioner_['gender'] = 'female' if practitioner_['gender'] == 'F' else 'male'
+            practitioner_['name'] = [{'text': practitioner_.pop('name')}]
+            speciality = practitioner_.pop('speciality')
+            practitioner_['qualification'] = [
+                {
+                    "code": {
+                      "coding": [
+                          {
+                              "system": "https://github.com/synthetichealth/synthea",
+                              "code": speciality,
+                              "display": speciality
+                          }
+                      ],
+                      "text": speciality
+                    },
+                    "issuer": {
+                        "reference": f"Organization/{practitioner_.pop('organization')}"
+                    }
+
+                }
+            ]
+            practitioner_['identifier'] = [
+                {
+                    'system': 'https://github.com/synthetichealth/synthea',
+                    'value': practitioner_['id']
+                },
+                {
+                    'system': 'name',
+                    'value': ''.join(filter(str.isalnum, practitioner_['name'][0]['text']))
+                }
+
+            ]
+            yield Practitioner(practitioner_)
+
+
+def organizations(coherent_path):
+    """Yields organizations and locations"""
+    with open(f'{coherent_path}/csv/organizations.csv') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for organization_ in reader:
+            for k in ['Id', 'NAME', 'ADDRESS', 'CITY', 'STATE', 'ZIP', 'LAT', 'LON', 'PHONE', 'REVENUE', 'UTILIZATION']:
+                organization_[k.lower()] = organization_.pop(k)
+            telecom = {'value': organization_.pop('phone'), 'system': 'phone'}
+            if telecom['value'] != "":
+                organization_['telecom'] = [telecom]
+            location = {}
+            address = {}
+            for k in ['address', 'city', 'state', 'zip', 'lat', 'lon']:
+                address[k] = organization_.pop(k)
+            address['line'] = [address.pop('address')]
+            address['postalCode'] = address.pop('zip')
+            location['address'] = address
+            location['position'] = {
+                "latitude": float(address.pop('lat')),
+                "longitude": float(address.pop('lon'))
+            }
+            location['id'] = str(uuid.uuid5(uuid.UUID(organization_['id']), str(location['position'])))
+            # discard unmapped fields
+            for k in ["revenue", "utilization"]:
+                organization_.pop(k)
+            # add identifier
+            organization_['identifier'] = [
+                {
+                    'system': 'https://github.com/synthetichealth/synthea',
+                    'value': organization_['id']
+                },
+                {
+                    'system': 'name',
+                    'value': ''.join(filter(str.isalnum, organization_['name']))
+                }
+            ]
+
+            organization = Organization(organization_)
+            yield organization
+            location['identifier'] = [
+                {
+                    'system': 'name',
+                    'value': ''.join(filter(str.isalnum, organization_['name']))
+                }
+            ]
+            location['managingOrganization'] = {'reference': f"Organization/{organization.id}"}
+            yield Location(location)
+
+
+coherent_path = 'coherent-11-17-2022'
+
+
+# with open(f"{coherent_path}/ndjson/organization.ndjson", "w") as org:
+#     with open(f"{coherent_path}/ndjson/location.ndjson", "w") as loc:
+#         for obj in organizations(coherent_path):
+#             if obj.resource_type == 'Organization':
+#                 json.dump(obj.as_json(), org, separators=(',', ':'))
+#                 org.write('\n')
+#             else:
+#                 json.dump(obj.as_json(), loc, separators=(',', ':'))
+#                 loc.write('\n')
+#
+# with open(f"{coherent_path}/ndjson/practitioner.ndjson", "w") as f:
+#     for p in practitioners(coherent_path):
+#         json.dump(p.as_json(), f, separators=(',', ':'))
+#         f.write('\n')
+
+
+def make_bundle_entry(obj):
+    bundle_entry = BundleEntry()
+    bundle_entry.resource = obj
+    bundle_entry.request = BundleEntryRequest()
+    # https://github.com/hapifhir/hapi-fhir/issues/333
+    bundle_entry.request.method = 'PUT'
+    bundle_entry.request.url = f"{obj.resource_type}/{obj.id}"
+    return bundle_entry
+
+
+def write_bundle():
+    bundle = Bundle()
+    bundle.entry = []
+    bundle.type = 'transaction'
+
+    already_loaded = []
+    for obj in organizations(coherent_path):
+        if obj.id in already_loaded:
+            continue
+        already_loaded.append(obj.id)
+        bundle.entry.append(make_bundle_entry(obj))
+
+    for obj in practitioners(coherent_path):
+        if obj.id in already_loaded:
+            continue
+        already_loaded.append(obj.id)
+        bundle.entry.append(make_bundle_entry(obj))
+
+    with open(f"{coherent_path}/practitioner-organization-location.json", "w") as f:
+        json.dump(bundle.as_json(), f, separators=(',', ':'))
+
+
+write_bundle()
