@@ -15,8 +15,8 @@ fi
 
 # ingest assumes coherent downloaded and unzipped
 
-# fix the document_reference
-python3 scripts/coherent_refactor_document_reference.py
+# fix the document_reference, genomic observation
+python3 scripts/coherent_refactor_bundle.py
 
 # load to fhir service
 nice -10 python3 scripts/coherent_fhir_load.py
@@ -25,6 +25,7 @@ nice -10 python3 scripts/coherent_fhir_load.py
 python3 scripts/coherent_fhir_studies.py create
 
 # list studies and counts
+sleep 10
 python3 scripts/coherent_fhir_studies.py ls
 
 

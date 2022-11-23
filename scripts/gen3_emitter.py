@@ -1039,7 +1039,9 @@ def _table_mappings(dictionary_path, dictionary_url):
               help='Path to data dictionary file.')
 @click.option('--manifest', default="coherent_studies.manifest.yaml", show_default=True,
               help='Study names, conditions, expected counts, etc.')
-def data_transform(input_path, config_path, anonymizer_config_path, dictionary_path, manifest):
+@click.option('--title', default=None, show_default=True,
+              help='filter by this single study title')
+def data_transform(input_path, config_path, anonymizer_config_path, dictionary_path, manifest, title):
     """Transform from FHIRBundles to Graph."""
 
     # validate parameters
@@ -1057,6 +1059,8 @@ def data_transform(input_path, config_path, anonymizer_config_path, dictionary_p
     study_manifests = yaml.load(open(manifest), yaml.SafeLoader)
 
     for study_name in study_manifests:
+        if title and study_name != title:
+            continue
         work_dir = f'{input_path}/{study_name}'
         if Path(f"{work_dir}/extractions").is_dir():
             logger.info(f"{work_dir}/extractions exists, skipping.")

@@ -113,6 +113,194 @@ def analyze(url, export, plot):
     print(df)
 
 
+def _genomic_observation(observation_dict) -> Observation:
+    """Transform dict into a Genomic Implication Observation."""
+    # fix missing data
+    if 'status' not in observation_dict['resource'] or not observation_dict['resource']['status']:
+        observation_dict['resource']['status'] = 'preliminary'
+    # load into a python object
+    observation = Observation(observation_dict['resource'], strict=False)
+    # TODO - change profile ? http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/implication
+    # parse the assertation
+    assertation_sentence = observation.code.coding[0].display
+    implication = _parse_assertation(assertation_sentence)
+    # cast the observation into a full GenomicInterpretation
+    observation.category = []
+    # set category
+    observation.category.append(
+        CodeableConcept(
+            {
+                'coding': [
+                    {
+                        'system': "https://loinc.org",
+                        'code': '55233-1',
+                        'display': 'Genetic analysis master panel'
+                    },
+                    {
+                        'system': "http://terminology.hl7.org/CodeSystem/observation-category",
+                        'code': 'laboratory',
+                        'display': 'laboratory'
+                    },
+                ]
+            }
+        )
+    )
+    observation.code = CodeableConcept({
+        'coding': [{
+            "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
+            "code": "diagnostic-implication"
+        }]
+    })
+    # set generic summary view
+    observation.valueString = assertation_sentence
+    observation.valueCodeableConcept = CodeableConcept(
+        {
+            "coding": [
+                {
+                    "system": "http://www.genenames.org/geneId",
+                    "code": implication['gene'],
+                    "display": implication['gene']
+                }
+            ]
+        }
+    )
+    # set detailed view
+    if not observation.component:
+        observation.component = []
+    # geneId
+    observation.component.append(ObservationComponent({
+        "code": {
+            "coding": [
+                {
+                    "system": "http://loinc.org",
+                    "code": "48018-6",
+                    "display": "Gene studied ID"
+                }
+            ]
+        },
+        "valueCodeableConcept": {
+            "coding": [
+                {
+                    "system": "http://www.genenames.org/geneId",
+                    "code": implication['gene'],
+                    "display": implication['gene']
+                }
+            ]
+        }
+    }))
+    # snp_id
+    observation.component.append(ObservationComponent({
+        "code": {
+            "coding": [
+                {
+                    "system": "http://loinc.org",
+                    "code": "48013-7",
+                    "display": "Genomic reference sequence ID"
+                }
+            ]
+        },
+        "valueCodeableConcept": {
+            "coding": [
+                {
+                    "system": "https://www.ncbi.nlm.nih.gov/snp/",
+                    "code": implication['snp_id'],
+                    "display": implication['snp_id']
+                }
+            ]
+        }
+    }))
+    # conclusion
+    observation.component.append(ObservationComponent({
+        "code": {
+            "coding": [
+                {
+                    "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
+                    "code": "conclusion-string",
+                    "display": "conclusion-string"
+                }
+            ]
+        },
+        "valueString": assertation_sentence
+    }))
+    # evidence-level
+    observation.component.append(ObservationComponent({
+        "code": {
+            "coding": [
+                {
+                    "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
+                    "code": "evidence-level",
+                    "display": "evidence-level"
+                }
+            ]
+        },
+
+        # TODO - translate this vocabulary
+        "valueCodeableConcept": {
+            "coding": [
+                {
+                    "system": "http://loinc.org/LL5356-2/",
+                    "code": f"TODO lookup code for: {implication['significance']}",
+                    "display": implication['significance']
+                }
+            ]
+        }
+    }))
+    # predicted-phenotype
+    observation.component.append(ObservationComponent({
+        "code": {
+            "coding": [
+                {
+                    "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
+                    "code": "predicted-phenotype",
+                    "display": "predicted-phenotype"
+                }
+            ]
+        },
+
+        # TODO - translate this vocabulary
+        "valueCodeableConcept": {
+            "coding": [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": f"TODO - lookup snomed code for {condition}",
+                    "display": condition
+                }
+                for condition in implication['conditions']
+            ]
+        }
+    }))
+    # observation-interpretation
+    observation.component.append(ObservationComponent({
+        "code": {
+            "coding": [
+                {
+                    "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
+                    "code": "observation-interpretation",
+                    "display": "observation-interpretation"
+                }
+            ]
+        },
+
+        # TODO - translate this vocabulary
+        "valueCodeableConcept": {
+            "coding": [
+                # {
+                #     "system": "http://hl7.org/fhir/ValueSet/observation-interpretation",
+                #     "code": f"TODO - lookup FHIR code for {implication['risk']}",
+                #     "display": implication['risk']
+                # }
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/risk-probability",
+                    "code": 'moderate',
+                    "display": 'The specified outcome has a reasonable likelihood of occurrence.'
+                }
+
+            ]
+        }
+    }))
+    return observation
+
+
 @cli.command()
 @click.option('--url', default="http://localhost:8090/fhir", show_default=True,
               help='url to HAPI FHIR server')
@@ -127,202 +315,7 @@ def transform(url, show, load):
         print('# BEFORE')
         print(yaml.dump(observation_dict['resource']))
 
-        # fix missing data
-        if 'status' not in observation_dict['resource'] or not observation_dict['resource']['status']:
-            observation_dict['resource']['status'] = 'preliminary'
-
-        # load into a python object
-        observation = Observation(observation_dict['resource'], strict=False)
-
-        # TODO - change profile ? http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/implication
-        # parse the assertation
-        assertation_sentence = observation.code.coding[0].display
-        implication = _parse_assertation(assertation_sentence)
-
-        # cast the observation into a full GenomicInterpretation
-        observation.category = []
-
-        # set category
-        observation.category.append(
-            CodeableConcept(
-                {
-                    'coding': [
-                        {
-                            'system': "https://loinc.org",
-                            'code': '55233-1',
-                            'display': 'Genetic analysis master panel'
-                        },
-                        {
-                            'system': "http://terminology.hl7.org/CodeSystem/observation-category",
-                            'code': 'laboratory',
-                            'display': 'laboratory'
-                        },
-                    ]
-                }
-            )
-        )
-
-        observation.code = CodeableConcept({
-            'coding': [{
-                "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
-                "code": "diagnostic-implication"
-            }]
-        })
-
-        # set generic summary view
-        observation.valueString = assertation_sentence
-        observation.valueCodeableConcept = CodeableConcept(
-            {
-                "coding": [
-                    {
-                        "system": "http://www.genenames.org/geneId",
-                        "code": implication['gene'],
-                        "display": implication['gene']
-                    }
-                ]
-            }
-        )
-
-        # set detailed view
-        if not observation.component:
-            observation.component = []
-
-        # geneId
-        observation.component.append(ObservationComponent({
-            "code": {
-                "coding": [
-                    {
-                        "system": "http://loinc.org",
-                        "code": "48018-6",
-                        "display": "Gene studied ID"
-                    }
-                ]
-            },
-            "valueCodeableConcept": {
-                "coding": [
-                    {
-                        "system": "http://www.genenames.org/geneId",
-                        "code": implication['gene'],
-                        "display": implication['gene']
-                    }
-                ]
-            }
-        }))
-
-        # snp_id
-        observation.component.append(ObservationComponent({
-            "code": {
-                "coding": [
-                    {
-                        "system": "http://loinc.org",
-                        "code": "48013-7",
-                        "display": "Genomic reference sequence ID"
-                    }
-                ]
-            },
-            "valueCodeableConcept": {
-                "coding": [
-                    {
-                        "system": "https://www.ncbi.nlm.nih.gov/snp/",
-                        "code": implication['snp_id'],
-                        "display": implication['snp_id']
-                    }
-                ]
-            }
-        }))
-
-        # conclusion
-        observation.component.append(ObservationComponent({
-            "code": {
-                "coding": [
-                    {
-                        "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
-                        "code": "conclusion-string",
-                        "display": "conclusion-string"
-                    }
-                ]
-            },
-            "valueString": assertation_sentence
-        }))
-
-        # evidence-level
-        observation.component.append(ObservationComponent({
-            "code": {
-                "coding": [
-                    {
-                        "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
-                        "code": "evidence-level",
-                        "display": "evidence-level"
-                    }
-                ]
-            },
-
-            # TODO - translate this vocabulary
-            "valueCodeableConcept": {
-                "coding": [
-                    {
-                        "system": "http://loinc.org/LL5356-2/",
-                        "code": f"TODO lookup code for: {implication['significance']}",
-                        "display": implication['significance']
-                    }
-                ]
-            }
-        }))
-
-        # predicted-phenotype
-        observation.component.append(ObservationComponent({
-            "code": {
-                "coding": [
-                    {
-                        "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
-                        "code": "predicted-phenotype",
-                        "display": "predicted-phenotype"
-                    }
-                ]
-            },
-
-            # TODO - translate this vocabulary
-            "valueCodeableConcept": {
-                "coding": [
-                    {
-                        "system": "http://snomed.info/sct",
-                        "code": f"TODO - lookup snomed code for {condition}",
-                        "display": condition
-                    }
-                    for condition in implication['conditions']
-                ]
-            }
-        }))
-
-        # observation-interpretation
-        observation.component.append(ObservationComponent({
-            "code": {
-                "coding": [
-                    {
-                        "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
-                        "code": "observation-interpretation",
-                        "display": "observation-interpretation"
-                    }
-                ]
-            },
-
-            # TODO - translate this vocabulary
-            "valueCodeableConcept": {
-                "coding": [
-                    # {
-                    #     "system": "http://hl7.org/fhir/ValueSet/observation-interpretation",
-                    #     "code": f"TODO - lookup FHIR code for {implication['risk']}",
-                    #     "display": implication['risk']
-                    # }
-                    {
-                        "system": "http://terminology.hl7.org/CodeSystem/risk-probability",
-                        "code": 'moderate',
-                        "display": 'The specified outcome has a reasonable likelihood of occurrence.'
-                    }
-
-                ]
-            }
-        }))
+        observation = _genomic_observation(observation_dict)
 
         print('# AFTER')
         print(yaml.dump(observation.as_json()))

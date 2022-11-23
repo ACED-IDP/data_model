@@ -7,14 +7,16 @@ import pathlib
 import time
 import uuid
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, Dict
 
 import click
 from fhirclient.models.bundle import Bundle, BundleEntry, BundleEntryRequest
+from fhirclient.models.codeableconcept import CodeableConcept
 from fhirclient.models.documentreference import DocumentReference
 from fhirclient.models.extension import Extension
 from fhirclient.models.fhirreference import FHIRReference
 from fhirclient.models.narrative import Narrative
+from fhirclient.models.observation import Observation, ObservationComponent
 from fhirclient.models.specimen import Specimen
 from fhirclient.models.task import Task, TaskInput, TaskOutput
 
@@ -47,7 +49,225 @@ def _file_attributes(file_name):
     return md5_hash.hexdigest(), os.lstat(file_name).st_size
 
 
-def _transform_bundle(bundle: Bundle, coherent_path: Path) -> Bundle:
+def _parse_assertation(assertation_sentence: str) -> Dict[str, str]:
+    """Parse sentence."""
+    gene = assertation_sentence.split('The ')[1].split(' gene')[0]
+
+    assertation_parts = assertation_sentence.split('of ')
+    significance = assertation_parts[-1].split("'")[1]
+
+    assertation_parts = assertation_sentence.split("index ")
+    variant_id = assertation_parts[-1].split(" ")[0]
+    snp_id = variant_id
+    snp_capture = None
+    # FS Follistatin? FeatureSelection ? Frame Shift ?
+    if '_' in variant_id:
+        snp_id, snp_capture = variant_id.split('_')
+
+    assertation_parts = assertation_sentence.split("of: ")
+    conditions = assertation_parts[-1].replace(' and ', ',').replace('.', '').split(',')
+    risk = assertation_parts[0].split(' an ')[-1].strip()
+
+    return {'gene': gene, 'significance': significance, 'snp_id': snp_id, 'snp_capture': snp_capture, 'risk': risk, 'conditions': conditions}
+
+
+def _genomic_observation(observation) -> Observation:
+    """Transform dict into a Genomic Implication Observation."""
+    # fix missing data
+    # if 'status' not in observation_dict['resource'] or not observation_dict['resource']['status']:
+    #     observation_dict['resource']['status'] = 'preliminary'
+    if not observation.status:
+        observation.status = 'preliminary'
+    # load into a python object
+    # TODO - change profile ? http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/implication
+    # parse the assertation
+    assertation_sentence = observation.code.coding[0].display
+    implication = _parse_assertation(assertation_sentence)
+    # cast the observation into a full GenomicInterpretation
+    observation.category = []
+    # set category
+    observation.category.append(
+        CodeableConcept(
+            {
+                'coding': [
+                    {
+                        'system': "https://loinc.org",
+                        'code': '55233-1',
+                        'display': 'Genetic analysis master panel'
+                    },
+                    {
+                        'system': "http://terminology.hl7.org/CodeSystem/observation-category",
+                        'code': 'laboratory',
+                        'display': 'laboratory'
+                    },
+                ]
+            }
+        )
+    )
+    observation.code = CodeableConcept({
+        'coding': [
+            {
+                "system": "http://www.genenames.org/geneId",
+                "code": implication['gene'],
+                "display": implication['gene']
+            },
+            {
+                "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
+                "code": "diagnostic-implication",
+                "display": "diagnostic-implication"
+            }
+        ]
+    })
+    # set generic summary view
+    observation.valueString = assertation_sentence
+    observation.valueCodeableConcept = CodeableConcept(
+        {
+            "coding": [
+                {
+                    "system": "http://www.genenames.org/geneId",
+                    "code": implication['gene'],
+                    "display": implication['gene']
+                }
+            ]
+        }
+    )
+    # set detailed view
+    if not observation.component:
+        observation.component = []
+    # geneId
+    observation.component.append(ObservationComponent({
+        "code": {
+            "coding": [
+                {
+                    "system": "http://loinc.org",
+                    "code": "48018-6",
+                    "display": "Gene studied ID"
+                }
+            ]
+        },
+        "valueCodeableConcept": {
+            "coding": [
+                {
+                    "system": "http://www.genenames.org/geneId",
+                    "code": implication['gene'],
+                    "display": implication['gene']
+                }
+            ]
+        }
+    }))
+    # snp_id
+    observation.component.append(ObservationComponent({
+        "code": {
+            "coding": [
+                {
+                    "system": "http://loinc.org",
+                    "code": "48013-7",
+                    "display": "Genomic reference sequence ID"
+                }
+            ]
+        },
+        "valueCodeableConcept": {
+            "coding": [
+                {
+                    "system": "https://www.ncbi.nlm.nih.gov/snp/",
+                    "code": implication['snp_id'],
+                    "display": implication['snp_id']
+                }
+            ]
+        }
+    }))
+    # conclusion
+    observation.component.append(ObservationComponent({
+        "code": {
+            "coding": [
+                {
+                    "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
+                    "code": "conclusion-string",
+                    "display": "conclusion-string"
+                }
+            ]
+        },
+        "valueString": assertation_sentence
+    }))
+    # evidence-level
+    observation.component.append(ObservationComponent({
+        "code": {
+            "coding": [
+                {
+                    "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
+                    "code": "evidence-level",
+                    "display": "evidence-level"
+                }
+            ]
+        },
+
+        # TODO - translate this vocabulary
+        "valueCodeableConcept": {
+            "coding": [
+                {
+                    "system": "http://loinc.org/LL5356-2/",
+                    "code": implication['significance'],  # f"TODO lookup code for: ",
+                    "display": implication['significance']
+                }
+            ]
+        }
+    }))
+    # predicted-phenotype
+    observation.component.append(ObservationComponent({
+        "code": {
+            "coding": [
+                {
+                    "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
+                    "code": "predicted-phenotype",
+                    "display": "predicted-phenotype"
+                }
+            ]
+        },
+
+        # TODO - translate this vocabulary
+        "valueCodeableConcept": {
+            "coding": [
+                {
+                    "system": "http://snomed.info/sct",
+                    "code": condition,  # f"TODO - lookup snomed code for {condition}",
+                    "display": condition
+                }
+                for condition in implication['conditions']
+            ]
+        }
+    }))
+    # observation-interpretation
+    observation.component.append(ObservationComponent({
+        "code": {
+            "coding": [
+                {
+                    "system": "http://hl7.org/fhir/uv/genomics-reporting/CodeSystem/tbd-codes-cs",
+                    "code": "observation-interpretation",
+                    "display": "observation-interpretation"
+                }
+            ]
+        },
+
+        "valueCodeableConcept": {
+            "coding": [
+                # {
+                #     "system": "http://hl7.org/fhir/ValueSet/observation-interpretation",
+                #     "code": f"TODO - lookup FHIR code for {implication['risk']}",
+                #     "display": implication['risk']
+                # }
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/risk-probability",
+                    "code": 'moderate',
+                    "display": 'The specified outcome has a reasonable likelihood of occurrence.'
+                }
+
+            ]
+        }
+    }))
+    return observation
+
+
+def _transform_document_reference(bundle: Bundle, coherent_path: Path) -> Bundle:
     """Get file attributes, update bundle with bundle Specimen, Task, ensure DocumentReference.
     see https://github.com/ACED-IDP/data_model/issues/20
     """
@@ -61,6 +281,9 @@ def _transform_bundle(bundle: Bundle, coherent_path: Path) -> Bundle:
     conditions = []
     imaging_studies = []
     for e in bundle.entry:
+
+        if e.resource.resource_type == 'Observation' and e.resource.code.coding[0].code == '69548-6':
+            e.resource = _genomic_observation(e.resource)
 
         if e.resource.resource_type == 'Patient':
             patient = e.resource
@@ -122,8 +345,8 @@ def _transform_bundle(bundle: Bundle, coherent_path: Path) -> Bundle:
                 {'type': {'coding': [{'code': diagnostic_report.resource_type}]},
                  'valueReference': {'reference': f"{diagnostic_report.resource_type}/{diagnostic_report.id}"}}
             )]
-            assert len(
-                dna_document_references) == 1, "Should have found a document reference with a reference to the dna data."
+            assert len(dna_document_references) == 1, \
+                f"Should have found a document reference with a reference to the dna data. {len(dna_document_references)}"
             # this document reference is the clinical note
             document_reference = dna_document_references[0]
             # clone the document reference, create new one with url
@@ -283,9 +506,9 @@ async def transform(path, coherent_path):
     """Read a bundle, transform it/fix it, save it in place."""
     tic = time.perf_counter()
     with open(path, 'r') as fp:
-        bundle_data = fp.read()
-        bundle = _transform_bundle(Bundle(json.loads(bundle_data)), coherent_path=coherent_path)
-        bundle_data = None
+        bundle = Bundle(json.loads(fp.read()))
+        bundle = _transform_document_reference(bundle, coherent_path=coherent_path)
+        # bundle = _transform_observation(bundle)
     # trigger as_json
     transformed = json.dumps(bundle.as_json(), separators=(',', ':'))
     bundle = None

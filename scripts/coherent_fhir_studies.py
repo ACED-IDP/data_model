@@ -135,11 +135,16 @@ def ls(url):
               help='directory to store bundles')
 @click.option('--limit', default=None, show_default=True,
               help='Maximum number of Patients per study to export')
-def extract(url, destination_directory, limit):
+@click.option('--title', default=None, show_default=True,
+              help='filter by this single study title')
+def extract(url, destination_directory, limit, title):
     """Extract data from ALL ResearchStudy."""
 
     # all the details
-    response = requests.get(f"{url}/ResearchStudy?_elements=id,title")
+    filter_url = f"{url}/ResearchStudy?_elements=id,title"
+    if title:
+        filter_url = f"{filter_url}&title={title}"
+    response = requests.get(filter_url)
     study_bundle = response.json()
     total_research_study_count = study_bundle['total']
     if limit:
