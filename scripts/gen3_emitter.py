@@ -25,9 +25,11 @@ import jwt
 import psycopg2
 import requests
 import yaml
+from aiohttp.web_urldispatcher import Resource
 from dictionaryutils import DataDictionary, dictionary, dump_schemas_from_dir
 from fhirclient.models.attachment import Attachment
 from fhirclient.models.bundle import Bundle
+from fhirclient.models.domainresource import DomainResource
 from fhirclient.models.fhirreference import FHIRReference
 from fhirclient.models.observation import Observation
 from fhirclient.models.patient import Patient
@@ -754,6 +756,7 @@ class TransformerEmitter(Emitter):
     _study_uuid: uuid = PrivateAttr()
 
     study_name: str
+    ids_relative_to_study: bool = True
 
     def __init__(self, **data):
         """Append /extractions to output_path"""
@@ -787,9 +790,12 @@ class TransformerEmitter(Emitter):
         flattened = decorate_gen3(flattened, resource.resource_type)
 
         # refactor ids, make them relative to study name
-        id_ = str(uuid.uuid5(self._study_uuid, resource.id))
-        for lnk in links:
-            lnk.dst_id = str(uuid.uuid5(self._study_uuid, lnk.dst_id))
+        if self.ids_relative_to_study:
+            id_ = str(uuid.uuid5(self._study_uuid, resource.id))
+            for lnk in links:
+                lnk.dst_id = str(uuid.uuid5(self._study_uuid, lnk.dst_id))
+        else:
+            id_ = resource.id
 
         json.dump(
             {
@@ -1041,8 +1047,11 @@ def _table_mappings(dictionary_path, dictionary_url):
               help='Study names, conditions, expected counts, etc.')
 @click.option('--title', default=None, show_default=True,
               help='filter by this single study title')
-def data_transform(input_path, config_path, anonymizer_config_path, dictionary_path, manifest, title):
-    """Transform from FHIRBundles to Graph."""
+@click.option('--ids_relative_to_study', default=False, show_default=True, is_flag=True,
+              help='make all ids relative to study - intentionally duplicate')
+def data_transform(input_path, config_path, anonymizer_config_path, dictionary_path, manifest, title,
+                   ids_relative_to_study):
+    """Transform from FHIRBundles or ndjson files to Graph."""
 
     # validate parameters
     assert os.path.isdir(input_path)
@@ -1069,13 +1078,30 @@ def data_transform(input_path, config_path, anonymizer_config_path, dictionary_p
         pathlib.Path(work_dir).mkdir(parents=True, exist_ok=True)
         emitters = [
             TransformerEmitter(model=model, work_dir=work_dir, anonymizer=anonymizer,
-                               data_dictionary=data_dictionary, study_name=study_name)
+                               data_dictionary=data_dictionary, study_name=study_name,
+                               ids_relative_to_study=ids_relative_to_study)
         ]
+
         for source in Path(work_dir).glob('*.bundle.json'):
             for bundle_entry in Bundle(json.load(open(source))).entry:
                 for emitter in emitters:
                     emitter.emit(bundle_entry.resource)
             # break  # exit after one study for testing
+
+        for source in Path(work_dir).glob('*.ndjson'):
+            with open(source) as jsonfile:
+                logger.info(source)
+                for line in jsonfile.readlines():
+                    # create a fake bundle, delegate the instantiation of object to bundle
+                    b_ = Bundle({
+                        'entry': [{'resource': json.loads(line)}],
+                        'type': 'document'
+                    })
+                    # now we have a
+                    for emitter in emitters:
+                        emitter.emit(b_.entry[0].resource)
+                # break  # exit after one study for testing
+
         for emitter in emitters:
             emitter.close()
 
@@ -1112,13 +1138,13 @@ def load_vertices(files, connection, model, project_id, mapping):
                         d_ = json.loads(line)
                         d_['object']['project_id'] = project_id
                         obj_str = json.dumps(d_['object'])
-                        csv = f"{d_['id']}|{obj_str}|{{}}|{{}}|{datetime.now()}".replace('\n', '\\n').replace("\\",
+                        csv = f"{d_['id']}\t{obj_str}\t{{}}\t{{}}\t{datetime.now()}".replace('\n', '\\n').replace("\\",
                                                                                                               "\\\\")
                         csv = csv + '\n'
                         buf.write(csv)
                     buf.seek(0)
                     # efficient way to write to postgres
-                    cursor.copy_from(buf, data_table_name, sep='|',
+                    cursor.copy_from(buf, data_table_name, sep='\t',
                                      columns=['node_id', '_props', 'acl', '_sysan', 'created'])
                     logger.info(f"wrote {record_count} records to {data_table_name} from {path}")
                     connection.commit()

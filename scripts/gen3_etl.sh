@@ -20,7 +20,8 @@ echo "Transforming into Gen3 graph form."
 #rm -r studies/Diabetes/extractions
 #rm -r studies/Lung_Cancer/extractions
 #rm -r studies/Prostate_Cancer/extractions
-python3 scripts/gen3_emitter.py data transform
+# intentionally set the ids relative to study, allows entities to be "duplicated" in separate projects
+python3 scripts/gen3_emitter.py data transform --ids_relative_to_study
 
 # clear existing data
 echo "Truncating gen3 tables."
@@ -48,3 +49,6 @@ nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_
 nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services/Secrets/sheepdog_creds.json --project_code Diabetes
 nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services/Secrets/sheepdog_creds.json --project_code Lung_Cancer
 nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services/Secrets/sheepdog_creds.json --project_code Prostate_Cancer
+
+
+nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services/Secrets/sheepdog_creds.json --project_code HOP --input_path /Users/walsbr/hop/data-etl/data/fhir
