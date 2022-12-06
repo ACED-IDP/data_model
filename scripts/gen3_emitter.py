@@ -554,7 +554,9 @@ class DictionaryEmitter(Emitter):
             range_limit = 1  # max 2 ?
 
         if resource_type == Observation and name == 'component':
-            # print(resource, name)
+            range_limit = 2
+
+        if parent_name == 'code_coding':
             range_limit = 2
 
         for list_counter in range(range_limit):
@@ -906,10 +908,6 @@ def config_introspect(config_path):
 
 
 @schema.command(name="generate")
-@click.option('--file_name_pattern',
-              default='research_study*.json',
-              show_default=True,
-              help='File names to match.')
 @click.option('--input_path',
               default='output/',
               show_default=True,
@@ -922,16 +920,13 @@ def config_introspect(config_path):
               default='anonymizer/hippa.yaml',
               show_default=True,
               help='Path to config file.')
-def schema_generate(input_path, file_name_pattern, config_path, anonymizer_config_path):
+def schema_generate(input_path, config_path, anonymizer_config_path):
     """Parse config, create dictionary schemas."""
 
     # validate parameters
     assert os.path.isdir(input_path)
     input_path = pathlib.Path(input_path)
     assert os.path.isdir(input_path)
-    file_paths = list(input_path.glob(file_name_pattern))
-    assert len(
-        file_paths) >= 1, f"{str(input_path)}/{file_name_pattern} only returned {len(file_paths)} expected at least 1"
     model = initialize_model(config_path=config_path)
 
     path = 'scripts/gen3_schema_template.yaml'
