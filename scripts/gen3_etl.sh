@@ -42,13 +42,25 @@ nice -n 10 scripts/upload-files Lung_Cancer aced-manchester
 nice -n 10 scripts/upload-files Prostate_Cancer aced-stanford
 
 # upload meta data to gen3
-nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services/Secrets/sheepdog_creds.json --project_code Alcoholism
-nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services/Secrets/sheepdog_creds.json --project_code Alzheimers
-nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services/Secrets/sheepdog_creds.json --project_code Breast_Cancer
-nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services/Secrets/sheepdog_creds.json --project_code Colon_Cancer
-nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services/Secrets/sheepdog_creds.json --project_code Diabetes
-nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services/Secrets/sheepdog_creds.json --project_code Lung_Cancer
-nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services/Secrets/sheepdog_creds.json --project_code Prostate_Cancer
+nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code Alcoholism
+nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code Alzheimers
+nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code Breast_Cancer
+nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code Colon_Cancer
+nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code Diabetes
+nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code Lung_Cancer
+nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code Prostate_Cancer
 
 
-nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services/Secrets/sheepdog_creds.json --project_code HOP --input_path /Users/walsbr/hop/data-etl/data/fhir
+#nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services/Secrets/sheepdog_creds.json --project_code HOP --input_path /Users/walsbr/hop/data-etl/data/fhir
+
+
+# load metadata to elastic
+
+python3 scripts/load_elastic.py --project_id aced-Alcoholism --index observation --path studies/Alcoholism/extractions/Observation.ndjson
+python3 scripts/load_elastic.py --project_id aced-Alzheimers --index observation --path studies/Alzheimers/extractions/Observation.ndjson
+python3 scripts/load_elastic.py --project_id aced-Breast_Cancer --index observation --path studies/Breast_Cancer/extractions/Observation.ndjson
+python3 scripts/load_elastic.py --project_id aced-Colon_Cancer --index observation --path studies/Colon_Cancer/extractions/Observation.ndjson
+python3 scripts/load_elastic.py --project_id aced-Diabetes --index observation --path studies/Diabetes/extractions/Observation.ndjson
+python3 scripts/load_elastic.py --project_id aced-Lung_Cancer --index observation --path studies/Lung_Cancer/extractions/Observation.ndjson
+python3 scripts/load_elastic.py --project_id aced-Prostate_Cancer --index observation --path studies/Prostate_Cancer/extractions/Observation.ndjson
+

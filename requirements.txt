@@ -29,3 +29,9 @@ pydantic
 # uchicago official repo - has the bucket change https://github.com/uc-cdis/gen3sdk-python/pull/160
 https://github.com/uc-cdis/gen3sdk-python/archive/master.zip
 
+# for load elastic (guppy)
+more_itertools
+# using old version of ES.
+# https://github.com/elastic/elasticsearch-py/issues/1933#issuecomment-1073830411#
+elasticsearch==6.8.2
+

@@ -19,7 +19,7 @@ fi
 python3 scripts/coherent_refactor_bundle.py
 
 # load to fhir service
-nice -10 python3 scripts/coherent_fhir_load.py
+nice -10 python3 scripts/coherent_fhir_load.py --chunk_size 3
 
 # assign patients to study
 python3 scripts/coherent_fhir_studies.py create
