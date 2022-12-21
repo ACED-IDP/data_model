@@ -8,7 +8,7 @@ import time
 import uuid
 from pathlib import Path
 from typing import Iterator, Dict
-
+import unicodedata
 import click
 from fhirclient.models.bundle import Bundle, BundleEntry, BundleEntryRequest
 from fhirclient.models.codeableconcept import CodeableConcept
@@ -40,7 +40,7 @@ def _file_attributes(file_name):
     import hashlib
 
     md5_hash = hashlib.md5()
-
+    file_name = unicodedata.normalize("NFKD", file_name)
     with open(file_name, "rb") as f:
         # Read and update hash in chunks of 4K
         for byte_block in iter(lambda: f.read(4096), b""):
@@ -372,7 +372,10 @@ def _transform_document_reference(bundle: Bundle, coherent_path: Path) -> Bundle
             if redacted_path_from_report != path_from_report:
                 # not the first run, we've already redacted
                 if not pathlib.Path(redacted_path_from_report).is_file():
-                    os.rename(path_from_report, redacted_path_from_report)
+                    # need this on linux? https://nedbatchelder.com/blog/201106/filenames_with_accents.html
+                    path_from_report = unicodedata.normalize("NFKD", path_from_report)                    
+                    pathlib.Path(path_from_report).rename(redacted_path_from_report)
+                    #os.rename(path_from_report, redacted_path_from_report)
                 path_from_report = redacted_path_from_report
 
             # alter attachment
@@ -443,7 +446,10 @@ def _transform_document_reference(bundle: Bundle, coherent_path: Path) -> Bundle
             if redacted_path_from_report != path_from_report:
                 # not the first run, we've already redacted
                 if not pathlib.Path(redacted_path_from_report).is_file():
-                    os.rename(path_from_report, redacted_path_from_report)
+                    # need this on linux? https://nedbatchelder.com/blog/201106/filenames_with_accents.html
+                    path_from_report = unicodedata.normalize("NFKD", path_from_report)
+                    pathlib.Path(path_from_report).rename(redacted_path_from_report)
+                    #os.rename(path_from_report, redacted_path_from_report)
                 path_from_report = redacted_path_from_report
 
             document_reference_with_url.content[0].attachment.data = None
