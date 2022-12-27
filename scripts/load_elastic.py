@@ -233,6 +233,35 @@ def patient_generator(project_id, path) -> Iterator[Dict]:
         yield p_
 
 
+def file_generator(project_id, path) -> Iterator[Dict]:
+    """Render guppy index for file."""
+    program, project = project_id.split('-')
+    for file in read_ndjson(path):
+        f_ = file['object']
+        f_['id'] = file['id']
+
+        f_['project_id'] = project_id
+        f_["auth_resource_path"] = f"/programs/{program}/projects/{project}"
+
+        for relation in file['relations']:
+            dst_name = relation['dst_name']
+            dst_id = relation['dst_id']
+            f_[f'{dst_name}_id'] = dst_id
+
+        #
+        for required_field in ['category_0_coding_0_code', 'category_0_coding_0_display', 'category_0_coding_0_system',
+                               'content_0_attachment_contentType', 'content_0_attachment_extension_0_url',
+                               'content_0_attachment_extension_0_valueString', 'content_0_attachment_size',
+                               'content_0_attachment_url', 'content_0_format_code', 'content_0_format_display',
+                               'content_0_format_system', 'context_encounter_0_reference', 'context_period_end',
+                               'context_period_start', 'data_format', 'data_type', 'date', 'file_name', 'file_size',
+                               'id', 'identifier_0_system', 'identifier_0_value', 'object_id', 'status', 'submitter_id',
+                               'type_coding_0_code', 'type_coding_0_display', 'type_coding_0_system']:
+            if required_field not in f_:
+                f_[required_field] = None
+        yield f_
+
+
 def setup_aliases(alias, doc_type, elastic, field_array, index):
     """Create the alias to the data index"""
     elastic.indices.put_alias(index, alias)
@@ -319,43 +348,9 @@ def load_elastic(project_id, index, path, limit, elastic_url):
         index = f"{DEFAULT_NAMESPACE}_{doc_type}_0"
         field_array = ["project_code", "program_name"]
 
-        # create a dummy file record
-        file_prototype = {
-            "content_0_attachment_size": 1006,
-            "content_0_attachment_url": "./output/clinical_reports/7bd3e127-06c7-b7b8-d953-2b9be0077776_6be1d5fb-c322-4697-85df-c7249a4d79c3.txt",
-            "data_format": "note",
-            "data_type": "txt",
-            "date": "1994-05-19T15:24:57.971-04:00",
-            "file_category": "Clinical Note",
-            "file_id": "9e947db7-9206-5b07-a82f-455c3d941004",
-            "file_name": "./output/clinical_reports/7bd3e127-06c7-b7b8-d953-2b9be0077776_6be1d5fb-c322-4697-85df-c7249a4d79c3.txt",
-            "file_size": 1006,
-            "ga4gh_drs_uri": None,
-            "md5sum": None,
-            "object_id": "6be1d5fb-c322-4697-85df-c7249a4d79c3",
-            "project_id": "aced-Lung_Cancer",
-            "state": None,
-            "submitter_id": "6be1d5fb-c322-4697-85df-c7249a4d79c3",
-            "auth_resource_path": "/programs/aced/projects/Lung_Cancer",
-            "patient_birthDate": "1928-05-22",
-            "patient_deceasedBoolean": None,
-            "patient_deceasedDateTime": "1997-11-28T18:48:57-05:00",
-            "patient_disability_adjusted_life_years": 11.996845206901748,
-            "patient_gender": "male",
-            "patient_id": "13392465-f189-5b06-8d57-9e594d1498e3",
-            "patient_maritalStatus_coding_0_display": "M",
-            "patient_ombCategory": "White",
-            "patient_ombCategory_detail": "Non Hispanic or Latino",
-            "patient_patient_resource_type": None,
-            "patient_project_id": "aced-Lung_Cancer",
-            "patient_quality_adjusted_life_years": 56.003154793098254,
-            "patient_submitter_id": "7bd3e127-06c7-b7b8-d953-2b9be0077776",
-            "patient_us_core_birthsex": "M"
-        }
-
-        # create an index only for our dummy file record, no data written into it.
-        index_dict = create_indexes(file_prototype, _index=index, doc_type=doc_type)
-        elastic.indices.create(index=index_dict['index'], body=index_dict['json'])
+        # create the index and write data into it.
+        write_bulk_http(elastic=elastic, index=index, doc_type=doc_type, limit=limit,
+                        generator=file_generator(project_id, path))
 
         setup_aliases(alias, doc_type, elastic, field_array, index)
 
