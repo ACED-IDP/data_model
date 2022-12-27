@@ -8,6 +8,11 @@
 if [ ! -d "studies" ]
 then
     echo "Directory studies DOES NOT exist. Fetching from FHIR server..."
+    # TODO - this needs improvement
+    #  depends on FHIR service's `include/_revinclude` query returning *ALL* nodes
+    #  the HAPI implementation changed this behavior and capped edge results to 1000
+    #  other vendors return even less
+    #  results in pinning HAPI service to "hapiproject/hapi:v6.1.0"
     python3 scripts/coherent_fhir_studies.py extract
 fi
 
@@ -21,6 +26,7 @@ echo "Transforming into Gen3 graph form."
 #rm -r studies/Lung_Cancer/extractions
 #rm -r studies/Prostate_Cancer/extractions
 # intentionally set the ids relative to study, allows entities to be "duplicated" in separate projects
+# TODO this is too slow
 python3 scripts/gen3_emitter.py data transform --ids_relative_to_study
 
 # clear existing data
@@ -56,6 +62,14 @@ nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_
 
 # load metadata to elastic
 
+python3 scripts/load_elastic.py --project_id aced-Alcoholism --index patient --path studies/Alcoholism/extractions/Patient.ndjson
+python3 scripts/load_elastic.py --project_id aced-Alzheimers --index patient --path studies/Alzheimers/extractions/Patient.ndjson
+python3 scripts/load_elastic.py --project_id aced-Breast_Cancer --index patient --path studies/Breast_Cancer/extractions/Patient.ndjson
+python3 scripts/load_elastic.py --project_id aced-Colon_Cancer --index patient --path studies/Colon_Cancer/extractions/Patient.ndjson
+python3 scripts/load_elastic.py --project_id aced-Diabetes --index patient --path studies/Diabetes/extractions/Patient.ndjson
+python3 scripts/load_elastic.py --project_id aced-Lung_Cancer --index patient --path studies/Lung_Cancer/extractions/Patient.ndjson
+python3 scripts/load_elastic.py --project_id aced-Prostate_Cancer --index patient --path studies/Prostate_Cancer/extractions/Patient.ndjson
+
 python3 scripts/load_elastic.py --project_id aced-Alcoholism --index observation --path studies/Alcoholism/extractions/Observation.ndjson
 python3 scripts/load_elastic.py --project_id aced-Alzheimers --index observation --path studies/Alzheimers/extractions/Observation.ndjson
 python3 scripts/load_elastic.py --project_id aced-Breast_Cancer --index observation --path studies/Breast_Cancer/extractions/Observation.ndjson
@@ -64,3 +78,10 @@ python3 scripts/load_elastic.py --project_id aced-Diabetes --index observation -
 python3 scripts/load_elastic.py --project_id aced-Lung_Cancer --index observation --path studies/Lung_Cancer/extractions/Observation.ndjson
 python3 scripts/load_elastic.py --project_id aced-Prostate_Cancer --index observation --path studies/Prostate_Cancer/extractions/Observation.ndjson
 
+python3 scripts/load_elastic.py --project_id aced-Alcoholism --index file --path studies/Alcoholism/extractions/DocumentReference.ndjson
+python3 scripts/load_elastic.py --project_id aced-Alzheimers --index file --path studies/Alzheimers/extractions/DocumentReference.ndjson
+python3 scripts/load_elastic.py --project_id aced-Breast_Cancer --index file --path studies/Breast_Cancer/extractions/DocumentReference.ndjson
+python3 scripts/load_elastic.py --project_id aced-Colon_Cancer --index file --path studies/Colon_Cancer/extractions/DocumentReference.ndjson
+python3 scripts/load_elastic.py --project_id aced-Diabetes --index file --path studies/Diabetes/extractions/DocumentReference.ndjson
+python3 scripts/load_elastic.py --project_id aced-Lung_Cancer --index file --path studies/Lung_Cancer/extractions/DocumentReference.ndjson
+python3 scripts/load_elastic.py --project_id aced-Prostate_Cancer --index file --path studies/Prostate_Cancer/extractions/DocumentReference.ndjson
