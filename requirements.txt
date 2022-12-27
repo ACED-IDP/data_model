@@ -16,6 +16,9 @@ psycopg2-binary
 # fhirclient
 https://github.com/bmeg/client-py/archive/feature/embedded-schema.zip
 
+# fhir.resources
+https://github.com/bmeg/fhir.resources/archive/feature/backref.zip
+
 # pluralization
 inflection
 
@@ -35,3 +38,6 @@ more_itertools
 # https://github.com/elastic/elasticsearch-py/issues/1933#issuecomment-1073830411#
 elasticsearch==6.8.2
 
+
+# faster json
+orjson
