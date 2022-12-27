@@ -15,13 +15,19 @@ fi
 
 # ingest assumes coherent downloaded and unzipped
 
+# if this is a local, development re-processing of data
+# clear *ALL* data from hapi server
+# cat scripts/truncate_hapi_fhir_tables.sql |  docker exec -i  postgres psql -U postgres
+
+
 # fix the document_reference, genomic observation
 python3 scripts/coherent_refactor_bundle.py
 
 # load to fhir service
+# TODO this is very slow... performance needs to be improved, probably by loading ndjson not bundles https://smilecdr.com/docs/bulk/fhir_bulk_import.html
 nice -10 python3 scripts/coherent_fhir_load.py --chunk_size 3
 
-# assign patients to study
+# assign patients to study within the FHIR service
 python3 scripts/coherent_fhir_studies.py create
 
 # list studies and counts
