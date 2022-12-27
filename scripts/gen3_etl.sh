@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# exit when any command fails
+set -e
+
 # extract data from fhir service,
 # transform it into gen3 'graph' and 'flat' models,
 # load into Gen3 metadata_db and elastic search
@@ -9,6 +12,13 @@ if [ ! -d "studies" ]
 then
     echo "Directory studies DOES NOT exist. Fetching from FHIR server..."
     python3 scripts/coherent_fhir_studies.py extract
+fi
+
+# create schema if necessary
+if [ ! -d "output/gen3" ]
+then
+    python scripts/gen3_emitter.py schema  generate
+    ./scripts/gen3_schema_fixtures/*.* output/gen3/
 fi
 
 # transform into gen3 graph form, will skip study if already done.
