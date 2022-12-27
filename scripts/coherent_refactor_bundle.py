@@ -229,8 +229,8 @@ def _genomic_observation(observation) -> Observation:
             "coding": [
                 {
                     "system": "http://snomed.info/sct",
-                    "code": condition,  # f"TODO - lookup snomed code for {condition}",
-                    "display": condition
+                    "code": condition.strip(),  # f"TODO - lookup snomed code for {condition}",
+                    "display": condition.strip()
                 }
                 for condition in implication['conditions']
             ]
