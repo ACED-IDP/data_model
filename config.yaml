@@ -14,7 +14,7 @@ dependency_order:
   - DiagnosticReport
   - Condition
   - Medication
-  - MedicationRequest
+  - MedicationAdministration
   - ImagingStudy
   - Procedure
   - Questionnaire
@@ -251,9 +251,9 @@ entities:
         targetProfile:
           - 'http://hl7.org/fhir/StructureDefinition/%UNKNOWN%'
     source: null
-  MedicationRequest:
+  MedicationAdministration:
     category: Clinical
-    id: MedicationRequest
+    id: MedicationAdministration
     links:
       basedOn:
         ignore: true
@@ -650,3 +650,5 @@ ignored_properties:
   - contained
   - modifierExtension
   - assigner
+
+
