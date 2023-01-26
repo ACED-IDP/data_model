@@ -24,8 +24,9 @@ fi
 python3 scripts/coherent_refactor_bundle.py
 
 # load to fhir service
+# the fhir service will normalize all the `contained` and `uniq id` style references
 # TODO this is very slow... performance needs to be improved, probably by loading ndjson not bundles https://smilecdr.com/docs/bulk/fhir_bulk_import.html
-nice -10 python3 scripts/coherent_fhir_load.py --chunk_size 3
+nice -10 python3 scripts/coherent_fhir_load.py --chunk_size 4
 
 # assign patients to study within the FHIR service
 python3 scripts/coherent_fhir_studies.py create

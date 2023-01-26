@@ -1,0 +1,503 @@
+# Gen3 entity category: defaults to Clinical
+categories:
+  DocumentReference: data_file
+  Location: Administrative
+  Organization: Administrative
+  Patient: Administrative
+  Practitioner: Administrative
+  PractitionerRole: Administrative
+  ResearchStudy: Administrative
+  ResearchSubject: Administrative
+  Specimen: Biospecimen
+  Task: Analysis
+
+ignored_properties:
+  - contained
+  - meta
+  - implicitRules
+  - language
+  - contained
+  - modifierExtension
+  - assigner
+  - fhir_comments
+  - text
+
+
+dependency_order:
+  - _definitions.yaml
+  - _terms.yaml
+  - Program
+  - Project
+#  - Organization
+#  - Location
+#  - Practitioner
+#  - PractitionerRole
+  - ResearchStudy
+  - Patient
+  - ResearchSubject
+  - Specimen
+#  - Encounter
+  - Observation
+  - DiagnosticReport
+  - Condition
+  - Substance
+  - Medication
+  - MedicationAdministration
+#  - ImagingStudy
+#  - Procedure
+#  - Questionnaire
+#  - QuestionnaireResponse
+  - DocumentReference
+  - Task
+
+
+
+# edges that we manually curate, _not_ generated
+# the context variables are substituted [$base_uri]
+manually_curated_edges:
+
+  EdgeConfig:
+    type: object
+    title: EdgeConfig
+    "$id": $base_uri/EdgeConfig
+    description: Information about the edge between two nodes.
+    properties:
+      resource_type:
+        description: The title of the resource
+        type: string
+      source:
+        description: A pointer to the source resource, encapsulates type & id.
+        "$ref": $base_uri/Reference
+      target:
+        description: A pointer to the target resource, encapsulates type & id.
+        "$ref": $base_uri/Reference
+    required:
+    - resource_type
+    - source
+    - target
+
+  Task_owner_Patient:
+    $id: $base_uri/Task_owner_Patient
+    allOf:
+    - $ref: $base_uri/EdgeConfig
+    description: Responsible individual.
+    destination_multiplicity: many
+    destination_property_name: owner_task
+    destination_type: Patient
+    is_primary: false
+    label: Task_owner_Patient
+    source_multiplicity: many
+    source_property_name: owner
+    source_type: Task
+    title: Task_owner_Patient
+    type: object
+
+
+  Task_for_fhir_Patient:
+    $id: $base_uri/Task_for_fhir_Patient
+    allOf:
+    - $ref: $base_uri/EdgeConfig
+    description: Beneficiary of the Task.
+    destination_multiplicity: many
+    destination_property_name: for_fhir_task
+    destination_type: Patient
+    is_primary: true
+    label: Task_for_Patient
+    source_multiplicity: many
+    source_property_name: for_fhir
+    source_type: Task
+    title: Task_for_fhir_Patient
+    type: object
+
+
+  Task_output_DocumentReference:
+    $id: $base_uri/Task_output_DocumentReference
+    allOf:
+    - $ref: $base_uri/EdgeConfig
+    description: Information produced as part of task.
+    destination_multiplicity: many
+    destination_property_name: owner_task
+    destination_type: DocumentReference
+    is_primary: true
+    label: Task_output_DocumentReference
+    source_multiplicity: one
+#    source_property_name: 'output[*].valueReference'
+    source_property_name: output_valueReference
+    source_type: Task
+    title: Task_output_DocumentReference
+    type: object
+
+
+  Observation_hasMember_Observation:
+    $id: $base_uri/Observation_hasMember_Observation
+    allOf:
+    - $ref: $base_uri/EdgeConfig
+    description: Related resource that belongs to the Observation group.
+    destination_multiplicity: many
+    destination_property_name: hasMember_observation
+    destination_type: Observation
+    is_primary: true
+    label: Observation_hasMember_Observation
+    source_multiplicity: many
+    source_property_name: hasMember
+    source_type: Observation
+    title: Observation_hasMember_Observation
+    type: object
+
+
+  Task_focus_Specimen:
+    $id: $base_uri/Task_focus_Specimen
+    allOf:
+    - $ref: $base_uri/EdgeConfig
+    description: What task is acting on.
+    destination_multiplicity: many
+    destination_property_name: focus_task
+    destination_type: Specimen
+    is_primary: true
+    label: Task_focus_Specimen
+    source_multiplicity: many
+    source_property_name: focus
+    source_type: Task
+    title: Task_focus_Specimen
+    type: object
+
+  Medication_ingredient_Substance:
+    $id: $base_uri/Medication_ingredient_Substance
+    allOf:
+    - $ref: $base_uri/EdgeConfig
+    description: Active or inactive ingredient.
+    destination_multiplicity: many
+    destination_property_name: ingredient_medication
+    destination_type: Substance
+    is_primary: true
+    label: Medication_ingredient_Substance
+    source_multiplicity: one
+#    source_property_name: 'ingredient[*].itemReference'
+    source_property_name: 'ingredient_itemReference'
+    source_type: Medication
+    title: Medication_ingredient_Substance
+    type: object
+
+  Observation_partOf_MedicationAdministration:
+    allOf:
+    - $ref: http://bmeg.io/schema/0.0.1/EdgeConfig
+    description: Part of referenced event.
+    destination_multiplicity: many
+    destination_property_name: observation
+    destination_type: MedicationAdministration
+    # set to false, so it is __not__ included in gen3 schema (psqlgraph problems for unknown reasons)
+    is_primary: false
+    label: Observation_partOf_MedicationAdministration
+    source_multiplicity: many
+    source_property_name: partOf
+    source_type: Observation
+    title: Observation_partOf_MedicationAdministration
+    type: object
+
+  ResearchStudy_project_project:
+    allOf:
+    - $ref: http://bmeg.io/schema/0.0.1/EdgeConfig
+    description: Link to required Gen3 project.
+    destination_multiplicity: many
+    destination_property_name: research_studies
+    destination_type: project
+    is_primary: true
+    label: ResearchStudy_project_project
+    source_multiplicity: many
+    source_property_name: project
+    source_type: ResearchStudy
+    title: ResearchStudy_project_project
+    type: object
+
+  Observation_focus_ResearchStudy:
+    allOf:
+    - $ref: http://bmeg.io/schema/0.0.1/EdgeConfig
+    description: Part of referenced event.
+    destination_multiplicity: many
+    destination_property_name: observation
+    destination_type: ResearchStudy
+    is_primary: true
+    label: Observation_partOf_MedicationAdministration
+    source_multiplicity: many
+    source_property_name: focus_ResearchStudy
+    source_type: Observation
+    title: Observation_focus_ResearchStudy
+    type: object
+
+
+  # qualify source_property_name
+  MedicationAdministration_reasonReference_Condition:
+    allOf:
+    - $ref: http://bmeg.io/schema/0.0.1/EdgeConfig
+    description: Condition or observation that supports why the medication was administered. (Generated Edge)
+    destination_multiplicity: many
+    destination_property_name: medication_administration
+    destination_type: Condition
+    is_primary: true
+    label: MedicationAdministration_reasonReference_Condition
+    source_multiplicity: many
+    source_property_name: reasonReference_Condition
+    source_type: MedicationAdministration
+    title: MedicationAdministration_reasonReference_Condition
+    type: object
+
+
+
+extra_properties:
+
+  # add gen3 file scaffolding
+  DocumentReference:
+    $ref: "_definitions.yaml#/data_file_properties"
+    data_category:
+      term:
+        $ref: "_terms.yaml#/data_category"
+      type: string
+    data_type:
+      term:
+        $ref: "_terms.yaml#/data_type"
+      type: string
+    data_format:
+      term:
+        $ref: "_terms.yaml#/data_format"
+      type: string
+    auth_resource_path:
+        type: string
+        description: Gen3 scaffolding
+    category_coding:
+        type: string
+    category_coding_display:
+        type: string
+    content_url:
+        type: string
+    patient_id:
+        type: string
+    type_coding:
+        type: string
+    type_coding_1:
+        type: string
+    type_coding_display:
+        type: string
+    type_coding_display_1:
+        type: string
+
+  # add us-core-race, us-core-ethnicity and synthea extensions
+  Patient:
+
+    us_core_race_coding:
+        type: string
+        description: "The 5 race category codes according to the [OMB Standards for Maintaining, Collecting, and Presenting Federal Data on Race and Ethnicity, Statistical Policy Directive No. 15, as revised, October 30, 1997](https://www.govinfo.gov/content/pkg/FR-1997-10-30/pdf/97-28653.pdf)."
+        termDef:
+            cde_id: http://hl7.org/fhir/us/core/ValueSet/omb-race-category
+            term: http://hl7.org/fhir/us/core/ValueSet/omb-race-category
+            term_url: http://hl7.org/fhir/us/core/ValueSet/omb-race-category
+            cde_version:
+            source: fhir
+            strength: required
+    us_core_race:
+        type: string
+        description: Coding's text value
+    us_core_ethnicity_coding:
+        type: string
+        description: "The 2 ethnicity category codes according to the [OMB Standards for Maintaining, Collecting, and Presenting Federal Data on Race and Ethnicity, Statistical Policy Directive No. 15, as revised, October 30, 1997](https://www.govinfo.gov/content/pkg/FR-1997-10-30/pdf/97-28653.pdf)."
+        termDef:
+            cde_id: http://hl7.org/fhir/us/core/ValueSet/omb-ethnicity-category
+            term: http://hl7.org/fhir/us/core/ValueSet/omb-ethnicity-category
+            term_url: http://hl7.org/fhir/us/core/ValueSet/omb-ethnicity-category
+            cde_version:
+            source: fhir
+            strength: required
+    us_core_ethnicity:
+        type: string
+        description: Coding's text value
+    patient_mothersMaidenName:
+        type: string
+        description: "Mother's maiden (unmarried) name, commonly collected to help verify patient identity."
+        termDef:
+            cde_id: http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName
+            term: http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName
+            term_url: http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName
+            cde_version:
+            source: fhir
+            strength: required
+    us_core_birthsex_code:
+        type: string
+        description: "A code classifying the person’s sex assigned at birth as specified by the Office of the National Coordinator for Health IT (ONC). This extension aligns with the C-CDA Birth Sex Observation (LOINC 76689-9)."
+        termDef:
+            cde_id: http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex
+            term: http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex
+            term_url: http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex
+            cde_version:
+            source: fhir
+            strength: required
+    patient_birthPlace_valueAddress:
+        type: string
+        description: "The registered place of birth of the patient. A sytem may use the address.text if they don't store the birthPlace address in discrete elements."
+        termDef:
+            cde_id: http://hl7.org/fhir/StructureDefinition/patient-birthPlace
+            term: http://hl7.org/fhir/StructureDefinition/patient-birthPlace
+            term_url: http://hl7.org/fhir/StructureDefinition/patient-birthPlace
+            cde_version:
+            source: fhir
+            strength: required
+    disability_adjusted_life_years_valueDecimal:
+        type: number
+        description: "Disability Adjusted Life Years as defined in the literature and summarized at https://en.wikipedia.org/wiki/Disability-adjusted_life_year http://synthetichealth.github.io/synthea/StructureDefinition/disability-adjusted-life-years"
+    quality_adjusted_life_years_valueDecimal:
+        type: number
+        description: "Quality Adjusted Life Years as defined in the literature and summarized at https://en.wikipedia.org/wiki/Quality-adjusted_life_year   http://synthetichealth.github.io/synthea/StructureDefinition/quality-adjusted-life-years."
+
+    auth_resource_path:
+        type: string
+        description: Gen3 scaffolding
+
+    maritalStatus_coding:
+        type: string
+        description: This field contains a patient's most recent marital (civil) status. See http://hl7.org/fhir/ValueSet/marital-status
+
+  # add genomic observation
+  Observation:
+    gene_studied_id:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    gene_studied_id_coding:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    genomic_reference_sequence_id:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    genomic_reference_sequence_id_coding:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    conclusion_string:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    evidence_level:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    evidence_level_coding:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    predicted_phenotype:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    predicted_phenotype_coding:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    predicted_phenotype_1:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    predicted_phenotype_coding_1:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    predicted_phenotype_2:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    predicted_phenotype_coding_2:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    predicted_phenotype_3:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    predicted_phenotype_coding_3:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    predicted_phenotype_4:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    predicted_phenotype_coding_4:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    predicted_phenotype_5:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    predicted_phenotype_coding_5:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    predicted_phenotype_6:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    predicted_phenotype_coding_6:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    valueCodeableConcept_coding_1:
+        type: string
+
+    observation_interpretation:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    observation_interpretation_coding:
+        type: string
+        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+    systolic_blood_pressure:
+        type: string
+    systolic_blood_pressure_unit:
+        type: string
+    systolic_blood_pressure_value:
+        type: number
+    diastolic_blood_pressure:
+        type: string
+    diastolic_blood_pressure_unit:
+        type: string
+    diastolic_blood_pressure_value:
+        type: number
+
+
+    auth_resource_path:
+        type: string
+        description: Gen3 scaffolding
+
+    identifier_1:
+        type: string
+        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
+    identifier_2:
+        type: string
+        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
+    identifier_3:
+        type: string
+        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
+    identifier_4:
+        type: string
+        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
+    identifier_5:
+        type: string
+        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
+    identifier_6:
+        type: string
+        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
+    category_coding:
+        type: string
+    category_coding_1:
+        type: string
+    category_coding_display:
+        type: string
+    category_coding_display_1:
+        type: string
+    code_coding:
+        type: string
+    code_coding_1:
+        type: string
+
+  # inputs and outputs
+  Task:
+    input_type:
+      type: string
+    input_type_coding:
+      type: string
+    input_valueReference:
+      type: string
+    output_type:
+      type: string
+    output_type_coding:
+      type: string
+    output_valueReference:
+      type: string
+
+
+# TODO
+#      targets:
+#        - $ref: $base_url/Medication
+#          backref: observation
+#        - $ref: $base_url/Patient
+#          backref: subject_observation
+#        - $ref: $base_url/Substance
+#          backref: observation

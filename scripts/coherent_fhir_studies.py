@@ -68,17 +68,28 @@ def test(url, manifest):
               help='url to HAPI FHIR server')
 @click.option('--manifest', default="coherent_studies.manifest.yaml", show_default=True,
               help='Study names, conditions, expected counts, etc.')
-def create(url, manifest):
+@click.option('--study', default=None, show_default=True,
+              help='Optional. If set, only extract this study')
+def create(url, manifest, study):
     """Ensure research studies exist."""
     response = requests.get(f"{url}/ResearchStudy?_elements=id,title")
     study_bundle = response.json()
     total_research_study_count = study_bundle['total']
     if total_research_study_count > 0:
         print("Studies already exist.")
-        return
+        print(study_bundle)
+        # return
     study_manifests = yaml.load(open(manifest), yaml.SafeLoader)
+    study_param = study
     for name, values in study_manifests.items():
+        print(name)
+        if study_param and name != study_param:
+            continue
+        if len(values['conditions']) == 0:
+            print(f"No conditions for {name} skipping")
+            continue
         print(f"Building {name}")
+
         response = requests.get(
             f"{url}/Condition?code={','.join(values['conditions'])}&_elements=subject&_count=1000")
         response.raise_for_status()
@@ -176,7 +187,7 @@ def extract(url, destination_directory, limit, title):
             subject = subject_entry['resource']
             individual = subject['individual']
             id_ = individual['reference'].split('/')[-1]
-            everything = f"{url}/Patient?_id={id_}&_revinclude=Specimen:subject&_revinclude=DocumentReference:subject&_revinclude=Encounter:subject&_revinclude=Observation:subject&_revinclude=Condition:subject&_revinclude=Task:patient&_revinclude=MedicationRequest:subject"
+            everything = f"{url}/Patient?_id={id_}&_revinclude=Specimen:subject&_revinclude=DocumentReference:subject&_revinclude=Encounter:subject&_revinclude=Observation:subject&_revinclude=Condition:subject&_revinclude=Task:patient&_revinclude=MedicationAdministration:subject"
             response = requests.get(everything)
             response.raise_for_status()
             patient_bundle = str(response.text)

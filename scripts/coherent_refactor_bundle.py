@@ -280,6 +280,7 @@ def _transform_document_reference(bundle: Bundle, coherent_path: Path) -> Bundle
     additional_entries = []
     conditions = []
     imaging_studies = []
+    items_to_delete = []
     for e in bundle.entry:
 
         if e.resource.resource_type == 'Observation' and e.resource.code.coding[0].code == '69548-6':
@@ -312,14 +313,19 @@ def _transform_document_reference(bundle: Bundle, coherent_path: Path) -> Bundle
             elif '.dcm' in data:
                 imaging_document_references.append(e.resource)
                 clinical_note_references.append(e.resource)
-            else:
-                clinical_note_references.append(e.resource)
+            # else:
+            #     clinical_note_references.append(e.resource)
 
         if e.resource.resource_type == 'Condition':
             conditions.append(e.resource)
 
         if e.resource.resource_type == 'ImagingStudy':
             imaging_studies.append(e.resource)
+
+        # remove documents that are not current
+        if e.resource.resource_type == 'DocumentReference' and e.resource.status != 'current':
+            if e.resource not in clinical_note_references:
+                items_to_delete.append(e.resource.id)
 
     if len(dna_diagnostic_reports) > 0:
         # logging.info(f"{file_path} has {len(dna_diagnostic_reports)} genetic analysis reports")
@@ -471,9 +477,13 @@ def _transform_document_reference(bundle: Bundle, coherent_path: Path) -> Bundle
             additional_entries.append(document_reference_with_url)
             # logging.info(f"Added dicom document_reference to bundle in {file_path}")
 
-    if len(clinical_note_references) > 0:
-        for document_reference in clinical_note_references:
+    # adjust clinical notes, write base64 out as file
+    for e in bundle.entry:
+        if e.resource.resource_type == 'DocumentReference' and e.resource.id not in items_to_delete:
             # write data as a file
+            document_reference = e.resource
+            if not document_reference.content[0].attachment.data:
+                continue
             data = base64.b64decode(document_reference.content[0].attachment.data).decode("utf-8")
             data = data.replace(patient.name[0].given[0], '')
             path = f"{coherent_path}/clinical_reports/{patient.id}_{document_reference.id}.txt"
@@ -504,7 +514,25 @@ def _transform_document_reference(bundle: Bundle, coherent_path: Path) -> Bundle
         bundle_entry.request.url = f"{bundle_entry.resource.resource_type}/{bundle_entry.resource.id}"
         bundle.entry.append(bundle_entry)
 
-    # assume fhir server will clean up references, i.e. make them ready for load
+    provenance = next(iter([e for e in bundle.entry if e.resource.resource_type == "Provenance"]), None)
+    if provenance:
+        items_to_delete.append(provenance.resource.id)
+
+    # remove all non-current documents (there are thousands)
+    for e in bundle.entry:
+        if e.resource.id in items_to_delete:
+            bundle.entry.remove(e)
+
+    # if provenance:
+    #     provenance = provenance.resource
+    #     provenance_targets_to_delete = []
+    #     for r in provenance.target:
+    #         # "urn:uuid:b8dd1798-beef-094d-1be4-f90ee0e6b7d5"
+    #         if r.reference.split(':')[-1] in items_to_delete:
+    #             provenance_targets_to_delete.append(r)
+    #     for r in provenance_targets_to_delete:
+    #         provenance.target.remove(r)
+
     return bundle
 
 
@@ -517,7 +545,6 @@ async def transform(path, coherent_path):
         # bundle = _transform_observation(bundle)
     # trigger as_json
     transformed = json.dumps(bundle.as_json(), separators=(',', ':'))
-    bundle = None
     with open(path, 'w') as fp:
         fp.write(transformed)
     toc = time.perf_counter()
@@ -545,11 +572,11 @@ async def transform_all(coherent_path):
     paths = sorted([p for p in Path(f'{coherent_path}/fhir/').glob('*.json') if
                     'organizations' not in str(p) and 'practitioners' not in str(p)])
 
-    # doing this as a maximum of 3 seems to work when combined with nice -10 on a laptop
+    # doing this as a maximum of 6 seems to work when combined with nice -10 on a laptop
     limit = None
     count = 0
     ok = False
-    for chunk in _chunker(paths, 3):
+    for chunk in _chunker(paths, 6):
         tasks = []
 
         for path in chunk:

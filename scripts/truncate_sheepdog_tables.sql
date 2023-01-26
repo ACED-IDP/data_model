@@ -9,7 +9,7 @@ TRUNCATE        "node_encounter"        CASCADE ;
 TRUNCATE        "node_imagingstudy"     CASCADE ;
 TRUNCATE        "node_location"         CASCADE ;
 TRUNCATE        "node_medication"       CASCADE ;
-TRUNCATE        "node_medicationrequest"       CASCADE ;
+TRUNCATE        "node_medicationadministration" CASCADE ;
 TRUNCATE        "node_observation"     CASCADE ;
 TRUNCATE        "node_organization"     CASCADE ;
 TRUNCATE        "node_patient"  CASCADE ;

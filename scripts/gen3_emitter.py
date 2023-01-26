@@ -957,7 +957,7 @@ def schema_compile(schema_path, out):
 
 
 @schema.command(name='publish')
-@click.argument('dictionary_path', default='aced-test.json')
+@click.argument('dictionary_path', default='generated-json-schema/aced.json')
 @click.option('--bucket', default="s3://aced-public", help="Bucket target")
 def schema_publish(dictionary_path, bucket):
     """Copy dictionary to s3 (note:aws cli dependency)"""
@@ -1069,7 +1069,7 @@ def data_transform(input_path, config_path, anonymizer_config_path, dictionary_p
         if Path(f"{work_dir}/extractions").is_dir():
             logger.info(f"{work_dir}/extractions exists, skipping.")
             continue
-        logger.info(f"working on {work_dir}")
+        logger.info(f"Working on {work_dir}")
         pathlib.Path(work_dir).mkdir(parents=True, exist_ok=True)
         emitters = [
             TransformerEmitter(model=model, work_dir=work_dir, anonymizer=anonymizer,
@@ -1156,6 +1156,7 @@ def load_edges(files, connection, model, project_id, mapping, project_node_id):
             continue
 
         with connection.cursor() as cursor:
+            print(path)
             with open(path) as f:
                 # copy a block of records into a file like stringIO buffer
                 record_count = 0
@@ -1174,18 +1175,32 @@ def load_edges(files, connection, model, project_id, mapping, project_node_id):
                         record_count += 1
                         for relation in relations:
                             # get destination table
+                            # assert 'label' in relation, relation
+                            # edge_table_mapping = next(
+                            #     iter(
+                            #         [
+                            #             m for m in mapping
+                            #             if m['label'].lower() == f"{entity_name}_{relation['label']}_{relation['dst_name']}".lower()
+                            #         ]
+                            #     ),
+                            #     None
+                            # )
+
+                            # entity_name_underscore = inflection.underscore(entity_name)
+                            dst_name_camel = inflection.camelize(relation['dst_name'])
+
                             edge_table_mapping = next(
                                 iter(
                                     [
                                         m for m in mapping
-                                        if m[
-                                               'label'].lower() == f"{entity_name}_{relation['label']}_{relation['dst_name']}".lower()
+                                        if m['label'].startswith(entity_name) and m['label'].lower().endswith(
+                                            dst_name_camel.lower())
                                     ]
                                 ),
                                 None
                             )
                             if not edge_table_mapping:
-                                msg = f"No mapping for src {entity_name} dst {relation['dst_name']} label {relation['label']}"
+                                msg = f"No mapping for src {entity_name} dst {relation['dst_name']}"  #  label {relation['label']}
                                 logger.error(msg)
                                 raise Exception(msg)
                             table_name = edge_table_mapping['tablename']
@@ -1215,12 +1230,10 @@ async def upload_and_decorate_document_reference(document_reference, bucket_name
                                                  project):
     """Write to indexd."""
 
-    if 'content_0_attachment_extension_0_url' not in document_reference:
-        logger.warning('content_0_attachment_extension_0_url not found')
+    if 'content_url' not in document_reference:
+        logger.warning('content_url not found')
         return 
-    assert document_reference[
-               'content_0_attachment_extension_0_url'] == "http://aced-idp.org/fhir/StructureDefinition/md5"
-    md5sum = document_reference["content_0_attachment_extension_0_valueString"]
+    md5sum = document_reference["md5sum"]
     object_name = document_reference['file_name'].lstrip('./')
 
     hashes = {'md5': md5sum}
@@ -1228,7 +1241,7 @@ async def upload_and_decorate_document_reference(document_reference, bucket_name
     metadata = {
         **{
             'datanode_type': 'DocumentReference',
-            'datanode_submitter_id': document_reference['submitter_id'],
+            'datanode_submitter_id': document_reference.get('submitter_id', None),
             'datanode_object_id': guid
         },
         **hashes}
@@ -1262,7 +1275,7 @@ async def upload_and_decorate_document_reference(document_reference, bucket_name
         r = requests.put(signed_url, data=data_f, headers=headers)
         assert r.status_code == 200, (signed_url, r.text)
         logger.info(
-            f"Successfully uploaded file \"{document_reference['file_name']}\" to {bucket_name} {guid} {signed_url}")
+            f"Successfully uploaded resource {document_reference['id']} file_name \"{document_reference['file_name']}\" to {bucket_name} {guid}")
         document_reference['object_id'] = document_reference['id']
         return document_reference
 
@@ -1380,11 +1393,11 @@ def data_init(input_path, sheepdog_creds_path, db_host, config_path):
               show_default=True,
               help='Path to config file.')
 @click.option('--dictionary_path',
-              default='output/gen3',
+              default=None,  # 'output/gen3',
               show_default=True,
               help='Path to data dictionary file.')
 @click.option('--dictionary_url',
-              default=None,  # 'https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json',
+              default='https://aced-public.s3.us-west-2.amazonaws.com/aced.json',
               show_default=True,
               help='Data dictionary url.')
 def data_load(input_path, file_name_pattern, sheepdog_creds_path, program_name, project_code, db_host, config_path,

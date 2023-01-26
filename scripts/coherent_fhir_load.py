@@ -31,6 +31,7 @@ headers = {
 
 async def load(path, url):
     """Read a bundle, load it to server."""
+    print(path)
     session = None
     try:
         tic = time.perf_counter()
@@ -69,7 +70,8 @@ async def load_all(coherent_path, url, chunk_size):
     # load dependencies in order, resources that must exist prior
     # TODO - does Medication, etc. belong here too?
     paths = [f'{coherent_path}/fhir/organizations.json', f'{coherent_path}/fhir/practitioners.json']
-
+    print(paths)
+    ok = False
     for chunk in _chunker(paths, 1):
         tasks = []
         for path in chunk:
@@ -81,7 +83,7 @@ async def load_all(coherent_path, url, chunk_size):
             for ok_ in asyncio.as_completed(tasks)
         ])
 
-        assert ok, "Did not load dependencies"
+    assert ok, "Did not load dependencies"
 
     # get all the patients
     paths = sorted([p for p in Path(f'{coherent_path}/fhir/').glob('*.json') if
