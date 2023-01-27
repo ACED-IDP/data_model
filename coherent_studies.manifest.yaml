@@ -1,0 +1,49 @@
+#
+# Patients with condition codes will be assigned to study
+#
+
+Alcoholism:
+  bucket: aced-ohsu
+  conditions:
+  - '7200002'
+  expected_count: 45
+Alzheimers:
+  bucket: aced-ucl
+  conditions:
+  - '26929004'
+  - '230265002'
+  expected_count: 287
+Breast_Cancer:
+  bucket: aced-manchester
+  conditions:
+  - '254837009'
+  expected_count: 57
+Colon_Cancer:
+  bucket: aced-stanford
+  conditions:
+  - '363406005'
+  - '68496003'
+  expected_count: 312
+Diabetes:
+  bucket: aced-ucl
+  conditions:
+  - '44054006'
+  expected_count: 180
+Lung_Cancer:
+  bucket: aced-manchester
+  conditions:
+  - '254637007'
+  - '424132000'
+  - '162573006'
+  expected_count: 98
+Prostate_Cancer:
+  bucket: aced-stanford
+  conditions:
+  - '314994000'
+  - '126906006'
+  - '92691004'
+  expected_count: 378
+HOP:
+  bucket: aced-ohsu
+  conditions: []
+
