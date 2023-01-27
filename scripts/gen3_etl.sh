@@ -43,6 +43,8 @@ for study in ${synthetic_studies[*]}; do
   python3 scripts/etl.py transform --input_path studies/$study/  --output_path studies/$study/extractions  --duplicate_ids_for $study
 done
 # also do HOP - no duplicates
+rm -r studies/HOP/extractions || true
+mkdir -p studies/HOP/extractions
 python3 scripts/etl.py transform --input_path ~/hop/data-etl/data/fhir/HOP --output_path studies/HOP/extractions
 
 # clear existing data
