@@ -42,6 +42,8 @@ for study in ${synthetic_studies[*]}; do
   # intentionally set the ids relative to study, allows entities to be "duplicated" in separate projects
   python3 scripts/etl.py transform --input_path studies/$study/  --output_path studies/$study/extractions  --duplicate_ids_for $study
 done
+
+
 # also do HOP - no duplicates
 rm -r studies/HOP/extractions || true
 mkdir -p studies/HOP/extractions

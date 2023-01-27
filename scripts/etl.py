@@ -446,7 +446,7 @@ def _simplify(resource: FHIRAbstractModel, schemas: dict) -> dict:
               help='Path where ndjson resources will be stored'
               )
 @click.option('--schema_path', required=True,
-              default='generated-json-schema/coherent.gen3.json',
+              default='generated-json-schema/aced.json',
               show_default=True,
               help='Path to gen3 schema json'
               )
