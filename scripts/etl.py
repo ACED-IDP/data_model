@@ -27,6 +27,10 @@ from dataclass_csv import DataclassWriter
 
 import orjson
 
+from gen3.metadata import Gen3Metadata
+from gen3.submission import Gen3Submission
+
+
 # thread local instance for our Reference renderer
 LINKS = threading.local()
 CLASSES = threading.local()
@@ -1099,6 +1103,24 @@ def bundle_cytoscape(input_path, output_path):
             if edge['is_primary']:
                 writer.writerow([edge['source_type'], edge['source_property_name'], edge['destination_type']])
     print(f'primary edges written to {fn}')
+
+
+@click.group()
+@click.option('--gen3_credentials_file', default='Secrets/credentials.json', show_default=True,
+              help='API credentials file downloaded from gen3 profile.')
+@click.pass_context
+def cli(ctx, gen3_credentials_file):
+    """Metadata loader."""
+
+    endpoint = extract_endpoint(gen3_credentials_file)
+    get_logger_("cli").debug(f"Read {gen3_credentials_file} endpoint {endpoint}")
+    auth = Gen3Auth(endpoint, refresh_file=gen3_credentials_file)
+    submission_client = Gen3Submission(endpoint, auth)
+    ctx.ensure_object(dict)
+    ctx.obj['submission_client'] = submission_client
+    ctx.obj['discovery_client'] = Gen3Metadata(endpoint, auth)
+    ctx.obj['endpoint'] = endpoint
+    ctx.obj['programs'] = [link.split('/')[-1] for link in submission_client.get_programs()['links']]
 
 
 if __name__ == '__main__':

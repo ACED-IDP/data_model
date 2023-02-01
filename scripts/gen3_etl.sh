@@ -61,7 +61,7 @@ cat scripts/truncate_buckets.sh |  docker exec -i  etl-service bash
 # upload will start multiple processes to submit files to bucket and update studies DocumentReferences
 nice -n 10 scripts/upload-files Alcoholism aced-ohsu
 nice -n 10 scripts/upload-files Alzheimers aced-ucl
-nice -n 10 scripts/upload-files Breast_Cancer manchester
+nice -n 10 scripts/upload-files Breast_Cancer aced-manchester
 nice -n 10 scripts/upload-files Colon_Cancer aced-stanford
 nice -n 10 scripts/upload-files Diabetes aced-ucl
 nice -n 10 scripts/upload-files Lung_Cancer aced-manchester
@@ -69,7 +69,7 @@ nice -n 10 scripts/upload-files Prostate_Cancer aced-stanford
 
 # upload meta data to gen3
 for study in ${synthetic_studies[*]}; do
-  nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code $study
+  nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code $study
 done
 
 nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code HOP
@@ -80,32 +80,14 @@ nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_
 # docker exec esproxy-service curl -X DELETE http://localhost:9200/gen3.aced.*
 
 for study in ${all_studies[*]}; do
-  nice -10 python3 scripts/load_elastic.py --project_id aced-$study --index patient --path studies/$study/extractions/Patient.ndjson
+  nice -10 python3 scripts/load.py load  flat --project_id aced-$study --index patient --path studies/$study/extractions/Patient.ndjson
 done
 
 for study in ${synthetic_studies[*]}; do
-  nice -10 python3 scripts/load_elastic.py --project_id aced-$study --index file --path studies/$study/extractions/DocumentReference.ndjson
+  nice -10 python3 scripts/load.py  load  flat --project_id aced-$study --index file --path studies/$study/extractions/DocumentReference.ndjson
 done
 
 for study in ${all_studies[*]}; do
-  nice -10 python3 scripts/load_elastic.py --project_id aced-$study --index observation --path studies/$study/extractions/Observation.ndjson
+  nice -10 python3 scripts/load.py  load  flat --project_id aced-$study --index observation --path studies/$study/extractions/Observation.ndjson
 done
 
-python3 scripts/load_elastic.py --project_id aced-Alcoholism --index observation --path studies/Alcoholism/extractions/Observation.ndjson
-#python3 scripts/load_elastic.py --project_id aced-Alzheimers --index observation --path studies/Alzheimers/extractions/Observation.ndjson
-#python3 scripts/load_elastic.py --project_id aced-Breast_Cancer --index observation --path studies/Breast_Cancer/extractions/Observation.ndjson
-#python3 scripts/load_elastic.py --project_id aced-Colon_Cancer --index observation --path studies/Colon_Cancer/extractions/Observation.ndjson
-#python3 scripts/load_elastic.py --project_id aced-Diabetes --index observation --path studies/Diabetes/extractions/Observation.ndjson
-#python3 scripts/load_elastic.py --project_id aced-Lung_Cancer --index observation --path studies/Lung_Cancer/extractions/Observation.ndjson
-#python3 scripts/load_elastic.py --project_id aced-Prostate_Cancer --index observation --path studies/Prostate_Cancer/extractions/Observation.ndjson
-
-python3 scripts/load_elastic.py --project_id aced-HOP --index observation --path studies/HOP/extractions/Observation.ndjson
-
-
-python3 scripts/load_elastic.py --project_id aced-Alcoholism --index file --path studies/Alcoholism/extractions/DocumentReference.ndjson
-#python3 scripts/load_elastic.py --project_id aced-Alzheimers --index file --path studies/Alzheimers/extractions/DocumentReference.ndjson
-#python3 scripts/load_elastic.py --project_id aced-Breast_Cancer --index file --path studies/Breast_Cancer/extractions/DocumentReference.ndjson
-#python3 scripts/load_elastic.py --project_id aced-Colon_Cancer --index file --path studies/Colon_Cancer/extractions/DocumentReference.ndjson
-#python3 scripts/load_elastic.py --project_id aced-Diabetes --index file --path studies/Diabetes/extractions/DocumentReference.ndjson
-#python3 scripts/load_elastic.py --project_id aced-Lung_Cancer --index file --path studies/Lung_Cancer/extractions/DocumentReference.ndjson
-#python3 scripts/load_elastic.py --project_id aced-Prostate_Cancer --index file --path studies/Prostate_Cancer/extractions/DocumentReference.ndjson
