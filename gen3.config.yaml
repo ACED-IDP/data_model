@@ -62,7 +62,7 @@ manually_curated_edges:
   EdgeConfig:
     type: object
     title: EdgeConfig
-    "$id": $base_uri/EdgeConfig
+    $id: $base_uri/EdgeConfig
     description: Information about the edge between two nodes.
     properties:
       resource_type:
@@ -70,10 +70,10 @@ manually_curated_edges:
         type: string
       source:
         description: A pointer to the source resource, encapsulates type & id.
-        "$ref": $base_uri/Reference
+        "$ref": Reference
       target:
         description: A pointer to the target resource, encapsulates type & id.
-        "$ref": $base_uri/Reference
+        "$ref": Reference
     required:
     - resource_type
     - source
@@ -82,7 +82,7 @@ manually_curated_edges:
   Task_owner_Patient:
     $id: $base_uri/Task_owner_Patient
     allOf:
-    - $ref: $base_uri/EdgeConfig
+    - $ref: EdgeConfig.yaml
     description: Responsible individual.
     destination_multiplicity: many
     destination_property_name: owner_task
@@ -99,7 +99,7 @@ manually_curated_edges:
   Task_for_fhir_Patient:
     $id: $base_uri/Task_for_fhir_Patient
     allOf:
-    - $ref: $base_uri/EdgeConfig
+    - $ref: EdgeConfig.yaml
     description: Beneficiary of the Task.
     destination_multiplicity: many
     destination_property_name: for_fhir_task
@@ -116,7 +116,7 @@ manually_curated_edges:
   Task_output_DocumentReference:
     $id: $base_uri/Task_output_DocumentReference
     allOf:
-    - $ref: $base_uri/EdgeConfig
+    - $ref: EdgeConfig.yaml
     description: Information produced as part of task.
     destination_multiplicity: many
     destination_property_name: owner_task
@@ -134,7 +134,7 @@ manually_curated_edges:
   Observation_hasMember_Observation:
     $id: $base_uri/Observation_hasMember_Observation
     allOf:
-    - $ref: $base_uri/EdgeConfig
+    - $ref: EdgeConfig.yaml
     description: Related resource that belongs to the Observation group.
     destination_multiplicity: many
     destination_property_name: hasMember_observation
@@ -151,7 +151,7 @@ manually_curated_edges:
   Task_focus_Specimen:
     $id: $base_uri/Task_focus_Specimen
     allOf:
-    - $ref: $base_uri/EdgeConfig
+    - $ref: EdgeConfig.yaml
     description: What task is acting on.
     destination_multiplicity: many
     destination_property_name: focus_task
@@ -167,7 +167,7 @@ manually_curated_edges:
   Medication_ingredient_Substance:
     $id: $base_uri/Medication_ingredient_Substance
     allOf:
-    - $ref: $base_uri/EdgeConfig
+    - $ref: EdgeConfig.yaml
     description: Active or inactive ingredient.
     destination_multiplicity: many
     destination_property_name: ingredient_medication
@@ -182,6 +182,7 @@ manually_curated_edges:
     type: object
 
   Observation_partOf_MedicationAdministration:
+    $id: $base_uri/Observation_partOf_MedicationAdministration
     allOf:
     - $ref: http://bmeg.io/schema/0.0.1/EdgeConfig
     description: Part of referenced event.
@@ -198,6 +199,7 @@ manually_curated_edges:
     type: object
 
   ResearchStudy_project_project:
+    $id: $base_uri/ResearchStudy_project_project
     allOf:
     - $ref: http://bmeg.io/schema/0.0.1/EdgeConfig
     description: Link to required Gen3 project.
@@ -213,6 +215,7 @@ manually_curated_edges:
     type: object
 
   Observation_focus_ResearchStudy:
+    $id: $base_uri/Observation_focus_ResearchStudy
     allOf:
     - $ref: http://bmeg.io/schema/0.0.1/EdgeConfig
     description: Part of referenced event.
@@ -230,6 +233,7 @@ manually_curated_edges:
 
   # qualify source_property_name
   MedicationAdministration_reasonReference_Condition:
+    $id: $base_uri/MedicationAdministration_reasonReference_Condition
     allOf:
     - $ref: http://bmeg.io/schema/0.0.1/EdgeConfig
     description: Condition or observation that supports why the medication was administered. (Generated Edge)
