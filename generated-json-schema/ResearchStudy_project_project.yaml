@@ -1,0 +1,14 @@
+allOf:
+- $ref: EdgeConfig.yaml
+description: Link to required Gen3 project.
+destination_multiplicity: many
+destination_property_name: research_studies
+destination_type: project
+id: ResearchStudy_project_project
+is_primary: true
+label: ResearchStudy_project_project
+source_multiplicity: many
+source_property_name: project
+source_type: ResearchStudy
+title: ResearchStudy_project_project
+type: object

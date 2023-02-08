@@ -1,0 +1,110 @@
+additionalProperties: false
+description: 'A series of measurements taken by a device.
+
+  A series of measurements taken by a device, with upper and lower limits.
+
+  There may be more than one dimension in the data.'
+id: SampledData
+properties:
+  _data:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``data``.
+  _dimensions:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``dimensions``.
+  _factor:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``factor``.
+  _lowerLimit:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``lowerLimit``.
+  _period:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``period``.
+  _upperLimit:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``upperLimit``.
+  data:
+    description: A series of data points which are decimal values separated by a single
+      space (character u20). The special values "E" (error), "L" (below detection
+      limit) and "U" (above detection limit) can also be used in place of a decimal
+      value.
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: Decimal values with spaces, or "E" | "U" | "L"
+    type: string
+  dimensions:
+    description: The number of sample points at each time point. If this value is
+      greater than one, then the dimensions will be interlaced - all the sample points
+      for a point in time will be recorded at once.
+    element_property: true
+    element_required: true
+    exclusiveMinimum: 0
+    title: Number of sample points at each time point
+    type: integer
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  factor:
+    description: A correction factor that is applied to the sampled data points before
+      they are added to the origin.
+    element_property: true
+    title: Multiply data by this before adding to origin
+    type: number
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  lowerLimit:
+    description: The lower limit of detection of the measured points. This is needed
+      if any of the data points have the value "L" (lower than detection limit).
+    element_property: true
+    title: Lower limit of detection
+    type: number
+  origin:
+    $ref: Quantity.yaml
+    description: The base quantity that a measured value of zero represents. In addition,
+      this provides the units of the entire measurement series.
+    element_property: true
+    title: Zero value and units
+  period:
+    description: The length of time between sampling times, measured in milliseconds.
+    element_property: true
+    element_required: true
+    title: Number of milliseconds between samples
+    type: number
+  resource_type:
+    const: SampledData
+    title: Resource Type
+    type: string
+  upperLimit:
+    description: The upper limit of detection of the measured points. This is needed
+      if any of the data points have the value "U" (higher than detection limit).
+    element_property: true
+    title: Upper limit of detection
+    type: number
+required:
+- origin
+title: SampledData
+type: object

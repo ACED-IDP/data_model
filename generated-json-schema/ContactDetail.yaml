@@ -1,0 +1,57 @@
+additionalProperties: false
+description: 'Contact information.
+
+  Specifies contact information for a person or organization.'
+id: ContactDetail
+properties:
+  _name:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``name``.
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  name:
+    description: The name of an individual to contact.
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: Name of an individual to contact
+    type: string
+  resource_type:
+    const: ContactDetail
+    title: Resource Type
+    type: string
+  telecom:
+    description: The contact details for the individual (if a name was provided) or
+      the organization.
+    element_property: true
+    items:
+      $ref: ContactPoint.yaml
+    title: Contact details for individual or organization
+    type: array
+title: ContactDetail
+type: object

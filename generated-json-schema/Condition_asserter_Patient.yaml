@@ -1,0 +1,14 @@
+allOf:
+- $ref: EdgeConfig.yaml
+description: Person who asserts this condition. (Generated Edge)
+destination_multiplicity: many
+destination_property_name: asserter_condition
+destination_type: Patient
+id: Condition_asserter_Patient
+is_primary: false
+label: Condition_asserter_Patient
+source_multiplicity: many
+source_property_name: asserter
+source_type: Condition
+title: Condition_asserter_Patient
+type: object

@@ -1,0 +1,14 @@
+allOf:
+- $ref: EdgeConfig.yaml
+description: Composite task. (Generated Edge)
+destination_multiplicity: many
+destination_property_name: task
+destination_type: Task
+id: Task_partOf_Task
+is_primary: true
+label: Task_partOf_Task
+source_multiplicity: many
+source_property_name: partOf
+source_type: Task
+title: Task_partOf_Task
+type: object

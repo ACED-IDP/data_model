@@ -1,0 +1,96 @@
+additionalProperties: false
+description: A length of time.
+id: Duration
+properties:
+  _code:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``code``.
+  _comparator:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``comparator``.
+  _system:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``system``.
+  _unit:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``unit``.
+  _value:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``value``.
+  code:
+    description: A computer processable form of the unit in some unit representation
+      system.
+    element_property: true
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: Coded form of the unit
+    type: string
+  comparator:
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/quantity-comparator
+    binding_version: 4.3.0
+    description: How the value should be understood and represented - whether the
+      actual value is greater or less than the stated value due to measurement issues;
+      e.g. if the comparator is "<" , then the real value is < stated value. See http://hl7.org/fhir/ValueSet/quantity-comparator
+      See http://hl7.org/fhir/ValueSet/quantity-comparator See http://hl7.org/fhir/ValueSet/quantity-comparator
+    element_property: true
+    enum_values:
+    - <
+    - <=
+    - '>='
+    - '>'
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: < | <= | >= | > - how to understand the value
+    type: string
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  resource_type:
+    const: Duration
+    title: Resource Type
+    type: string
+  system:
+    description: The identification of the system that provides the coded form of
+      the unit.
+    element_property: true
+    pattern: \S*
+    title: System that defines coded unit form
+    type: string
+  unit:
+    description: A human-readable form of the unit.
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: Unit representation
+    type: string
+  value:
+    description: The value of the measured amount. The value includes an implicit
+      precision in the presentation of the value.
+    element_property: true
+    title: Numerical value (with implicit precision)
+    type: number
+title: Duration
+type: object

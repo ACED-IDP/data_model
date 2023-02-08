@@ -1,0 +1,254 @@
+additionalProperties: false
+description: 'When the event is to occur.
+
+  A set of rules that describe when the event is scheduled.'
+id: TimingRepeat
+properties:
+  _count:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``count``.
+  _countMax:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``countMax``.
+  _dayOfWeek:
+    items:
+      $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``dayOfWeek``.
+    type: array
+  _duration:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``duration``.
+  _durationMax:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``durationMax``.
+  _durationUnit:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``durationUnit``.
+  _frequency:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``frequency``.
+  _frequencyMax:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``frequencyMax``.
+  _offset:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``offset``.
+  _period:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``period``.
+  _periodMax:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``periodMax``.
+  _periodUnit:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``periodUnit``.
+  _timeOfDay:
+    items:
+      $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``timeOfDay``.
+    type: array
+  _when:
+    items:
+      $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``when``.
+    type: array
+  boundsDuration:
+    $ref: Duration.yaml
+    description: Either a duration for the length of the timing schedule, a range
+      of possible length, or outer bounds for start and/or end limits of the timing
+      schedule.
+    element_property: true
+    one_of_many: bounds
+    one_of_many_required: false
+    title: Length/Range of lengths, or (Start and/or end) limits
+  boundsPeriod:
+    $ref: Period.yaml
+    description: Either a duration for the length of the timing schedule, a range
+      of possible length, or outer bounds for start and/or end limits of the timing
+      schedule.
+    element_property: true
+    one_of_many: bounds
+    one_of_many_required: false
+    title: Length/Range of lengths, or (Start and/or end) limits
+  boundsRange:
+    $ref: Range.yaml
+    description: Either a duration for the length of the timing schedule, a range
+      of possible length, or outer bounds for start and/or end limits of the timing
+      schedule.
+    element_property: true
+    one_of_many: bounds
+    one_of_many_required: false
+    title: Length/Range of lengths, or (Start and/or end) limits
+  count:
+    description: A total count of the desired number of repetitions across the duration
+      of the entire timing specification. If countMax is present, this element indicates
+      the lower bound of the allowed range of count values.
+    element_property: true
+    exclusiveMinimum: 0
+    title: Number of times to repeat
+    type: integer
+  countMax:
+    description: If present, indicates that the count is a range - so to perform the
+      action between [count] and [countMax] times.
+    element_property: true
+    exclusiveMinimum: 0
+    title: Maximum number of times to repeat
+    type: integer
+  dayOfWeek:
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/days-of-week
+    binding_version: 4.3.0
+    description: If one or more days of week is provided, then the action happens
+      only on the specified day(s). See http://hl7.org/fhir/ValueSet/days-of-week
+    element_property: true
+    enum_values:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+    - sat
+    - sun
+    items:
+      pattern: ^[^\s]+(\s[^\s]+)*$
+      type: string
+    title: mon | tue | wed | thu | fri | sat | sun
+    type: array
+  duration:
+    description: How long this thing happens for when it happens. If durationMax is
+      present, this element indicates the lower bound of the allowed range of the
+      duration.
+    element_property: true
+    title: How long when it happens
+    type: number
+  durationMax:
+    description: If present, indicates that the duration is a range - so to perform
+      the action between [duration] and [durationMax] time length.
+    element_property: true
+    title: How long when it happens (Max)
+    type: number
+  durationUnit:
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/units-of-time
+    binding_version: 4.3.0
+    description: The units of time for the duration, in UCUM units. See http://hl7.org/fhir/ValueSet/units-of-time
+    element_property: true
+    enum_values:
+    - s
+    - min
+    - h
+    - d
+    - wk
+    - mo
+    - a
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: s | min | h | d | wk | mo | a - unit of time (UCUM)
+    type: string
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  frequency:
+    description: The number of times to repeat the action within the specified period.
+      If frequencyMax is present, this element indicates the lower bound of the allowed
+      range of the frequency.
+    element_property: true
+    exclusiveMinimum: 0
+    title: Event occurs frequency times per period
+    type: integer
+  frequencyMax:
+    description: If present, indicates that the frequency is a range - so to repeat
+      between [frequency] and [frequencyMax] times within the period or period range.
+    element_property: true
+    exclusiveMinimum: 0
+    title: Event occurs up to frequencyMax times per period
+    type: integer
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  offset:
+    description: The number of minutes from the event. If the event code does not
+      indicate whether the minutes is before or after the event, then the offset is
+      assumed to be after the event.
+    element_property: true
+    minimum: 0
+    title: Minutes from event (before or after)
+    type: integer
+  period:
+    description: Indicates the duration of time over which repetitions are to occur;
+      e.g. to express "3 times per day", 3 would be the frequency and "1 day" would
+      be the period. If periodMax is present, this element indicates the lower bound
+      of the allowed range of the period length.
+    element_property: true
+    title: Event occurs frequency times per period
+    type: number
+  periodMax:
+    description: If present, indicates that the period is a range from [period] to
+      [periodMax], allowing expressing concepts such as "do this once every 3-5 days.
+    element_property: true
+    title: Upper limit of period (3-4 hours)
+    type: number
+  periodUnit:
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/units-of-time
+    binding_version: 4.3.0
+    description: The units of time for the period in UCUM units. See http://hl7.org/fhir/ValueSet/units-of-time
+    element_property: true
+    enum_values:
+    - s
+    - min
+    - h
+    - d
+    - wk
+    - mo
+    - a
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: s | min | h | d | wk | mo | a - unit of time (UCUM)
+    type: string
+  resource_type:
+    const: TimingRepeat
+    title: Resource Type
+    type: string
+  timeOfDay:
+    description: Specified time of day for action to take place.
+    element_property: true
+    items:
+      format: time
+      type: string
+    title: Time of day for action
+    type: array
+  when:
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/event-timing
+    binding_version: 4.3.0
+    description: An approximate time period during the day, potentially linked to
+      an event of daily living that indicates when the action should occur. See http://hl7.org/fhir/ValueSet/event-timing
+    element_property: true
+    items:
+      pattern: ^[^\s]+(\s[^\s]+)*$
+      type: string
+    title: Code for time period of occurrence
+    type: array
+title: TimingRepeat
+type: object

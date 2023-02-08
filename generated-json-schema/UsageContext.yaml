@@ -1,0 +1,96 @@
+additionalProperties: false
+description: 'Describes the context of use for a conformance or knowledge resource.
+
+  Specifies clinical/business/etc. metadata that can be used to retrieve,
+
+  index and/or categorize an artifact. This metadata can either be specific
+
+  to the applicable population (e.g., age category, DRG) or the specific
+
+  context of care (e.g., venue, care setting, provider of care).'
+id: UsageContext
+properties:
+  code:
+    $ref: Coding.yaml
+    binding_strength: extensible
+    binding_uri: http://hl7.org/fhir/ValueSet/usage-context-type
+    description: A code that identifies the type of context being specified by this
+      usage context. See http://hl7.org/fhir/ValueSet/usage-context-type
+    element_property: true
+    title: Type of context being specified
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  resource_type:
+    const: UsageContext
+    title: Resource Type
+    type: string
+  valueCodeableConcept:
+    $ref: CodeableConcept.yaml
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/use-context
+    description: A value that defines the context specified in this context of use.
+      The interpretation of the value is defined by the code. See http://hl7.org/fhir/ValueSet/use-context
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Value that defines the context
+  valueQuantity:
+    $ref: Quantity.yaml
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/use-context
+    description: A value that defines the context specified in this context of use.
+      The interpretation of the value is defined by the code. See http://hl7.org/fhir/ValueSet/use-context
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Value that defines the context
+  valueRange:
+    $ref: Range.yaml
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/use-context
+    description: A value that defines the context specified in this context of use.
+      The interpretation of the value is defined by the code. See http://hl7.org/fhir/ValueSet/use-context
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Value that defines the context
+  valueReference:
+    $ref: Reference.yaml
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/use-context
+    description: A value that defines the context specified in this context of use.
+      The interpretation of the value is defined by the code. See http://hl7.org/fhir/ValueSet/use-context
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Value that defines the context
+required:
+- code
+title: UsageContext
+type: object

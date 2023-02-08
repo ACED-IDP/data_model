@@ -1,0 +1,14 @@
+allOf:
+- $ref: EdgeConfig.yaml
+description: Related measurements the observation is made from. (Generated Edge)
+destination_multiplicity: many
+destination_property_name: observation
+destination_type: DocumentReference
+id: Observation_derivedFrom_DocumentReference
+is_primary: true
+label: Observation_derivedFrom_DocumentReference
+source_multiplicity: many
+source_property_name: derivedFrom
+source_type: Observation
+title: Observation_derivedFrom_DocumentReference
+type: object

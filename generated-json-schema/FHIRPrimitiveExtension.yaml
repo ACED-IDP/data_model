@@ -1,0 +1,31 @@
+additionalProperties: false
+description: ''
+id: FHIRPrimitiveExtension
+properties:
+  extension:
+    description: Additional content defined by implementations
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: List of `Extension` items (represented as `dict` in JSON)
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for inter-element referencing
+    element_property: false
+    pattern: '[ \r\n\t\S]+'
+    title: Type `String`
+    type: string
+  resource_type:
+    const: FHIRPrimitiveExtension
+    title: Resource Type
+    type: string
+title: FHIRPrimitiveExtension
+type: object

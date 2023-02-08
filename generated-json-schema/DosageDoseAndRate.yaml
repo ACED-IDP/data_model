@@ -1,0 +1,78 @@
+additionalProperties: false
+description: 'Amount of medication administered.
+
+  The amount of medication administered.'
+id: DosageDoseAndRate
+properties:
+  doseQuantity:
+    $ref: Quantity.yaml
+    element_property: true
+    one_of_many: dose
+    one_of_many_required: false
+    title: Amount of medication per dose
+  doseRange:
+    $ref: Range.yaml
+    element_property: true
+    one_of_many: dose
+    one_of_many_required: false
+    title: Amount of medication per dose
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  rateQuantity:
+    $ref: Quantity.yaml
+    element_property: true
+    one_of_many: rate
+    one_of_many_required: false
+    title: Amount of medication per unit of time
+  rateRange:
+    $ref: Range.yaml
+    element_property: true
+    one_of_many: rate
+    one_of_many_required: false
+    title: Amount of medication per unit of time
+  rateRatio:
+    $ref: Ratio.yaml
+    element_property: true
+    one_of_many: rate
+    one_of_many_required: false
+    title: Amount of medication per unit of time
+  resource_type:
+    const: DosageDoseAndRate
+    title: Resource Type
+    type: string
+  type:
+    $ref: CodeableConcept.yaml
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/dose-rate-type
+    description: The kind of dose or rate specified, for example, ordered or calculated.
+      See http://hl7.org/fhir/ValueSet/dose-rate-type
+    element_property: true
+    title: The kind of dose or rate specified
+title: DosageDoseAndRate
+type: object

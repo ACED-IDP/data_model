@@ -1,0 +1,124 @@
+additionalProperties: false
+description: 'Definition of a parameter to a module.
+
+  The parameters to the module. This collection specifies both the input and
+
+  output parameters. Input parameters are provided by the caller as part of
+
+  the $evaluate operation. Output parameters are included in the
+
+  GuidanceResponse.'
+id: ParameterDefinition
+properties:
+  _documentation:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``documentation``.
+  _max:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``max``.
+  _min:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``min``.
+  _name:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``name``.
+  _profile:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``profile``.
+  _type:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``type``.
+  _use:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``use``.
+  documentation:
+    description: A brief discussion of what the parameter is for and how it is used
+      by the module.
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: A brief description of the parameter
+    type: string
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  max:
+    description: The maximum number of times this element is permitted to appear in
+      the request or response.
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: Maximum cardinality (a number of *)
+    type: string
+  min:
+    description: The minimum number of times this parameter SHALL appear in the request
+      or response.
+    element_property: true
+    title: Minimum cardinality
+    type: integer
+  name:
+    description: The name of the parameter used to allow access to the value of the
+      parameter in evaluation contexts.
+    element_property: true
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: Name used to access the parameter value
+    type: string
+  profile:
+    description: If specified, this indicates a profile that the input data must conform
+      to, or that the output data will conform to.
+    element_property: true
+    pattern: \S*
+    title: What profile the value is expected to be
+    type: string
+  resource_type:
+    const: ParameterDefinition
+    title: Resource Type
+    type: string
+  type:
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/all-types
+    binding_version: 4.3.0
+    description: The type of the parameter. See http://hl7.org/fhir/ValueSet/all-types
+    element_property: true
+    element_required: true
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: What type of value
+    type: string
+  use:
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/operation-parameter-use
+    binding_version: 4.3.0
+    description: Whether the parameter is input or output for the module. See http://hl7.org/fhir/ValueSet/operation-parameter-use
+    element_property: true
+    element_required: true
+    enum_values:
+    - in
+    - out
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: in | out
+    type: string
+title: ParameterDefinition
+type: object

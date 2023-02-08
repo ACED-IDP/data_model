@@ -1,0 +1,104 @@
+additionalProperties: false
+description: 'An expression that can be used to generate a value.
+
+  A expression that is evaluated in a specified context and returns a value.
+
+  The context of use of the expression must specify the context in which the
+
+  expression is evaluated, and how the result of the expression is used.'
+id: Expression
+properties:
+  _description:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``description``.
+  _expression:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``expression``.
+  _language:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``language``.
+  _name:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``name``.
+  _reference:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``reference``.
+  description:
+    description: A brief, natural language description of the condition that effectively
+      communicates the intended semantics.
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: Natural language description of the condition
+    type: string
+  expression:
+    description: An expression in the specified language that returns a value.
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: Expression in specified language
+    type: string
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  language:
+    binding_strength: extensible
+    binding_uri: http://hl7.org/fhir/ValueSet/expression-language
+    description: The media type of the language for the expression. See http://hl7.org/fhir/ValueSet/expression-language
+    element_property: true
+    element_required: true
+    enum_values:
+    - text/cql
+    - text/fhirpath
+    - application/x-fhir-query
+    - text/cql-identifier
+    - text/cql-expression
+    - etc.
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: text/cql | text/fhirpath | application/x-fhir-query | text/cql-identifier
+      | text/cql-expression | etc.
+    type: string
+  name:
+    description: A short name assigned to the expression to allow for multiple reuse
+      of the expression in the context where it is defined.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Short name assigned to expression for reuse
+    type: string
+  reference:
+    description: A URI that defines where the expression is found.
+    element_property: true
+    pattern: \S*
+    title: Where the expression is found
+    type: string
+  resource_type:
+    const: Expression
+    title: Resource Type
+    type: string
+title: Expression
+type: object

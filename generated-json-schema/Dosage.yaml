@@ -1,0 +1,167 @@
+additionalProperties: false
+description: 'How the medication is/was taken or should be taken.
+
+  Indicates how the medication is/was taken or should be taken by the
+
+  patient.'
+id: Dosage
+properties:
+  _asNeededBoolean:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``asNeededBoolean``.
+  _patientInstruction:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``patientInstruction``.
+  _sequence:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``sequence``.
+  _text:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``text``.
+  additionalInstruction:
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/additional-instruction-codes
+    description: Supplemental instructions to the patient on how to take the medication  (e.g.
+      "with meals" or"take half to one hour before food") or warnings for the patient
+      about the medication (e.g. "may cause drowsiness" or "avoid exposure of skin
+      to direct sunlight or sunlamps"). See http://hl7.org/fhir/ValueSet/additional-instruction-codes
+    element_property: true
+    items:
+      $ref: CodeableConcept.yaml
+    title: Supplemental instruction or warnings to the patient - e.g. "with meals",
+      "may cause drowsiness"
+    type: array
+  asNeededBoolean:
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/medication-as-needed-reason
+    description: Indicates whether the Medication is only taken when needed within
+      a specific dosing schedule (Boolean option), or it indicates the precondition
+      for taking the Medication (CodeableConcept). See http://hl7.org/fhir/ValueSet/medication-as-needed-reason
+    element_property: true
+    one_of_many: asNeeded
+    one_of_many_required: false
+    title: Take "as needed" (for x)
+    type: boolean
+  asNeededCodeableConcept:
+    $ref: CodeableConcept.yaml
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/medication-as-needed-reason
+    description: Indicates whether the Medication is only taken when needed within
+      a specific dosing schedule (Boolean option), or it indicates the precondition
+      for taking the Medication (CodeableConcept). See http://hl7.org/fhir/ValueSet/medication-as-needed-reason
+    element_property: true
+    one_of_many: asNeeded
+    one_of_many_required: false
+    title: Take "as needed" (for x)
+  doseAndRate:
+    description: The amount of medication administered.
+    element_property: true
+    items:
+      $ref: DosageDoseAndRate.yaml
+    title: Amount of medication administered
+    type: array
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  maxDosePerAdministration:
+    $ref: Quantity.yaml
+    element_property: true
+    title: Upper limit on medication per administration
+  maxDosePerLifetime:
+    $ref: Quantity.yaml
+    element_property: true
+    title: Upper limit on medication per lifetime of the patient
+  maxDosePerPeriod:
+    $ref: Ratio.yaml
+    element_property: true
+    title: Upper limit on medication per unit of time
+  method:
+    $ref: CodeableConcept.yaml
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/administration-method-codes
+    description: See http://hl7.org/fhir/ValueSet/administration-method-codes
+    element_property: true
+    title: Technique for administering medication
+  modifierExtension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element and that modifies the understanding of
+      the element in which it is contained and/or the understanding of the containing
+      element's descendants. Usually modifier elements provide negation or qualification.
+      To make the use of extensions safe and manageable, there is a strict set of
+      governance applied to the definition and use of extensions. Though any implementer
+      can define an extension, there is a set of requirements that SHALL be met as
+      part of the definition of the extension. Applications processing a resource
+      are required to check for modifier extensions.  Modifier extensions SHALL NOT
+      change the meaning of any elements on Resource or DomainResource (including
+      cannot change the meaning of modifierExtension itself).
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Extensions that cannot be ignored even if unrecognized
+    type: array
+  patientInstruction:
+    description: Instructions in terms that are understood by the patient or consumer.
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: Patient or consumer oriented instructions
+    type: string
+  resource_type:
+    const: Dosage
+    title: Resource Type
+    type: string
+  route:
+    $ref: CodeableConcept.yaml
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/route-codes
+    description: See http://hl7.org/fhir/ValueSet/route-codes
+    element_property: true
+    title: How drug should enter body
+  sequence:
+    description: Indicates the order in which the dosage instructions should be applied
+      or interpreted.
+    element_property: true
+    title: The order of the dosage instructions
+    type: integer
+  site:
+    $ref: CodeableConcept.yaml
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/approach-site-codes
+    description: See http://hl7.org/fhir/ValueSet/approach-site-codes
+    element_property: true
+    title: Body site to administer to
+  text:
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: Free text dosage instructions e.g. SIG
+    type: string
+  timing:
+    $ref: Timing.yaml
+    element_property: true
+    title: When medication should be administered
+title: Dosage
+type: object

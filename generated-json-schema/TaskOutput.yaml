@@ -1,0 +1,495 @@
+additionalProperties: false
+description: 'Information produced as part of task.
+
+  Outputs produced by the Task.'
+id: TaskOutput
+properties:
+  _valueBase64Binary:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueBase64Binary``.
+  _valueBoolean:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueBoolean``.
+  _valueCanonical:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueCanonical``.
+  _valueCode:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueCode``.
+  _valueDate:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueDate``.
+  _valueDateTime:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueDateTime``.
+  _valueDecimal:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueDecimal``.
+  _valueId:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueId``.
+  _valueInstant:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueInstant``.
+  _valueInteger:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueInteger``.
+  _valueMarkdown:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueMarkdown``.
+  _valueOid:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueOid``.
+  _valuePositiveInt:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valuePositiveInt``.
+  _valueString:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueString``.
+  _valueTime:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueTime``.
+  _valueUnsignedInt:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueUnsignedInt``.
+  _valueUri:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueUri``.
+  _valueUrl:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueUrl``.
+  _valueUuid:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueUuid``.
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  modifierExtension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element and that modifies the understanding of
+      the element in which it is contained and/or the understanding of the containing
+      element's descendants. Usually modifier elements provide negation or qualification.
+      To make the use of extensions safe and manageable, there is a strict set of
+      governance applied to the definition and use of extensions. Though any implementer
+      can define an extension, there is a set of requirements that SHALL be met as
+      part of the definition of the extension. Applications processing a resource
+      are required to check for modifier extensions.  Modifier extensions SHALL NOT
+      change the meaning of any elements on Resource or DomainResource (including
+      cannot change the meaning of modifierExtension itself).
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Extensions that cannot be ignored even if unrecognized
+    type: array
+  resource_type:
+    const: TaskOutput
+    title: Resource Type
+    type: string
+  type:
+    $ref: CodeableConcept.yaml
+    binding_description: Codes to identify types of input parameters.  These will
+      typically be specific to a particular workflow.  E.g. "Identified issues", "Preliminary
+      results", "Filler order", "Final results", etc.
+    binding_strength: example
+    description: The name of the Output parameter.
+    element_property: true
+    title: Label for output
+  valueAddress:
+    $ref: Address.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueAge:
+    $ref: Age.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueAnnotation:
+    $ref: Annotation.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueAttachment:
+    $ref: Attachment.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueBase64Binary:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    format: binary
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+    type: string
+  valueBoolean:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+    type: boolean
+  valueCanonical:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    pattern: \S*
+    title: Result of output
+    type: string
+  valueCode:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: Result of output
+    type: string
+  valueCodeableConcept:
+    $ref: CodeableConcept.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueCoding:
+    $ref: Coding.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueContactDetail:
+    $ref: ContactDetail.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueContactPoint:
+    $ref: ContactPoint.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueContributor:
+    $ref: Contributor.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueCount:
+    $ref: Count.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueDataRequirement:
+    $ref: DataRequirement.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueDate:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    format: date
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+    type: string
+  valueDateTime:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    format: date-time
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+    type: string
+  valueDecimal:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+    type: number
+  valueDistance:
+    $ref: Distance.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueDosage:
+    $ref: Dosage.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueDuration:
+    $ref: Duration.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueExpression:
+    $ref: Expression.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueHumanName:
+    $ref: HumanName.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueId:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    one_of_many: value
+    one_of_many_required: true
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Result of output
+    type: string
+  valueIdentifier:
+    $ref: Identifier.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueInstant:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    format: date-time
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+    type: string
+  valueInteger:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+    type: integer
+  valueMarkdown:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    pattern: \s*(\S|\s)*
+    title: Result of output
+    type: string
+  valueMeta:
+    $ref: Meta.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueMoney:
+    $ref: Money.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueOid:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    pattern: ^urn:oid:[0-2](\.(0|[1-9][0-9]*))+$
+    title: Result of output
+    type: string
+  valueParameterDefinition:
+    $ref: ParameterDefinition.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valuePeriod:
+    $ref: Period.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valuePositiveInt:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    exclusiveMinimum: 0
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+    type: integer
+  valueQuantity:
+    $ref: Quantity.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueRange:
+    $ref: Range.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueRatio:
+    $ref: Ratio.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueReference:
+    $ref: Reference.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueRelatedArtifact:
+    $ref: RelatedArtifact.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueSampledData:
+    $ref: SampledData.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueSignature:
+    $ref: Signature.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueString:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    pattern: '[ \r\n\t\S]+'
+    title: Result of output
+    type: string
+  valueTime:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    format: time
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+    type: string
+  valueTiming:
+    $ref: Timing.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueTriggerDefinition:
+    $ref: TriggerDefinition.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueUnsignedInt:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    minimum: 0
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+    type: integer
+  valueUri:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    pattern: \S*
+    title: Result of output
+    type: string
+  valueUrl:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    format: uri
+    maxLength: 65536
+    minLength: 1
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+    type: string
+  valueUsageContext:
+    $ref: UsageContext.yaml
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+  valueUuid:
+    description: The value of the Output parameter as a basic type.
+    element_property: true
+    format: uuid
+    one_of_many: value
+    one_of_many_required: true
+    title: Result of output
+    type: string
+required:
+- type
+title: TaskOutput
+type: object

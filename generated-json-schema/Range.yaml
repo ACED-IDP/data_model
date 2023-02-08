@@ -1,0 +1,50 @@
+additionalProperties: false
+description: 'Set of values bounded by low and high.
+
+  A set of ordered Quantities defined by a low and high limit.'
+id: Range
+properties:
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  high:
+    $ref: Quantity.yaml
+    description: The high limit. The boundary is inclusive.
+    element_property: true
+    title: High limit
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  low:
+    $ref: Quantity.yaml
+    description: The low limit. The boundary is inclusive.
+    element_property: true
+    title: Low limit
+  resource_type:
+    const: Range
+    title: Resource Type
+    type: string
+title: Range
+type: object

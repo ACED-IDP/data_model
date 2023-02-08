@@ -1,0 +1,127 @@
+additionalProperties: false
+description: 'Name of a human - parts and usage.
+
+  A human''s name with the ability to identify parts and usage.'
+id: HumanName
+properties:
+  _family:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``family``.
+  _given:
+    items:
+      $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``given``.
+    type: array
+  _prefix:
+    items:
+      $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``prefix``.
+    type: array
+  _suffix:
+    items:
+      $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``suffix``.
+    type: array
+  _text:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``text``.
+  _use:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``use``.
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  family:
+    description: The part of a name that links to the genealogy. In some cultures
+      (e.g. Eritrea) the family name of a son is the first name of his father.
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: Family name (often called 'Surname')
+    type: string
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  given:
+    description: Given name.
+    element_property: true
+    items:
+      pattern: '[ \r\n\t\S]+'
+      type: string
+    title: Given names (not always 'first'). Includes middle names
+    type: array
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  period:
+    $ref: Period.yaml
+    description: Indicates the period of time when this name was valid for the named
+      person.
+    element_property: true
+    title: Time period when name was/is in use
+  prefix:
+    description: Part of the name that is acquired as a title due to academic, legal,
+      employment or nobility status, etc. and that appears at the start of the name.
+    element_property: true
+    items:
+      pattern: '[ \r\n\t\S]+'
+      type: string
+    title: Parts that come before the name
+    type: array
+  resource_type:
+    const: HumanName
+    title: Resource Type
+    type: string
+  suffix:
+    description: Part of the name that is acquired as a title due to academic, legal,
+      employment or nobility status, etc. and that appears at the end of the name.
+    element_property: true
+    items:
+      pattern: '[ \r\n\t\S]+'
+      type: string
+    title: Parts that come after the name
+    type: array
+  text:
+    description: Specifies the entire name as it should be displayed e.g. on an application
+      UI. This may be provided instead of or as well as the specific parts.
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: Text representation of the full name
+    type: string
+  use:
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/name-use
+    binding_version: 4.3.0
+    description: Identifies the purpose for this name. See http://hl7.org/fhir/ValueSet/name-use
+    element_property: true
+    enum_values:
+    - usual
+    - official
+    - temp
+    - nickname
+    - anonymous
+    - old
+    - maiden
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: usual | official | temp | nickname | anonymous | old | maiden
+    type: string
+title: HumanName
+type: object

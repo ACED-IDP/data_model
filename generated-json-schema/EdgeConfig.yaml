@@ -1,0 +1,18 @@
+description: Information about the edge between two nodes.
+id: EdgeConfig
+properties:
+  resource_type:
+    description: The title of the resource
+    type: string
+  source:
+    $ref: Reference.yaml
+    description: A pointer to the source resource, encapsulates type & id.
+  target:
+    $ref: Reference.yaml
+    description: A pointer to the target resource, encapsulates type & id.
+required:
+- resource_type
+- source
+- target
+title: EdgeConfig
+type: object

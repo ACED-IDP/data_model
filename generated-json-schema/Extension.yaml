@@ -1,0 +1,476 @@
+additionalProperties: false
+description: 'Optional Extensions Element.
+
+  Optional Extension Element - found in all resources.'
+id: Extension
+properties:
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  resource_type:
+    const: Extension
+    title: Resource Type
+    type: string
+  url:
+    description: Source of the definition for the extension code - a logical name
+      or a URL.
+    element_property: true
+    element_required: true
+    pattern: \S*
+    title: identifies the meaning of the extension
+    type: string
+  valueAddress:
+    $ref: Address.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueAge:
+    $ref: Age.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueAnnotation:
+    $ref: Annotation.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueAttachment:
+    $ref: Attachment.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueBase64Binary:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    format: binary
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+    type: string
+  valueBoolean:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+    type: boolean
+  valueCanonical:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    pattern: \S*
+    title: Value of extension
+    type: string
+  valueCode:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: Value of extension
+    type: string
+  valueCodeableConcept:
+    $ref: CodeableConcept.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueCodeableReference:
+    $ref: CodeableReference.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueCoding:
+    $ref: Coding.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueContactDetail:
+    $ref: ContactDetail.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueContactPoint:
+    $ref: ContactPoint.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueContributor:
+    $ref: Contributor.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueCount:
+    $ref: Count.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueDataRequirement:
+    $ref: DataRequirement.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueDate:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    format: date
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+    type: string
+  valueDateTime:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    format: date-time
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+    type: string
+  valueDecimal:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+    type: number
+  valueDistance:
+    $ref: Distance.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueDosage:
+    $ref: Dosage.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueDuration:
+    $ref: Duration.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueExpression:
+    $ref: Expression.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueHumanName:
+    $ref: HumanName.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueId:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    one_of_many: value
+    one_of_many_required: false
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Value of extension
+    type: string
+  valueIdentifier:
+    $ref: Identifier.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueInstant:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    format: date-time
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+    type: string
+  valueInteger:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+    type: integer
+  valueMarkdown:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    pattern: \s*(\S|\s)*
+    title: Value of extension
+    type: string
+  valueMoney:
+    $ref: Money.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueOid:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    pattern: ^urn:oid:[0-2](\.(0|[1-9][0-9]*))+$
+    title: Value of extension
+    type: string
+  valueParameterDefinition:
+    $ref: ParameterDefinition.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valuePeriod:
+    $ref: Period.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valuePositiveInt:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    exclusiveMinimum: 0
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+    type: integer
+  valueQuantity:
+    $ref: Quantity.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueRange:
+    $ref: Range.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueRatio:
+    $ref: Ratio.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueRatioRange:
+    $ref: RatioRange.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueReference:
+    $ref: Reference.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueRelatedArtifact:
+    $ref: RelatedArtifact.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueSampledData:
+    $ref: SampledData.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueSignature:
+    $ref: Signature.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueString:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    pattern: '[ \r\n\t\S]+'
+    title: Value of extension
+    type: string
+  valueTime:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    format: time
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+    type: string
+  valueTiming:
+    $ref: Timing.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueTriggerDefinition:
+    $ref: TriggerDefinition.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueUnsignedInt:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    minimum: 0
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+    type: integer
+  valueUri:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    pattern: \S*
+    title: Value of extension
+    type: string
+  valueUrl:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    format: uri
+    maxLength: 65536
+    minLength: 1
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+    type: string
+  valueUsageContext:
+    $ref: UsageContext.yaml
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+  valueUuid:
+    description: Value of extension - must be one of a constrained set of the data
+      types (see [Extensibility](extensibility.html) for a list).
+    element_property: true
+    format: uuid
+    one_of_many: value
+    one_of_many_required: false
+    title: Value of extension
+    type: string
+title: Extension
+type: object

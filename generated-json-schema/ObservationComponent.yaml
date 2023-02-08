@@ -1,0 +1,211 @@
+additionalProperties: false
+description: 'Component results.
+
+  Some observations have multiple component observations.  These component
+
+  observations are expressed as separate code value pairs that share the same
+
+  attributes.  Examples include systolic and diastolic component observations
+
+  for blood pressure measurement and multiple component observations for
+
+  genetics observations.'
+id: ObservationComponent
+properties:
+  _valueBoolean:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueBoolean``.
+  _valueDateTime:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueDateTime``.
+  _valueInteger:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueInteger``.
+  _valueString:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueString``.
+  _valueTime:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``valueTime``.
+  code:
+    $ref: CodeableConcept.yaml
+    binding_description: Codes identifying names of simple observations.
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/observation-codes
+    description: Describes what was observed. Sometimes this is called the observation
+      "code". See http://hl7.org/fhir/ValueSet/observation-codes
+    element_property: true
+    title: Type of component observation (code / type)
+  dataAbsentReason:
+    $ref: CodeableConcept.yaml
+    binding_description: Codes specifying why the result (`Observation.value[x]`)
+      is missing.
+    binding_strength: extensible
+    binding_uri: http://hl7.org/fhir/ValueSet/data-absent-reason
+    description: Provides a reason why the expected value in the element Observation.component.value[x]
+      is missing. See http://hl7.org/fhir/ValueSet/data-absent-reason
+    element_property: true
+    title: Why the component result is missing
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  interpretation:
+    binding_description: Codes identifying interpretations of observations.
+    binding_strength: extensible
+    binding_uri: http://hl7.org/fhir/ValueSet/observation-interpretation
+    description: A categorical assessment of an observation value.  For example, high,
+      low, normal. See http://hl7.org/fhir/ValueSet/observation-interpretation
+    element_property: true
+    items:
+      $ref: CodeableConcept.yaml
+    title: High, low, normal, etc.
+    type: array
+  modifierExtension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element and that modifies the understanding of
+      the element in which it is contained and/or the understanding of the containing
+      element's descendants. Usually modifier elements provide negation or qualification.
+      To make the use of extensions safe and manageable, there is a strict set of
+      governance applied to the definition and use of extensions. Though any implementer
+      can define an extension, there is a set of requirements that SHALL be met as
+      part of the definition of the extension. Applications processing a resource
+      are required to check for modifier extensions.  Modifier extensions SHALL NOT
+      change the meaning of any elements on Resource or DomainResource (including
+      cannot change the meaning of modifierExtension itself).
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Extensions that cannot be ignored even if unrecognized
+    type: array
+  referenceRange:
+    description: Guidance on how to interpret the value by comparison to a normal
+      or recommended range.
+    element_property: true
+    items:
+      $ref: ObservationReferenceRange.yaml
+    title: Provides guide for interpretation of component result
+    type: array
+  resource_type:
+    const: ObservationComponent
+    title: Resource Type
+    type: string
+  valueBoolean:
+    description: The information determined as a result of making the observation,
+      if the information has a simple value.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Actual component result
+    type: boolean
+  valueCodeableConcept:
+    $ref: CodeableConcept.yaml
+    description: The information determined as a result of making the observation,
+      if the information has a simple value.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Actual component result
+  valueDateTime:
+    description: The information determined as a result of making the observation,
+      if the information has a simple value.
+    element_property: true
+    format: date-time
+    one_of_many: value
+    one_of_many_required: false
+    title: Actual component result
+    type: string
+  valueInteger:
+    description: The information determined as a result of making the observation,
+      if the information has a simple value.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Actual component result
+    type: integer
+  valuePeriod:
+    $ref: Period.yaml
+    description: The information determined as a result of making the observation,
+      if the information has a simple value.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Actual component result
+  valueQuantity:
+    $ref: Quantity.yaml
+    description: The information determined as a result of making the observation,
+      if the information has a simple value.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Actual component result
+  valueRange:
+    $ref: Range.yaml
+    description: The information determined as a result of making the observation,
+      if the information has a simple value.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Actual component result
+  valueRatio:
+    $ref: Ratio.yaml
+    description: The information determined as a result of making the observation,
+      if the information has a simple value.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Actual component result
+  valueSampledData:
+    $ref: SampledData.yaml
+    description: The information determined as a result of making the observation,
+      if the information has a simple value.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    title: Actual component result
+  valueString:
+    description: The information determined as a result of making the observation,
+      if the information has a simple value.
+    element_property: true
+    one_of_many: value
+    one_of_many_required: false
+    pattern: '[ \r\n\t\S]+'
+    title: Actual component result
+    type: string
+  valueTime:
+    description: The information determined as a result of making the observation,
+      if the information has a simple value.
+    element_property: true
+    format: time
+    one_of_many: value
+    one_of_many_required: false
+    title: Actual component result
+    type: string
+required:
+- code
+title: ObservationComponent
+type: object

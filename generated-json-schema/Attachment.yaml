@@ -1,0 +1,125 @@
+additionalProperties: false
+description: 'Content in a format defined elsewhere.
+
+  For referring to data content defined in other formats.'
+id: Attachment
+properties:
+  _contentType:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``contentType``.
+  _creation:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``creation``.
+  _data:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``data``.
+  _hash:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``hash``.
+  _language:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``language``.
+  _size:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``size``.
+  _title:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``title``.
+  _url:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``url``.
+  contentType:
+    binding_description: BCP 13 (RFCs 2045, 2046, 2047, 4288, 4289 and 2049)
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/mimetypes
+    binding_version: 4.3.0
+    description: Identifies the type of the data in the attachment and allows a method
+      to be chosen to interpret or render the data. Includes mime type parameters
+      such as charset where appropriate. See http://hl7.org/fhir/ValueSet/mimetypes
+    element_property: true
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: Mime type of the content, with charset etc.
+    type: string
+  creation:
+    description: The date that the attachment was first created.
+    element_property: true
+    format: date-time
+    title: Date attachment was first created
+    type: string
+  data:
+    description: The actual data of the attachment - a sequence of bytes, base64 encoded.
+    element_property: true
+    format: binary
+    title: Data inline, base64ed
+    type: string
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  hash:
+    description: The calculated hash of the data using SHA-1. Represented using base64.
+    element_property: true
+    format: binary
+    title: Hash of the data (sha-1, base64ed)
+    type: string
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  language:
+    binding_description: IETF language tag
+    binding_strength: preferred
+    binding_uri: http://hl7.org/fhir/ValueSet/languages
+    description: The human language of the content. The value can be any valid value
+      according to BCP 47. See http://hl7.org/fhir/ValueSet/languages
+    element_property: true
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: Human language of the content (BCP-47)
+    type: string
+  resource_type:
+    const: Attachment
+    title: Resource Type
+    type: string
+  size:
+    description: The number of bytes of data that make up this attachment (before
+      base64 encoding, if that is done).
+    element_property: true
+    minimum: 0
+    title: Number of bytes of content (if url provided)
+    type: integer
+  title:
+    description: A label or set of text to display in place of the data.
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: Label to display in place of the data
+    type: string
+  url:
+    description: A location where the data can be accessed.
+    element_property: true
+    format: uri
+    maxLength: 65536
+    minLength: 1
+    title: Uri where the data can be found
+    type: string
+title: Attachment
+type: object

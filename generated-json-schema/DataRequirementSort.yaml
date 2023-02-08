@@ -1,0 +1,69 @@
+additionalProperties: false
+description: 'Order of the results.
+
+  Specifies the order of the results to be returned.'
+id: DataRequirementSort
+properties:
+  _direction:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``direction``.
+  _path:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``path``.
+  direction:
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/sort-direction
+    binding_version: 4.3.0
+    description: The direction of the sort, ascending or descending. See http://hl7.org/fhir/ValueSet/sort-direction
+    element_property: true
+    element_required: true
+    enum_values:
+    - ascending
+    - descending
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: ascending | descending
+    type: string
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  path:
+    description: The attribute of the sort. The specified path must be resolvable
+      from the type of the required data. The path is allowed to contain qualifiers
+      (.) to traverse sub-elements, as well as indexers ([x]) to traverse multiple-cardinality
+      sub-elements. Note that the index must be an integer constant.
+    element_property: true
+    element_required: true
+    pattern: '[ \r\n\t\S]+'
+    title: The name of the attribute to perform the sort
+    type: string
+  resource_type:
+    const: DataRequirementSort
+    title: Resource Type
+    type: string
+title: DataRequirementSort
+type: object

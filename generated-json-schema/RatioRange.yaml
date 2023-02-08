@@ -1,0 +1,55 @@
+additionalProperties: false
+description: 'Range of ratio values.
+
+  A range of ratios expressed as a low and high numerator and a denominator.'
+id: RatioRange
+properties:
+  denominator:
+    $ref: Quantity.yaml
+    description: The value of the denominator.
+    element_property: true
+    title: Denominator value
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  highNumerator:
+    $ref: Quantity.yaml
+    description: The value of the high limit numerator.
+    element_property: true
+    title: High Numerator limit
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  lowNumerator:
+    $ref: Quantity.yaml
+    description: The value of the low limit numerator.
+    element_property: true
+    title: Low Numerator limit
+  resource_type:
+    const: RatioRange
+    title: Resource Type
+    type: string
+title: RatioRange
+type: object

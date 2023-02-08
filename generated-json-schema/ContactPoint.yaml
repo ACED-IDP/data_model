@@ -1,0 +1,105 @@
+additionalProperties: false
+description: 'Details of a Technology mediated contact point (phone, fax, email, etc.).
+
+  Details for all kinds of technology mediated contact points for a person or
+
+  organization, including telephone, email, etc.'
+id: ContactPoint
+properties:
+  _rank:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``rank``.
+  _system:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``system``.
+  _use:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``use``.
+  _value:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``value``.
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  period:
+    $ref: Period.yaml
+    element_property: true
+    title: Time period when the contact point was/is in use
+  rank:
+    description: Specifies a preferred order in which to use a set of contacts. ContactPoints
+      with lower rank values are more preferred than those with higher rank values.
+    element_property: true
+    exclusiveMinimum: 0
+    title: Specify preferred order of use (1 = highest)
+    type: integer
+  resource_type:
+    const: ContactPoint
+    title: Resource Type
+    type: string
+  system:
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/contact-point-system
+    binding_version: 4.3.0
+    description: Telecommunications form for contact point - what communications system
+      is required to make use of the contact. See http://hl7.org/fhir/ValueSet/contact-point-system
+    element_property: true
+    enum_values:
+    - phone
+    - fax
+    - email
+    - pager
+    - url
+    - sms
+    - other
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: phone | fax | email | pager | url | sms | other
+    type: string
+  use:
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/contact-point-use
+    binding_version: 4.3.0
+    description: Identifies the purpose for the contact point. See http://hl7.org/fhir/ValueSet/contact-point-use
+    element_property: true
+    enum_values:
+    - home
+    - work
+    - temp
+    - old
+    - mobile
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: home | work | temp | old | mobile - purpose of this contact point
+    type: string
+  value:
+    description: The actual contact point details, in a form that is meaningful to
+      the designated communication system (i.e. phone number or email address).
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: The actual contact point details
+    type: string
+title: ContactPoint
+type: object

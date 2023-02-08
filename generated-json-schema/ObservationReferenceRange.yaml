@@ -1,0 +1,121 @@
+additionalProperties: false
+description: 'Provides guide for interpretation.
+
+  Guidance on how to interpret the value by comparison to a normal or
+
+  recommended range.  Multiple reference ranges are interpreted as an "OR".
+
+  In other words, to represent two distinct target populations, two
+
+  `referenceRange` elements would be used.'
+id: ObservationReferenceRange
+properties:
+  _text:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``text``.
+  age:
+    $ref: Range.yaml
+    description: The age at which this reference range is applicable. This is a neonatal
+      age (e.g. number of weeks at term) if the meaning says so.
+    element_property: true
+    title: Applicable age range, if relevant
+  appliesTo:
+    binding_description: Codes identifying the population the reference range applies
+      to.
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/referencerange-appliesto
+    description: Codes to indicate the target population this reference range applies
+      to.  For example, a reference range may be based on the normal population or
+      a particular sex or race.  Multiple `appliesTo`  are interpreted as an "AND"
+      of the target populations.  For example, to represent a target population of
+      African American females, both a code of female and a code for African American
+      would be used. See http://hl7.org/fhir/ValueSet/referencerange-appliesto
+    element_property: true
+    items:
+      $ref: CodeableConcept.yaml
+    title: Reference range population
+    type: array
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  high:
+    $ref: Quantity.yaml
+    description: The value of the high bound of the reference range.  The high bound
+      of the reference range endpoint is inclusive of the value (e.g.  reference range
+      is >=5 - <=9). If the high bound is omitted,  it is assumed to be meaningless
+      (e.g. reference range is >= 2.3).
+    element_property: true
+    title: High Range, if relevant
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  low:
+    $ref: Quantity.yaml
+    description: The value of the low bound of the reference range.  The low bound
+      of the reference range endpoint is inclusive of the value (e.g.  reference range
+      is >=5 - <=9). If the low bound is omitted,  it is assumed to be meaningless
+      (e.g. reference range is <=2.3).
+    element_property: true
+    title: Low Range, if relevant
+  modifierExtension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element and that modifies the understanding of
+      the element in which it is contained and/or the understanding of the containing
+      element's descendants. Usually modifier elements provide negation or qualification.
+      To make the use of extensions safe and manageable, there is a strict set of
+      governance applied to the definition and use of extensions. Though any implementer
+      can define an extension, there is a set of requirements that SHALL be met as
+      part of the definition of the extension. Applications processing a resource
+      are required to check for modifier extensions.  Modifier extensions SHALL NOT
+      change the meaning of any elements on Resource or DomainResource (including
+      cannot change the meaning of modifierExtension itself).
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Extensions that cannot be ignored even if unrecognized
+    type: array
+  resource_type:
+    const: ObservationReferenceRange
+    title: Resource Type
+    type: string
+  text:
+    description: Text based reference range in an observation which may be used when
+      a quantitative range is not appropriate for an observation.  An example would
+      be a reference value of "Negative" or a list or table of "normals".
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: Text based reference range in an observation
+    type: string
+  type:
+    $ref: CodeableConcept.yaml
+    binding_description: Code for the meaning of a reference range.
+    binding_strength: preferred
+    binding_uri: http://hl7.org/fhir/ValueSet/referencerange-meaning
+    description: Codes to indicate the what part of the targeted reference population
+      it applies to. For example, the normal or therapeutic range. See http://hl7.org/fhir/ValueSet/referencerange-meaning
+    element_property: true
+    title: Reference range qualifier
+title: ObservationReferenceRange
+type: object

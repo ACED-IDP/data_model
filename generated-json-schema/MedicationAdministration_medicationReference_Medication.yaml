@@ -1,0 +1,14 @@
+allOf:
+- $ref: EdgeConfig.yaml
+description: What was administered. (Generated Edge)
+destination_multiplicity: many
+destination_property_name: medication_administration
+destination_type: Medication
+id: MedicationAdministration_medicationReference_Medication
+is_primary: true
+label: MedicationAdministration_medicationReference_Medication
+source_multiplicity: many
+source_property_name: medicationReference
+source_type: MedicationAdministration
+title: MedicationAdministration_medicationReference_Medication
+type: object

@@ -1,0 +1,98 @@
+additionalProperties: false
+description: 'An identifier intended for computation.
+
+  An identifier - identifies some entity uniquely and unambiguously.
+
+  Typically this is used for business identifiers.'
+id: Identifier
+properties:
+  _system:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``system``.
+  _use:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``use``.
+  _value:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``value``.
+  assigner:
+    $ref: Reference.yaml
+    description: Organization that issued/manages the identifier.
+    element_property: true
+    title: Organization that issued id (may be just text)
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  period:
+    $ref: Period.yaml
+    description: Time period during which identifier is/was valid for use.
+    element_property: true
+    title: Time period when id is/was valid for use
+  resource_type:
+    const: Identifier
+    title: Resource Type
+    type: string
+  system:
+    description: Establishes the namespace for the value - that is, a URL that describes
+      a set values that are unique.
+    element_property: true
+    pattern: \S*
+    title: The namespace for the identifier value
+    type: string
+  type:
+    $ref: CodeableConcept.yaml
+    binding_strength: extensible
+    binding_uri: http://hl7.org/fhir/ValueSet/identifier-type
+    description: A coded type for the identifier that can be used to determine which
+      identifier to use for a specific purpose. See http://hl7.org/fhir/ValueSet/identifier-type
+    element_property: true
+    title: Description of identifier
+  use:
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/identifier-use
+    binding_version: 4.3.0
+    description: The purpose of this identifier. See http://hl7.org/fhir/ValueSet/identifier-use
+    element_property: true
+    enum_values:
+    - usual
+    - official
+    - temp
+    - secondary
+    - old
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: usual | official | temp | secondary | old (If known)
+    type: string
+  value:
+    description: The portion of the identifier typically relevant to the user and
+      which is unique within the context of the system.
+    element_property: true
+    pattern: '[ \r\n\t\S]+'
+    title: The value that is unique
+    type: string
+title: Identifier
+type: object

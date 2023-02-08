@@ -1,0 +1,113 @@
+additionalProperties: false
+description: A contact party (e.g. guardian, partner, friend) for the patient.
+id: PatientContact
+properties:
+  _gender:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``gender``.
+  address:
+    $ref: Address.yaml
+    element_property: true
+    title: Address for the contact person
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  gender:
+    binding_description: The gender of a person used for administrative purposes.
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/administrative-gender
+    binding_version: 4.3.0
+    description: Administrative Gender - the gender that the contact person is considered
+      to have for administration and record keeping purposes. See http://hl7.org/fhir/ValueSet/administrative-gender
+    element_property: true
+    enum_values:
+    - male
+    - female
+    - other
+    - unknown
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: male | female | other | unknown
+    type: string
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  modifierExtension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element and that modifies the understanding of
+      the element in which it is contained and/or the understanding of the containing
+      element's descendants. Usually modifier elements provide negation or qualification.
+      To make the use of extensions safe and manageable, there is a strict set of
+      governance applied to the definition and use of extensions. Though any implementer
+      can define an extension, there is a set of requirements that SHALL be met as
+      part of the definition of the extension. Applications processing a resource
+      are required to check for modifier extensions.  Modifier extensions SHALL NOT
+      change the meaning of any elements on Resource or DomainResource (including
+      cannot change the meaning of modifierExtension itself).
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Extensions that cannot be ignored even if unrecognized
+    type: array
+  name:
+    $ref: HumanName.yaml
+    element_property: true
+    title: A name associated with the contact person
+  organization:
+    $ref: Reference.yaml
+    description: Organization on behalf of which the contact is acting or for which
+      the contact is working.
+    element_property: true
+    title: Organization that is associated with the contact
+  period:
+    $ref: Period.yaml
+    element_property: true
+    title: The period during which this contact person or organization is valid to
+      be contacted relating to this patient
+  relationship:
+    binding_description: The nature of the relationship between a patient and a contact
+      person for that patient.
+    binding_strength: extensible
+    binding_uri: http://hl7.org/fhir/ValueSet/patient-contactrelationship
+    description: The nature of the relationship between the patient and the contact
+      person. See http://hl7.org/fhir/ValueSet/patient-contactrelationship
+    element_property: true
+    items:
+      $ref: CodeableConcept.yaml
+    title: The kind of relationship
+    type: array
+  resource_type:
+    const: PatientContact
+    title: Resource Type
+    type: string
+  telecom:
+    description: A contact detail for the person, e.g. a telephone number or an email
+      address.
+    element_property: true
+    items:
+      $ref: ContactPoint.yaml
+    title: A contact detail for the person
+    type: array
+title: PatientContact
+type: object

@@ -1,0 +1,16 @@
+allOf:
+- $ref: EdgeConfig.yaml
+description: Where the specimen came from. This may be from patient(s), from a location
+  (e.g., the source of an environmental sample), or a sampling of a substance or a
+  device. (Generated Edge)
+destination_multiplicity: many
+destination_property_name: specimen
+destination_type: Substance
+id: Specimen_subject_Substance
+is_primary: true
+label: Specimen_subject_Substance
+source_multiplicity: many
+source_property_name: subject
+source_type: Specimen
+title: Specimen_subject_Substance
+type: object

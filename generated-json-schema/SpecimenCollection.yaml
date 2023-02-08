@@ -1,0 +1,134 @@
+additionalProperties: false
+description: 'Collection details.
+
+  Details concerning the specimen collection.'
+id: SpecimenCollection
+properties:
+  _collectedDateTime:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``collectedDateTime``.
+  bodySite:
+    $ref: CodeableConcept.yaml
+    binding_description: SNOMED CT Body site concepts
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/body-site
+    description: Anatomical location from which the specimen was collected (if subject
+      is a patient). This is the target site.  This element is not used for environmental
+      specimens. See http://hl7.org/fhir/ValueSet/body-site
+    element_property: true
+    title: Anatomical collection site
+  collectedDateTime:
+    description: Time when specimen was collected from subject - the physiologically
+      relevant time.
+    element_property: true
+    format: date-time
+    one_of_many: collected
+    one_of_many_required: false
+    title: Collection time
+    type: string
+  collectedPeriod:
+    $ref: Period.yaml
+    description: Time when specimen was collected from subject - the physiologically
+      relevant time.
+    element_property: true
+    one_of_many: collected
+    one_of_many_required: false
+    title: Collection time
+  collector:
+    $ref: Reference.yaml
+    description: Person who collected the specimen.
+    element_property: true
+    title: Who collected the specimen
+  duration:
+    $ref: Duration.yaml
+    description: The span of time over which the collection of a specimen occurred.
+    element_property: true
+    title: How long it took to collect specimen
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element. To make the use of extensions safe and
+      manageable, there is a strict set of governance  applied to the definition and
+      use of extensions. Though any implementer can define an extension, there is
+      a set of requirements that SHALL be met as part of the definition of the extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fastingStatusCodeableConcept:
+    $ref: CodeableConcept.yaml
+    binding_description: Codes describing the fasting status of the patient.
+    binding_strength: extensible
+    binding_uri: http://terminology.hl7.org/ValueSet/v2-0916
+    description: Abstinence or reduction from some or all food, drink, or both, for
+      a period of time prior to sample collection. See http://terminology.hl7.org/ValueSet/v2-0916
+    element_property: true
+    one_of_many: fastingStatus
+    one_of_many_required: false
+    title: Whether or how long patient abstained from food and/or drink
+  fastingStatusDuration:
+    $ref: Duration.yaml
+    binding_description: Codes describing the fasting status of the patient.
+    binding_strength: extensible
+    binding_uri: http://terminology.hl7.org/ValueSet/v2-0916
+    description: Abstinence or reduction from some or all food, drink, or both, for
+      a period of time prior to sample collection. See http://terminology.hl7.org/ValueSet/v2-0916
+    element_property: true
+    one_of_many: fastingStatus
+    one_of_many_required: false
+    title: Whether or how long patient abstained from food and/or drink
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  id:
+    description: Unique id for the element within a resource (for internal references).
+      This may be any string value that does not contain spaces.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Unique id for inter-element referencing
+    type: string
+  method:
+    $ref: CodeableConcept.yaml
+    binding_description: The  technique that is used to perform the procedure.
+    binding_strength: example
+    binding_uri: http://hl7.org/fhir/ValueSet/specimen-collection-method
+    description: A coded value specifying the technique that is used to perform the
+      procedure. See http://hl7.org/fhir/ValueSet/specimen-collection-method
+    element_property: true
+    title: Technique used to perform collection
+  modifierExtension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the element and that modifies the understanding of
+      the element in which it is contained and/or the understanding of the containing
+      element's descendants. Usually modifier elements provide negation or qualification.
+      To make the use of extensions safe and manageable, there is a strict set of
+      governance applied to the definition and use of extensions. Though any implementer
+      can define an extension, there is a set of requirements that SHALL be met as
+      part of the definition of the extension. Applications processing a resource
+      are required to check for modifier extensions.  Modifier extensions SHALL NOT
+      change the meaning of any elements on Resource or DomainResource (including
+      cannot change the meaning of modifierExtension itself).
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Extensions that cannot be ignored even if unrecognized
+    type: array
+  quantity:
+    $ref: Quantity.yaml
+    description: The quantity of specimen collected; for instance the volume of a
+      blood sample, or the physical measurement of an anatomic pathology sample.
+    element_property: true
+    title: The quantity of specimen collected
+  resource_type:
+    const: SpecimenCollection
+    title: Resource Type
+    type: string
+title: SpecimenCollection
+type: object

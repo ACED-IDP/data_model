@@ -1,0 +1,264 @@
+additionalProperties: false
+description: 'Information about an individual or animal receiving health care services.
+
+  Demographics and other administrative information about an individual or
+
+  animal receiving care or other health-related services.'
+id: Patient
+properties:
+  _active:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``active``.
+  _birthDate:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``birthDate``.
+  _deceasedBoolean:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``deceasedBoolean``.
+  _deceasedDateTime:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``deceasedDateTime``.
+  _gender:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``gender``.
+  _implicitRules:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``implicitRules``.
+  _language:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``language``.
+  _multipleBirthBoolean:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``multipleBirthBoolean``.
+  _multipleBirthInteger:
+    $ref: FHIRPrimitiveExtension.yaml
+    title: Extension field for ``multipleBirthInteger``.
+  active:
+    description: Whether this patient record is in active use.  Many systems use this
+      property to mark as non-current patients, such as those that have not been seen
+      for a period of time based on an organization's business rules.  It is often
+      used to filter patient lists to exclude inactive patients  Deceased patients
+      may also be marked as inactive for the same reasons, but may be active for some
+      time after death.
+    element_property: true
+    title: Whether this patient's record is in active use
+    type: boolean
+  address:
+    element_property: true
+    items:
+      $ref: Address.yaml
+    title: An address for the individual
+    type: array
+  birthDate:
+    element_property: true
+    format: date
+    title: The date of birth for the individual
+    type: string
+  communication:
+    element_property: true
+    items:
+      $ref: PatientCommunication.yaml
+    title: A language which may be used to communicate with the patient about his
+      or her health
+    type: array
+  contact:
+    element_property: true
+    items:
+      $ref: PatientContact.yaml
+    title: A contact party (e.g. guardian, partner, friend) for the patient
+    type: array
+  contained:
+    description: These resources do not have an independent existence apart from the
+      resource that contains them - they cannot be identified independently, and nor
+      can they have their own independent transaction scope.
+    element_property: true
+    items:
+      $ref: Resource.yaml
+    title: Contained, inline Resources
+    type: array
+  deceasedBoolean:
+    element_property: true
+    one_of_many: deceased
+    one_of_many_required: false
+    title: Indicates if the individual is deceased or not
+    type: boolean
+  deceasedDateTime:
+    element_property: true
+    format: date-time
+    one_of_many: deceased
+    one_of_many_required: false
+    title: Indicates if the individual is deceased or not
+    type: string
+  extension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the resource. To make the use of extensions safe
+      and manageable, there is a strict set of governance  applied to the definition
+      and use of extensions. Though any implementer can define an extension, there
+      is a set of requirements that SHALL be met as part of the definition of the
+      extension.
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Additional content defined by implementations
+    type: array
+  fhir_comments:
+    anyOf:
+    - type: string
+    - items:
+        type: string
+      type: array
+    element_property: false
+    title: Fhir Comments
+  gender:
+    binding_description: The gender of a person used for administrative purposes.
+    binding_strength: required
+    binding_uri: http://hl7.org/fhir/ValueSet/administrative-gender
+    binding_version: 4.3.0
+    description: Administrative Gender - the gender that the patient is considered
+      to have for administration and record keeping purposes. See http://hl7.org/fhir/ValueSet/administrative-gender
+    element_property: true
+    enum_values:
+    - male
+    - female
+    - other
+    - unknown
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: male | female | other | unknown
+    type: string
+  generalPractitioner:
+    description: Patient's nominated care provider.
+    element_property: true
+    items:
+      $ref: Reference.yaml
+    title: Patient's nominated primary care provider
+    type: array
+  id:
+    description: The logical id of the resource, as used in the URL for the resource.
+      Once assigned, this value never changes.
+    element_property: true
+    maxLength: 64
+    minLength: 1
+    pattern: ^[A-Za-z0-9\-.]+$
+    title: Logical id of this artifact
+    type: string
+  identifier:
+    element_property: true
+    items:
+      $ref: Identifier.yaml
+    title: An identifier for this patient
+    type: array
+  implicitRules:
+    description: A reference to a set of rules that were followed when the resource
+      was constructed, and which must be understood when processing the content. Often,
+      this is a reference to an implementation guide that defines the special rules
+      along with other profiles etc.
+    element_property: true
+    pattern: \S*
+    title: A set of rules under which this content was created
+    type: string
+  language:
+    binding_description: IETF language tag
+    binding_strength: preferred
+    binding_uri: http://hl7.org/fhir/ValueSet/languages
+    description: The base language in which the resource is written. See http://hl7.org/fhir/ValueSet/languages
+    element_property: true
+    pattern: ^[^\s]+(\s[^\s]+)*$
+    title: Language of the resource content
+    type: string
+  link:
+    description: Link to another patient resource that concerns the same actual patient.
+    element_property: true
+    items:
+      $ref: PatientLink.yaml
+    title: Link to another patient resource that concerns the same actual person
+    type: array
+  managingOrganization:
+    $ref: Reference.yaml
+    element_property: true
+    title: Organization that is the custodian of the patient record
+  maritalStatus:
+    $ref: CodeableConcept.yaml
+    binding_description: The domestic partnership status of a person.
+    binding_strength: extensible
+    binding_uri: http://hl7.org/fhir/ValueSet/marital-status
+    description: This field contains a patient's most recent marital (civil) status.
+      See http://hl7.org/fhir/ValueSet/marital-status
+    element_property: true
+    title: Marital (civil) status of a patient
+  meta:
+    $ref: Meta.yaml
+    description: The metadata about the resource. This is content that is maintained
+      by the infrastructure. Changes to the content might not always be associated
+      with version changes to the resource.
+    element_property: true
+    title: Metadata about the resource
+  modifierExtension:
+    description: May be used to represent additional information that is not part
+      of the basic definition of the resource and that modifies the understanding
+      of the element that contains it and/or the understanding of the containing element's
+      descendants. Usually modifier elements provide negation or qualification. To
+      make the use of extensions safe and manageable, there is a strict set of governance
+      applied to the definition and use of extensions. Though any implementer is allowed
+      to define an extension, there is a set of requirements that SHALL be met as
+      part of the definition of the extension. Applications processing a resource
+      are required to check for modifier extensions.  Modifier extensions SHALL NOT
+      change the meaning of any elements on Resource or DomainResource (including
+      cannot change the meaning of modifierExtension itself).
+    element_property: true
+    items:
+      $ref: Extension.yaml
+    title: Extensions that cannot be ignored
+    type: array
+  multipleBirthBoolean:
+    description: Indicates whether the patient is part of a multiple (boolean) or
+      indicates the actual birth order (integer).
+    element_property: true
+    one_of_many: multipleBirth
+    one_of_many_required: false
+    title: Whether patient is part of a multiple birth
+    type: boolean
+  multipleBirthInteger:
+    description: Indicates whether the patient is part of a multiple (boolean) or
+      indicates the actual birth order (integer).
+    element_property: true
+    one_of_many: multipleBirth
+    one_of_many_required: false
+    title: Whether patient is part of a multiple birth
+    type: integer
+  name:
+    description: A name associated with the individual.
+    element_property: true
+    items:
+      $ref: HumanName.yaml
+    title: A name associated with the patient
+    type: array
+  photo:
+    element_property: true
+    items:
+      $ref: Attachment.yaml
+    title: Image of the patient
+    type: array
+  resource_type:
+    const: Patient
+    title: Resource Type
+    type: string
+  telecom:
+    description: A contact detail (e.g. a telephone number or an email address) by
+      which the individual may be contacted.
+    element_property: true
+    items:
+      $ref: ContactPoint.yaml
+    title: A contact detail for the individual
+    type: array
+  text:
+    $ref: Narrative.yaml
+    description: A human-readable narrative that contains a summary of the resource
+      and can be used to represent the content of the resource to a human. The narrative
+      need not encode all the structured data, but is required to contain sufficient
+      detail to make it "clinically safe" for a human to just read the narrative.
+      Resource definitions may define what content should be represented in the narrative
+      to ensure clinical safety.
+    element_property: true
+    title: Text summary of the resource, for human interpretation
+title: Patient
+type: object
