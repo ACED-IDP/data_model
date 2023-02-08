@@ -79,15 +79,15 @@ nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_
 # Delete all from ES
 # docker exec esproxy-service curl -X DELETE http://localhost:9200/gen3.aced.*
 
-for study in ${all_studies[*]}; do
-  nice -10 python3 scripts/load.py load  flat --project_id aced-$study --index patient --path studies/$study/extractions/Patient.ndjson
-done
-
 for study in ${synthetic_studies[*]}; do
+  rm patient.sqlite
+  nice -10 python3 scripts/load.py load  flat --project_id aced-$study --index patient --path studies/$study/extractions/Patient.ndjson
   nice -10 python3 scripts/load.py  load  flat --project_id aced-$study --index file --path studies/$study/extractions/DocumentReference.ndjson
-done
-
-for study in ${all_studies[*]}; do
   nice -10 python3 scripts/load.py  load  flat --project_id aced-$study --index observation --path studies/$study/extractions/Observation.ndjson
 done
 
+
+study=HOP
+rm patient.sqlite
+nice -10 python3 scripts/load.py load  flat --project_id aced-$study --index patient --path studies/$study/extractions/Patient.ndjson
+nice -10 python3 scripts/load.py load  flat --project_id aced-$study --index observation --path studies/$study/extractions/Observation.ndjson

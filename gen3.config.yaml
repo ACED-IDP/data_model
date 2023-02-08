@@ -428,6 +428,8 @@ extra_properties:
         description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
     valueCodeableConcept_coding_1:
         type: string
+    valueCodeableConcept_1:
+        type: string
 
     observation_interpretation:
         type: string
@@ -473,6 +475,8 @@ extra_properties:
         description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
     category_coding:
         type: string
+    category_1:
+        type: string
     category_coding_1:
         type: string
     category_coding_display:
@@ -482,6 +486,8 @@ extra_properties:
     code_coding:
         type: string
     code_coding_1:
+        type: string
+    code_1:
         type: string
 
   # inputs and outputs

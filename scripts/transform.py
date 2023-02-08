@@ -112,19 +112,20 @@ def _simple_render(value, name_, **kwargs) -> str:
         for i_, v_ in enumerate(l_):
             codings = _coding(v_.coding, 'coding')
             text_ = v_.text
+            if not text_:
+                text_ = next(iter([coding[1] for coding in codings if 'coding_display' in coding[0]]), None)
             array_name = name
             if i_ > 0:
                 array_name = name + f"_{i_}"
             _nv.append((f"{array_name}", text_))
 
-            for coding in codings:
-                if 'coding_display' in coding[0] and text_:
+            for index_, coding in enumerate(codings):
+                if 'coding_display' in coding[0] and text_ and index_ == 0:
                     continue
                 if 'coding_display' in coding[0]:
-                    _nv.append((array_name, coding[1]))
-                    # first coding wins display
-                    text_ = coding[1]
+                    _nv.append((f"{array_name}_{index_}", coding[1]))
                     continue
+
                 _nv.append((f"{array_name}_{coding[0]}", coding[1]))
         return _nv
 
@@ -186,9 +187,10 @@ def _simple_render(value, name_, **kwargs) -> str:
             array_name = name
             if i_ > 0:
                 array_name = name + f"_{i_}"
-            _nv.append((f"{array_name}", f"{v_.value} {v_.unit}"))
-            if v_.value is None:
-                print("?")
+            unit_display = ''
+            if v_.unit:
+                unit_display = f' {v_.unit}'
+            _nv.append((f"{array_name}", f"{v_.value}{unit_display}"))
             _nv.append((f"{array_name}_value", float(str(v_.value))))  # decimal.Decimal
             _nv.append((f"{array_name}_unit", f"{v_.system}#{v_.unit}"))
         return _nv
@@ -575,6 +577,7 @@ def bundle_transform(input_path, output_path, schema_path, duplicate_ids_for):
 
     for input_file in input_path.glob('*.ndjson'):
         print(input_file)
+
         logged_already = False
         with open(input_file) as fp_:
             for line in fp_.readlines():
@@ -588,6 +591,7 @@ def bundle_transform(input_path, output_path, schema_path, duplicate_ids_for):
                         logged_already = True
                     continue
                 _emit_vertex(resource_)
+
 
     # close all emitters
     for fp_ in emitters.values():

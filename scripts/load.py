@@ -6,6 +6,7 @@ import io
 import json
 import logging
 import pathlib
+import sqlite3
 import uuid
 from collections import defaultdict
 from datetime import datetime
@@ -16,6 +17,7 @@ import click
 import elasticsearch
 import inflection
 import jwt
+import orjson
 import psycopg2
 import yaml
 from dictionaryutils import DataDictionary, dictionary
@@ -99,6 +101,13 @@ def create_index_from_source(_schema, _index, _type):
             mappings[k] = {"type": "float"}
         # we have a patient centric index approach, all links include a `patient`
         mappings['patient_id'] = {"type": "keyword"}
+        # patient fields copied to observation
+        if _type == 'observation':
+            mappings['us_core_race'] = {"type": "keyword"}
+            mappings['address'] = {"type": "keyword"}
+            mappings['gender'] = {"type": "keyword"}
+            mappings['birthDate'] = {"type": "keyword"}
+
     return {
         # https://www.elastic.co/guide/en/elasticsearch/reference/current/dynamic.html#dynamic-parameters
         "mappings": {_type: {"properties": mappings}}
@@ -182,6 +191,17 @@ def create_indexes(_schema, _index, doc_type, elastic=DEFAULT_ELASTIC):
     }
 
 
+def write_sqlite(index, generator):
+    """Write to sqlite"""
+    connection = sqlite3.connect(f'{index}.sqlite')
+    with connection:
+        connection.execute(f'DROP table IF EXISTS {index}')
+        connection.execute(f'CREATE TABLE if not exists {index} (id PRIMARY KEY, entity Text)')
+        with connection:
+            connection.executemany(f'insert into {index} values (?, ?)',
+                                   [(entity['id'], orjson.dumps(entity).decode(),) for entity in generator])
+
+
 def write_bulk_http(elastic, index, limit, doc_type, generator, schema):
     """Use efficient method to write to elastic"""
     counter = 0
@@ -219,6 +239,9 @@ def write_bulk_http(elastic, index, limit, doc_type, generator, schema):
 def observation_generator(project_id, path) -> Iterator[Dict]:
     """Render guppy index for observation."""
     program, project = project_id.split('-')
+
+    connection = sqlite3.connect(f'patient.sqlite')
+
     for observation in read_ndjson(path):
         o_ = observation['object']
 
@@ -242,6 +265,14 @@ def observation_generator(project_id, path) -> Iterator[Dict]:
         for required_field in []:
             if required_field not in o_:
                 o_[required_field] = None
+
+        for row in connection.execute('select entity from patient where id = ? limit 1', (o_['patient_id'], )):
+            row = orjson.loads(row[0])
+            o_['us_core_race'] = row.get('us_core_race', None)
+            o_['address'] = row.get('address', None)
+            o_['gender'] = row.get('gender', None)
+            o_['birthDate'] = row.get('birthDate', None)
+
         yield o_
 
 
@@ -341,7 +372,7 @@ def load():
               show_default=True,
               help='Max number of rows per index.')
 @click.option('--dictionary_url',
-              default='https://aced-public.s3.us-west-2.amazonaws.com/coherent.gen3.json',
+              default='https://aced-public.s3.us-west-2.amazonaws.com/aced.json',
               show_default=True,
               help='Gen3 schema')
 def load_flat(project_id, index, path, limit, elastic_url, dictionary_url):
@@ -369,6 +400,9 @@ def load_flat(project_id, index, path, limit, elastic_url, dictionary_url):
                         generator=patient_generator(project_id, path), schema=schema)
 
         setup_aliases(alias, doc_type, elastic, field_array, index)
+
+        # write locally
+        write_sqlite(alias, patient_generator(project_id, path))
 
     if index == 'observation':
         doc_type = 'observation'
