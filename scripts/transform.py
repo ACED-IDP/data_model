@@ -592,7 +592,6 @@ def bundle_transform(input_path, output_path, schema_path, duplicate_ids_for):
                     continue
                 _emit_vertex(resource_)
 
-
     # close all emitters
     for fp_ in emitters.values():
         fp_.close()

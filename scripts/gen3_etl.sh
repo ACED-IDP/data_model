@@ -47,7 +47,7 @@ done
 # also do HOP - no duplicates
 rm -r studies/HOP/extractions || true
 mkdir -p studies/HOP/extractions
-python3 scripts/etl.py transform --input_path ~/hop/data-etl/data/fhir/HOP --output_path studies/HOP/extractions
+python3 scripts/transform.py transform --input_path ~/hop/data-etl/data/fhir/HOP --output_path studies/HOP/extractions
 
 # clear existing data
 echo "Truncating gen3 tables."
