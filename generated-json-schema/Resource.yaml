@@ -52,7 +52,7 @@ properties:
       with version changes to the resource.
     element_property: true
     title: Metadata about the resource
-  resource_type:
+  resourceType
     const: Resource
     title: Resource Type
     type: string

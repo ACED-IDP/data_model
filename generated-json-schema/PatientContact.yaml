@@ -97,7 +97,7 @@ properties:
       $ref: CodeableConcept.yaml
     title: The kind of relationship
     type: array
-  resource_type:
+  resourceType
     const: PatientContact
     title: Resource Type
     type: string

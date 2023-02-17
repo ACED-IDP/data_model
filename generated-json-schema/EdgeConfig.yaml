@@ -1,7 +1,7 @@
 description: Information about the edge between two nodes.
 id: EdgeConfig
 properties:
-  resource_type:
+  resourceType
     description: The title of the resource
     type: string
   source:

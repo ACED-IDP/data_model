@@ -238,7 +238,7 @@ properties:
       $ref: Attachment.yaml
     title: Image of the patient
     type: array
-  resource_type:
+  resourceType
     const: Patient
     title: Resource Type
     type: string

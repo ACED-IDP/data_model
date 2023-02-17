@@ -96,7 +96,7 @@ properties:
     pattern: ^[^\s]+(\s[^\s]+)*$
     title: Human language of the content (BCP-47)
     type: string
-  resource_type:
+  resourceType
     const: Attachment
     title: Resource Type
     type: string

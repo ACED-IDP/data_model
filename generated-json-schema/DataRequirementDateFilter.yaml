@@ -58,7 +58,7 @@ properties:
     pattern: '[ \r\n\t\S]+'
     title: A date-valued attribute to filter on
     type: string
-  resource_type:
+  resourceType
     const: DataRequirementDateFilter
     title: Resource Type
     type: string

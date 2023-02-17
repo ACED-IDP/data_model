@@ -60,7 +60,7 @@ properties:
     pattern: '[ \r\n\t\S]+'
     title: Label for the objective
     type: string
-  resource_type:
+  resourceType
     const: ResearchStudyObjective
     title: Resource Type
     type: string

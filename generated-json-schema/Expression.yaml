@@ -96,7 +96,7 @@ properties:
     pattern: \S*
     title: Where the expression is found
     type: string
-  resource_type:
+  resourceType
     const: Expression
     title: Resource Type
     type: string

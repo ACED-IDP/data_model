@@ -46,7 +46,7 @@ properties:
       being referenced.
     element_property: true
     title: Reference to a resource (by instance)
-  resource_type:
+  resourceType
     const: CodeableReference
     title: Resource Type
     type: string

@@ -348,7 +348,7 @@ properties:
     reference_backrefs:
       Patient: requester_task
     title: Who is asking for task to be done
-  resource_type:
+  resourceType
     const: Task
     title: Resource Type
     type: string

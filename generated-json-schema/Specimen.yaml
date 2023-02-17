@@ -173,7 +173,7 @@ properties:
       $ref: Reference.yaml
     title: Why the specimen was collected
     type: array
-  resource_type:
+  resourceType
     const: Specimen
     title: Resource Type
     type: string

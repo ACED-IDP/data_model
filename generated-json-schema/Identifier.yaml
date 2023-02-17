@@ -53,7 +53,7 @@ properties:
     description: Time period during which identifier is/was valid for use.
     element_property: true
     title: Time period when id is/was valid for use
-  resource_type:
+  resourceType
     const: Identifier
     title: Resource Type
     type: string

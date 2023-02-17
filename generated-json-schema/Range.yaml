@@ -42,7 +42,7 @@ properties:
     description: The low limit. The boundary is inclusive.
     element_property: true
     title: Low limit
-  resource_type:
+  resourceType
     const: Range
     title: Resource Type
     type: string

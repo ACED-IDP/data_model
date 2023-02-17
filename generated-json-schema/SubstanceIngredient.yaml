@@ -54,7 +54,7 @@ properties:
     description: The amount of the ingredient in the substance - a concentration ratio.
     element_property: true
     title: Optional amount (concentration)
-  resource_type:
+  resourceType
     const: SubstanceIngredient
     title: Resource Type
     type: string

@@ -69,7 +69,7 @@ properties:
     pattern: '[ \r\n\t\S]+'
     title: Literal reference, Relative, internal or absolute URL
     type: string
-  resource_type:
+  resourceType
     const: Reference
     title: Resource Type
     type: string

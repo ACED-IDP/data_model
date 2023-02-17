@@ -47,7 +47,7 @@ properties:
     description: The value of the low limit numerator.
     element_property: true
     title: Low Numerator limit
-  resource_type:
+  resourceType
     const: RatioRange
     title: Resource Type
     type: string

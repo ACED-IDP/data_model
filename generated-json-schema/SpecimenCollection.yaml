@@ -126,7 +126,7 @@ properties:
       blood sample, or the physical measurement of an anatomic pathology sample.
     element_property: true
     title: The quantity of specimen collected
-  resource_type:
+  resourceType
     const: SpecimenCollection
     title: Resource Type
     type: string

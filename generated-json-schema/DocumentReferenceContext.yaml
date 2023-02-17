@@ -102,7 +102,7 @@ properties:
       $ref: Reference.yaml
     title: Related identifiers or resources
     type: array
-  resource_type:
+  resourceType
     const: DocumentReferenceContext
     title: Resource Type
     type: string

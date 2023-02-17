@@ -106,7 +106,7 @@ properties:
       $ref: Extension.yaml
     title: Extensions that cannot be ignored even if unrecognized
     type: array
-  resource_type:
+  resourceType
     const: TaskInput
     title: Resource Type
     type: string

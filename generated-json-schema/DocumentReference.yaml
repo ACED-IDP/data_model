@@ -206,7 +206,7 @@ properties:
       $ref: DocumentReferenceRelatesTo.yaml
     title: Relationships to other documents
     type: array
-  resource_type:
+  resourceType
     const: DocumentReference
     title: Resource Type
     type: string

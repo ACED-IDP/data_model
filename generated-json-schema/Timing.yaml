@@ -96,7 +96,7 @@ properties:
     description: A set of rules that describe when the event is scheduled.
     element_property: true
     title: When the event is to occur
-  resource_type:
+  resourceType
     const: Timing
     title: Resource Type
     type: string

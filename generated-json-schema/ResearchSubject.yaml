@@ -141,7 +141,7 @@ properties:
       study.
     element_property: true
     title: Start and end of participation
-  resource_type:
+  resourceType
     const: ResearchSubject
     title: Resource Type
     type: string

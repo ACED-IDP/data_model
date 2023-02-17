@@ -232,7 +232,7 @@ properties:
       $ref: Attachment.yaml
     title: Entire report as issued
     type: array
-  resource_type:
+  resourceType
     const: DiagnosticReport
     title: Resource Type
     type: string

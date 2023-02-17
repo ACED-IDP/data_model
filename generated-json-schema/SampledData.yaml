@@ -94,7 +94,7 @@ properties:
     element_required: true
     title: Number of milliseconds between samples
     type: number
-  resource_type:
+  resourceType
     const: SampledData
     title: Resource Type
     type: string

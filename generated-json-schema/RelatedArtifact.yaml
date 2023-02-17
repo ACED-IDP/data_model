@@ -86,7 +86,7 @@ properties:
     pattern: \S*
     title: What resource is being referenced
     type: string
-  resource_type:
+  resourceType
     const: RelatedArtifact
     title: Resource Type
     type: string

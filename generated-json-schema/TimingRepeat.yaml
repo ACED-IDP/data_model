@@ -226,7 +226,7 @@ properties:
     pattern: ^[^\s]+(\s[^\s]+)*$
     title: s | min | h | d | wk | mo | a - unit of time (UCUM)
     type: string
-  resource_type:
+  resourceType
     const: TimingRepeat
     title: Resource Type
     type: string

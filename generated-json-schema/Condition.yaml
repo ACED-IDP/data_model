@@ -302,7 +302,7 @@ properties:
     reference_backrefs:
       Patient: recorder_condition
     title: Who recorded the condition
-  resource_type:
+  resourceType
     const: Condition
     title: Resource Type
     type: string

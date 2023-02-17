@@ -93,7 +93,7 @@ properties:
     one_of_many: rate
     one_of_many_required: false
     title: Dose quantity per unit of time
-  resource_type:
+  resourceType
     const: MedicationAdministrationDosage
     title: Resource Type
     type: string

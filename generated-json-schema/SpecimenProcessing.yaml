@@ -75,7 +75,7 @@ properties:
       See http://hl7.org/fhir/ValueSet/specimen-processing-procedure
     element_property: true
     title: Indicates the treatment step  applied to the specimen
-  resource_type:
+  resourceType
     const: SpecimenProcessing
     title: Resource Type
     type: string

@@ -71,7 +71,7 @@ properties:
     element_property: true
     title: Language preference indicator
     type: boolean
-  resource_type:
+  resourceType
     const: PatientCommunication
     title: Resource Type
     type: string

@@ -86,7 +86,7 @@ properties:
       type: string
     title: Parts that come before the name
     type: array
-  resource_type:
+  resourceType
     const: HumanName
     title: Resource Type
     type: string

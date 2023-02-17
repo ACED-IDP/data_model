@@ -61,7 +61,7 @@ properties:
     pattern: '[ \r\n\t\S]+'
     title: The name of the attribute to perform the sort
     type: string
-  resource_type:
+  resourceType
     const: DataRequirementSort
     title: Resource Type
     type: string

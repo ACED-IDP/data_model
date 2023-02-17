@@ -55,7 +55,7 @@ properties:
     pattern: '[ \r\n\t\S]+'
     title: Who contributed the content
     type: string
-  resource_type:
+  resourceType
     const: Contributor
     title: Resource Type
     type: string
