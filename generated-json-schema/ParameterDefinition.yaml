@@ -93,7 +93,7 @@ properties:
     pattern: \S*
     title: What profile the value is expected to be
     type: string
-  resourceType
+  resourceType:
     const: ParameterDefinition
     title: Resource Type
     type: string

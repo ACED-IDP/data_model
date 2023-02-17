@@ -41,7 +41,7 @@ properties:
     pattern: '[ \r\n\t\S]+'
     title: Name of an individual to contact
     type: string
-  resourceType
+  resourceType:
     const: ContactDetail
     title: Resource Type
     type: string

@@ -101,7 +101,7 @@ properties:
       type: string
     title: The profile of the required data
     type: array
-  resourceType
+  resourceType:
     const: DataRequirement
     title: Resource Type
     type: string

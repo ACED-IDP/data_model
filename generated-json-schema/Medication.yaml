@@ -154,7 +154,7 @@ properties:
       $ref: Extension.yaml
     title: Extensions that cannot be ignored
     type: array
-  resourceType
+  resourceType:
     const: Medication
     title: Resource Type
     type: string

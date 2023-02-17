@@ -71,7 +71,7 @@ properties:
     pattern: '[ \r\n\t\S]+'
     title: A code-valued attribute to filter on
     type: string
-  resourceType
+  resourceType:
     const: DataRequirementCodeFilter
     title: Resource Type
     type: string

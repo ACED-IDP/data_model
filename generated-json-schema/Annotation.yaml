@@ -58,7 +58,7 @@ properties:
     pattern: ^[A-Za-z0-9\-.]+$
     title: Unique id for inter-element referencing
     type: string
-  resourceType
+  resourceType:
     const: Annotation
     title: Resource Type
     type: string

@@ -342,7 +342,7 @@ properties:
       $ref: ObservationReferenceRange.yaml
     title: Provides guide for interpretation
     type: array
-  resourceType
+  resourceType:
     const: Observation
     title: Resource Type
     type: string

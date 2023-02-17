@@ -69,7 +69,7 @@ properties:
     pattern: '[ \r\n\t\S]+'
     title: Name or URI that identifies the event
     type: string
-  resourceType
+  resourceType:
     const: TriggerDefinition
     title: Resource Type
     type: string

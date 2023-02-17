@@ -44,7 +44,7 @@ properties:
     description: The value of the numerator.
     element_property: true
     title: Numerator value
-  resourceType
+  resourceType:
     const: Ratio
     title: Resource Type
     type: string

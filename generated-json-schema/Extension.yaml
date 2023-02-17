@@ -32,7 +32,7 @@ properties:
     pattern: ^[A-Za-z0-9\-.]+$
     title: Unique id for inter-element referencing
     type: string
-  resourceType
+  resourceType:
     const: Extension
     title: Resource Type
     type: string

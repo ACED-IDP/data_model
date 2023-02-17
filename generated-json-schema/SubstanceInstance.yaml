@@ -72,7 +72,7 @@ properties:
     description: The amount of the substance.
     element_property: true
     title: Amount of substance in the package
-  resourceType
+  resourceType:
     const: SubstanceInstance
     title: Resource Type
     type: string

@@ -57,7 +57,7 @@ properties:
     exclusiveMinimum: 0
     title: Specify preferred order of use (1 = highest)
     type: integer
-  resourceType
+  resourceType:
     const: ContactPoint
     title: Resource Type
     type: string

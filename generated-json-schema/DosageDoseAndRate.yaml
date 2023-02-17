@@ -62,7 +62,7 @@ properties:
     one_of_many: rate
     one_of_many_required: false
     title: Amount of medication per unit of time
-  resourceType
+  resourceType:
     const: DosageDoseAndRate
     title: Resource Type
     type: string

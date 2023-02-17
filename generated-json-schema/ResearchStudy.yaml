@@ -314,7 +314,7 @@ properties:
       $ref: RelatedArtifact.yaml
     title: References and dependencies
     type: array
-  resourceType
+  resourceType:
     const: ResearchStudy
     title: Resource Type
     type: string

@@ -111,7 +111,7 @@ properties:
     pattern: '[ \r\n\t\S]+'
     title: Postal code for area
     type: string
-  resourceType
+  resourceType:
     const: Address
     title: Resource Type
     type: string

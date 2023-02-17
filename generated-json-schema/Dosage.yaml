@@ -130,7 +130,7 @@ properties:
     pattern: '[ \r\n\t\S]+'
     title: Patient or consumer oriented instructions
     type: string
-  resourceType
+  resourceType:
     const: Dosage
     title: Resource Type
     type: string

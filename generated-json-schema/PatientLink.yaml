@@ -57,7 +57,7 @@ properties:
     description: The other patient resource that the link refers to.
     element_property: true
     title: The other patient or related person resource that the link refers to
-  resourceType
+  resourceType:
     const: PatientLink
     title: Resource Type
     type: string

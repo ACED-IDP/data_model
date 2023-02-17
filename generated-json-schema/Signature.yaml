@@ -65,7 +65,7 @@ properties:
       that is represented by the signature.
     element_property: true
     title: The party represented
-  resourceType
+  resourceType:
     const: Signature
     title: Resource Type
     type: string

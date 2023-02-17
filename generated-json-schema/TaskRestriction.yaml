@@ -75,7 +75,7 @@ properties:
     exclusiveMinimum: 0
     title: How many times to repeat
     type: integer
-  resourceType
+  resourceType:
     const: TaskRestriction
     title: Resource Type
     type: string

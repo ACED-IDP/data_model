@@ -110,7 +110,7 @@ properties:
       $ref: ObservationReferenceRange.yaml
     title: Provides guide for interpretation of component result
     type: array
-  resourceType
+  resourceType:
     const: ObservationComponent
     title: Resource Type
     type: string

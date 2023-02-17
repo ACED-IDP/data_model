@@ -23,7 +23,7 @@ properties:
     pattern: '[ \r\n\t\S]+'
     title: Type `String`
     type: string
-  resourceType
+  resourceType:
     const: FHIRPrimitiveExtension
     title: Resource Type
     type: string

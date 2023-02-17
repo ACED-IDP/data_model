@@ -267,7 +267,7 @@ properties:
     description: The original request, instruction or authority to perform the administration.
     element_property: true
     title: Request administration performed against
-  resourceType
+  resourceType:
     const: MedicationAdministration
     title: Resource Type
     type: string
