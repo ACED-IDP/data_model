@@ -91,3 +91,7 @@ study=HOP
 rm patient.sqlite
 nice -10 python3 scripts/load.py load  flat --project_id aced-$study --index patient --path studies/$study/extractions/Patient.ndjson
 nice -10 python3 scripts/load.py load  flat --project_id aced-$study --index observation --path studies/$study/extractions/Observation.ndjson
+
+
+nice -10 python3 scripts/load.py load  flat --project_id HOP-CORE --index patient --path studies/CORE/extractions/Patient.ndjson
+nice -10 python3 scripts/load.py load  flat --project_id HOP-CORE --index observation --path studies/CORE/extractions/Observation.ndjson
