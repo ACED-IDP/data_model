@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/Condition_asserter_Patient
+$schema: https://json-schema.org/draft/2020-12/schema
+Condition_asserter_Patient:
+  $id: Condition_asserter_Patient
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Person who asserts this condition. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: asserter_condition
+  destination_type: Patient
+  is_primary: false
+  label: Condition_asserter_Patient
+  source_multiplicity: many
+  source_property_name: asserter
+  source_type: Condition
+  title: Condition_asserter_Patient
+  type: object

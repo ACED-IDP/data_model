@@ -746,10 +746,10 @@ def _extract_endpoint(gen3_credentials_file):
 
 
 @cli.command('init')
-@click.option('--gen3_credentials_file', default='Secrets/credentials.json', show_default=True,
+@click.option('--gen3_credentials_file', default='../compose-services-training/Secrets/credentials.json', show_default=True,
               help='API credentials file downloaded from gen3 profile.')
 @click.option('--user_path',
-              default='Secrets/user.yaml',
+              default='../compose-services-training/Secrets/user.yaml',
               show_default=True,
               help='Path to gen3 user file.')
 def init(gen3_credentials_file, user_path):
@@ -769,6 +769,8 @@ def init(gen3_credentials_file, user_path):
 
     for ep in expected_programs['subresources']:
         program_name = ep['name']
+        if program_name in actual_programs:
+            print(f"Program:{program_name} already exists.")
         if ep['name'] not in actual_programs:
             response = submission_client.create_program(
                 {'name': program_name, 'dbgap_accession_number': program_name, 'type': 'program'})
@@ -777,9 +779,16 @@ def init(gen3_credentials_file, user_path):
             # assert response['code'] == 200, 'could not create {} program'.format(response)
             assert 'id' in response, 'could not create {} program'.format(response)
             assert program_name in response['name'], 'could not create {} program'.format(response)
+            print(f"Program:{program_name} created.")
+
+        actual_projects = submission_client.get_projects(program_name)
+        actual_projects = [p_.split('/')[-1] for p_ in actual_projects['links']]
         expected_projects = next(iter([r for r in ep['subresources'] if r['name'] == 'projects']), None)
         for expected_project in expected_projects['subresources']:
             project_name = expected_project['name']
+            if project_name in actual_projects:
+                print(f"  Project:{project_name} already exists.")
+                continue
             response = submission_client.create_project(program_name, {
                 "type": "project",
                 "code": project_name,
@@ -787,6 +796,7 @@ def init(gen3_credentials_file, user_path):
                 "name": project_name
             })
             assert response['code'] == 200, response
+            print(f"  Project:{project_name} created.")
 
             # ctx.ensure_object(dict)
     # ctx.obj['submission_client'] = submission_client

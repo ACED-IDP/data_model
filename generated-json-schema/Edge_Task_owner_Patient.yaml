@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/Task_owner_Patient
+$schema: https://json-schema.org/draft/2020-12/schema
+Task_owner_Patient:
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Responsible individual.
+  destination_multiplicity: many
+  destination_property_name: owner_task
+  destination_type: Patient
+  id: Task_owner_Patient
+  is_primary: false
+  label: Task_owner_Patient
+  source_multiplicity: many
+  source_property_name: owner
+  source_type: Task
+  title: Task_owner_Patient
+  type: object

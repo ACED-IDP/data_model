@@ -17,7 +17,8 @@ properties:
     title: Extension field for ``value``.
   assigner:
     $ref: Reference.yaml
-    description: Organization that issued/manages the identifier.
+    description: 'Organization that issued/manages the identifier. Note: following
+      not in scope, see config.dependency_order.'
     element_property: true
     title: Organization that issued id (may be just text)
   extension:

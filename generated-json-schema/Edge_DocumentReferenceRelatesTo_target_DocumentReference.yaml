@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/DocumentReferenceRelatesTo_target_DocumentReference
+$schema: https://json-schema.org/draft/2020-12/schema
+DocumentReferenceRelatesTo_target_DocumentReference:
+  $id: DocumentReferenceRelatesTo_target_DocumentReference
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Target of the relationship. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: document_reference_relates_to
+  destination_type: DocumentReference
+  is_primary: true
+  label: DocumentReferenceRelatesTo_target_DocumentReference
+  source_multiplicity: many
+  source_property_name: target
+  source_type: DocumentReferenceRelatesTo
+  title: DocumentReferenceRelatesTo_target_DocumentReference
+  type: object

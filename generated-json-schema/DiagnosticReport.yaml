@@ -33,7 +33,9 @@ properties:
     $ref: FHIRPrimitiveExtension.yaml
     title: Extension field for ``status``.
   basedOn:
-    description: Details concerning a service requested.
+    description: 'Details concerning a service requested. Note: following not in scope,
+      see config.dependency_order. MedicationRequest ServiceRequest ImmunizationRecommendation
+      NutritionOrder CarePlan'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -109,8 +111,9 @@ properties:
     title: Clinically relevant time/time-period for report
   encounter:
     $ref: Reference.yaml
-    description: The healthcare event  (e.g. a patient and healthcare provider interaction)
-      which this DiagnosticReport is about.
+    description: 'The healthcare event  (e.g. a patient and healthcare provider interaction)
+      which this DiagnosticReport is about. Note: following not in scope, see config.dependency_order.
+      Encounter'
     element_property: true
     title: Health care event when test ordered
   extension:
@@ -150,10 +153,11 @@ properties:
     title: Business identifier for report
     type: array
   imagingStudy:
-    description: One or more links to full details of any imaging performed during
+    description: 'One or more links to full details of any imaging performed during
       the diagnostic investigation. Typically, this is imaging performed by DICOM
       enabled modalities, but this is not required. A fully enabled PACS viewer can
-      use this information to provide views of the source images.
+      use this information to provide views of the source images. Note: following
+      not in scope, see config.dependency_order. ImagingStudy'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -218,7 +222,9 @@ properties:
     title: Extensions that cannot be ignored
     type: array
   performer:
-    description: The diagnostic service that is responsible for issuing the report.
+    description: 'The diagnostic service that is responsible for issuing the report.
+      Note: following not in scope, see config.dependency_order. CareTeam Practitioner
+      PractitionerRole Organization'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -242,13 +248,16 @@ properties:
     element_property: true
     items:
       $ref: Reference.yaml
-    reference_backrefs:
-      Observation: diagnostic_report
+    targets:
+    - backref: diagnostic_report
+      type:
+        $ref: Observation.yaml
     title: Observations
     type: array
   resultsInterpreter:
-    description: The practitioner or organization that is responsible for the report's
-      conclusions and interpretations.
+    description: 'The practitioner or organization that is responsible for the report''s
+      conclusions and interpretations. Note: following not in scope, see config.dependency_order.
+      CareTeam Practitioner PractitionerRole Organization'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -259,8 +268,10 @@ properties:
     element_property: true
     items:
       $ref: Reference.yaml
-    reference_backrefs:
-      Specimen: diagnostic_report
+    targets:
+    - backref: diagnostic_report
+      type:
+        $ref: Specimen.yaml
     title: Specimens this report is based on
     type: array
   status:
@@ -282,14 +293,21 @@ properties:
     type: string
   subject:
     $ref: Reference.yaml
-    description: The subject of the report. Usually, but not always, this is a patient.
+    description: 'The subject of the report. Usually, but not always, this is a patient.
       However, diagnostic services also perform analyses on specimens collected from
-      a variety of other sources.
+      a variety of other sources. Note: following not in scope, see config.dependency_order.
+      Location Organization Procedure Group Device Practitioner'
     element_property: true
-    reference_backrefs:
-      Medication: diagnostic_report
-      Patient: diagnostic_report
-      Substance: diagnostic_report
+    targets:
+    - backref: diagnostic_report
+      type:
+        $ref: Patient.yaml
+    - backref: diagnostic_report
+      type:
+        $ref: Medication.yaml
+    - backref: diagnostic_report
+      type:
+        $ref: Substance.yaml
     title: The subject of the report - usually, but not always, the patient
   text:
     $ref: Narrative.yaml

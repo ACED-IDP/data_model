@@ -56,6 +56,13 @@ properties:
     element_property: true
     one_of_many: item
     one_of_many_required: true
+    targets:
+    - backref: medication_ingredient
+      type:
+        $ref: Substance.yaml
+    - backref: medication_ingredient
+      type:
+        $ref: Medication.yaml
     title: The actual ingredient or content
   modifierExtension:
     description: May be used to represent additional information that is not part

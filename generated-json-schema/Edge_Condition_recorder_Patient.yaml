@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/Condition_recorder_Patient
+$schema: https://json-schema.org/draft/2020-12/schema
+Condition_recorder_Patient:
+  $id: Condition_recorder_Patient
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Who recorded the condition. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: recorder_condition
+  destination_type: Patient
+  is_primary: false
+  label: Condition_recorder_Patient
+  source_multiplicity: many
+  source_property_name: recorder
+  source_type: Condition
+  title: Condition_recorder_Patient
+  type: object

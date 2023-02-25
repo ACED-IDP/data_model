@@ -22,14 +22,15 @@ properties:
     title: Additive associated with container
   additiveReference:
     $ref: Reference.yaml
-    binding_description: Substance added to specimen container.
-    binding_strength: example
-    binding_uri: http://terminology.hl7.org/ValueSet/v2-0371
     description: 'Introduced substance to preserve, maintain or enhance the specimen.
       Examples: Formalin, Citrate, EDTA. See http://terminology.hl7.org/ValueSet/v2-0371'
     element_property: true
     one_of_many: additive
     one_of_many_required: false
+    targets:
+    - backref: specimen_container
+      type:
+        $ref: Substance.yaml
     title: Additive associated with container
   capacity:
     $ref: Quantity.yaml

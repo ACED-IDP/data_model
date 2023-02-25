@@ -7,11 +7,19 @@ description: 'Stage/grade, usually assessed formally.
 id: ConditionStage
 properties:
   assessment:
-    description: Reference to a formal record of the evidence on which the staging
-      assessment is based.
+    description: 'Reference to a formal record of the evidence on which the staging
+      assessment is based. Note: following not in scope, see config.dependency_order.
+      ClinicalImpression'
     element_property: true
     items:
       $ref: Reference.yaml
+    targets:
+    - backref: condition_stage
+      type:
+        $ref: DiagnosticReport.yaml
+    - backref: condition_stage
+      type:
+        $ref: Observation.yaml
     title: Formal record of assessment
     type: array
   extension:

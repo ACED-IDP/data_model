@@ -126,7 +126,8 @@ properties:
     title: male | female | other | unknown
     type: string
   generalPractitioner:
-    description: Patient's nominated care provider.
+    description: 'Patient''s nominated care provider. Note: following not in scope,
+      see config.dependency_order. Practitioner PractitionerRole Organization'
     element_property: true
     items:
       $ref: Reference.yaml

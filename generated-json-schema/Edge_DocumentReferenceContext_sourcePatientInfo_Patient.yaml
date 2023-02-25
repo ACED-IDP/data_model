@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/DocumentReferenceContext_sourcePatientInfo_Patient
+$schema: https://json-schema.org/draft/2020-12/schema
+DocumentReferenceContext_sourcePatientInfo_Patient:
+  $id: DocumentReferenceContext_sourcePatientInfo_Patient
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Patient demographics from source. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: document_reference_context
+  destination_type: Patient
+  is_primary: true
+  label: DocumentReferenceContext_sourcePatientInfo_Patient
+  source_multiplicity: many
+  source_property_name: sourcePatientInfo
+  source_type: DocumentReferenceContext
+  title: DocumentReferenceContext_sourcePatientInfo_Patient
+  type: object

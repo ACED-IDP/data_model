@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/Medication_ingredient_Substance
+$schema: https://json-schema.org/draft/2020-12/schema
+Medication_ingredient_Substance:
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Active or inactive ingredient.
+  destination_multiplicity: many
+  destination_property_name: ingredient_medication
+  destination_type: Substance
+  id: Medication_ingredient_Substance
+  is_primary: true
+  label: Medication_ingredient_Substance
+  source_multiplicity: one
+  source_property_name: ingredient_itemReference
+  source_type: Medication
+  title: Medication_ingredient_Substance
+  type: object

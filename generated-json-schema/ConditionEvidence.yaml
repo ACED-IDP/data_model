@@ -20,7 +20,8 @@ properties:
     title: Manifestation/symptom
     type: array
   detail:
-    description: Links to other relevant information, including pathology reports.
+    description: 'Links to other relevant information, including pathology reports.
+      Note: following not in scope, see config.dependency_order. Resource'
     element_property: true
     items:
       $ref: Reference.yaml

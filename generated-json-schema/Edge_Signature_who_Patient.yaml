@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/Signature_who_Patient
+$schema: https://json-schema.org/draft/2020-12/schema
+Signature_who_Patient:
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Who signed. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: who_signature
+  destination_type: Patient
+  id: Signature_who_Patient
+  is_primary: true
+  label: Signature_who_Patient
+  source_multiplicity: many
+  source_property_name: who
+  source_type: Signature
+  title: Signature_who_Patient
+  type: object

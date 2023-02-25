@@ -87,8 +87,9 @@ properties:
     title: Name used to access the parameter value
     type: string
   profile:
-    description: If specified, this indicates a profile that the input data must conform
-      to, or that the output data will conform to.
+    description: 'If specified, this indicates a profile that the input data must
+      conform to, or that the output data will conform to. Note: following not in
+      scope, see config.dependency_order. StructureDefinition'
     element_property: true
     pattern: \S*
     title: What profile the value is expected to be

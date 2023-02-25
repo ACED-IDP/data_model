@@ -52,7 +52,7 @@ for vertex_name in fhir_schema['$defs']:
     try:
         # a trivial instance example
         fhir_validator.validate(
-            {"id": "1234", "resource_type": vertex_name},
+            {"id": "1234", "resourceType": vertex_name},
         )
         # print(f'ok - {vertex_name} validated correctly')
     except ValidationError as e:
@@ -73,7 +73,7 @@ for vertex_name in fhir_schema['$defs']:
     try:
         # a trivial instance example
         fhir_validator.validate(
-            {"id": 1234, "resource_type": vertex_name},
+            {"id": 1234, "resourceType": vertex_name},
         )
         raise Exception(f'!ok - {vertex_name} should have raised ValidationError')
     except ValidationError as e:
@@ -85,69 +85,82 @@ print('  ok - caught invalid id')
 # spot check an embedded "type"
 #
 try:
-    instance = {"id": "1234", "resource_type": "HumanName", "period": {"start": "1234"}}
+    instance = {"id": "1234", "resourceType": "HumanName", "period": {"start": "1234"}}
     assert not validate(instance, fhir_schema, format_checker=Draft202012Validator.FORMAT_CHECKER)
-    print('fail - fhir_schema period nonsense period invalid')
+    print('  fail - fhir_schema period nonsense period invalid')
 except ValidationError as e:
     assert '1234' in e.message
     print('  ok - fhir_schema period nonsense period invalid correctly')
 
 try:
-    instance = {"id": "1234", "resource_type": 'HumanName',
+    instance = {"id": "1234", "resourceType": 'HumanName',
                 "period": {"start": "2023-01-01T00:00:00Z", "end": "2024-01-01T00:00:00Z"}}
     validate(instance, fhir_schema, format_checker=Draft202012Validator.FORMAT_CHECKER)
     # print('ok - fhir_schema period valid period validated correctly')
 except ValidationError as e:
-    print('fail - fhir_schema valid period should have validated ' + str(e))
+    print('  fail - fhir_schema valid period should have validated ', instance)
 
 print(f'  ok - all vertices validated correctly')
 
+fail = False
 for edge in edge_schemas:
-    fhir_validator.validate(
-        {
-            "resource_type": edge['title'],
-            "source": {"reference": "Patient/1234"},
-            "target": {"reference": "Specimen/5678"},
-        }
-    )
-print(f' ok - all edges validated correctly with relative References')
+    try:
+        fhir_validator.validate(
+            {
+                "resourceType": edge['title'],
+                "source": {"reference": "Patient/1234"},
+                "target": {"reference": "Specimen/5678"},
+            }
+        )
+    except ValidationError as e:
+        fail = True
+        print('  fail - fhir_schema should have validated edge with relative References', edge['title'])
+    # print(f"ok {edge['title']}")
+if not fail:
+    print(f'  ok - all edges validated correctly with relative References')
 
-
+fail = False
 for edge in edge_schemas:
-    fhir_validator.validate(
-        {
-            "resource_type": edge['title'],
-            "source": {"type": "Patient", "identifier": {"value": "1234"}},
-            "target": {"type": "Specimen", "identifier": {"value": "5678"}},
-        }
-    )
-print(f'  ok - all edges validated correctly with type/identifier References')
+    try:
+        fhir_validator.validate(
+            {
+                "resourceType": edge['title'],
+                "source": {"type": "Patient", "identifier": {"value": "1234"}},
+                "target": {"type": "Specimen", "identifier": {"value": "5678"}},
+            }
+        )
+    except ValidationError as e:
+        fail = True
+        print('fail - fhir_schema should have validated granular Reference', edge['title'])
+    # print(f"ok {edge['title']}")
+if not fail:
+    print(f'  ok - all edges validated correctly with type/identifier References')
 
 invalid_edges = [
-    # missing resource_type
+    # missing resourceType
     {
         "source": {"type": "Patient", "identifier": {"value": "1234"}},
         "destination": {"type": "Specimen", "identifier": {"value": "5678"}},
     },
     # missing source
     {
-        "resource_type": 'Observation_performer_Patient',
+        "resourceType": 'Observation_performer_Patient',
         "destination": {"type": "Specimen", "identifier": {"value": "5678"}},
     },
     # missing destination
     {
-        "resource_type": 'Observation_performer_Patient',
+        "resourceType": 'Observation_performer_Patient',
         "source": {"type": "Patient", "identifier": {"value": "1234"}},
     },
     # invalid source reference
     {
-        "resource_type": 'Observation_performer_Patient',
+        "resourceType": 'Observation_performer_Patient',
         "source": {"foo"},
         "destination": {"type": "Specimen", "identifier": {"value": "5678"}},
     },
     # invalid destination reference
     {
-        "resource_type": 'Observation_performer_Patient',
+        "resourceType": 'Observation_performer_Patient',
         "source": {"type": "Patient", "identifier": {"value": "1234"}},
         "destination": {"foo"},
     },
@@ -166,7 +179,7 @@ print(f'  ok - all invalid edges validated correctly')
 def edge_validator(validator: Draft202012Validator, edge):
     """Extra layer of validation, check both schema validation and vocabulary matching."""
     validator.validate(edge)
-    sub_schema = validator.schema['$defs'][edge['resource_type']]
+    sub_schema = validator.schema['$defs'][edge['resourceType']]
     if is_edge(sub_schema):
         expected_source_type = sub_schema['source_type']
         expected_destination_type = sub_schema['destination_type']
@@ -191,7 +204,7 @@ def edge_validator(validator: Draft202012Validator, edge):
 for edge in edge_schemas:
     try:
         edge_validator(fhir_validator, {
-            "resource_type": edge['title'],
+            "resourceType": edge['title'],
             "source": {"type": "XXX", "identifier": {"value": "1234"}},
             "destination": {"type": "YYYY", "identifier": {"value": "5678"}},
         })
@@ -200,13 +213,20 @@ for edge in edge_schemas:
         pass
 print('  ok all invalid edges pass "extra" vocabulary validation')
 
+fail = False
 for edge in edge_schemas:
-    edge_validator(fhir_validator, {
-        "resource_type": edge['title'],
-        "source": {"type": edge['source_type'], "identifier": {"value": "1234"}},
-        "target": {"type": edge['destination_type'], "identifier": {"value": "5678"}},
-    })
-print('  ok all valid edges pass "extra" vocabulary validation')
+    instance = {
+            "resourceType": edge['title'],
+            "source": {"type": edge['source_type'], "identifier": {"value": "1234"}},
+            "target": {"type": edge['destination_type'], "identifier": {"value": "5678"}},
+        }
+    try:
+        edge_validator(fhir_validator, instance)
+    except ValidationError as e:
+        fail = True
+        print(f"fail extra edge_validator {instance}")
+if not fail:
+    print('  ok all valid edges pass "extra" vocabulary validation')
 
 print(f'count of primary edges:\n  ', len([edge for edge in edge_schemas if edge['is_primary']]))
 
@@ -249,15 +269,15 @@ tab = '\t'
 # print('cytoscape friendly tsv written to ../docs/edges.tsv')
 
 
-print('Observation properties')
-for k, p in fhir_schema['$defs']['Observation']['properties'].items():
-    if 'one_of_many' in p:
-        if '$ref' in p:
-            type_ = fhir_schema['$defs'][p['$ref'].split('/')[-1]]
-            print(k)
-            for sk in type_['properties']:
-                if sk in ['extension', 'fhir_comments', 'id', 'resource_type'] or sk.startswith('_'):
-                    continue
-                print('  '+sk)
-        else:
-            print(k + '\n  ' + p['type'])
+# print('Observation properties')
+# for k, p in fhir_schema['$defs']['Observation']['properties'].items():
+#     if 'one_of_many' in p:
+#         if '$ref' in p:
+#             type_ = fhir_schema['$defs'][p['$ref'].split('/')[-1]]
+#             print(k)
+#             for sk in type_['properties']:
+#                 if sk in ['extension', 'fhir_comments', 'id', 'resourceType'] or sk.startswith('_'):
+#                     continue
+#                 print('  '+sk)
+#         else:
+#             print(k + '\n  ' + p['type'])

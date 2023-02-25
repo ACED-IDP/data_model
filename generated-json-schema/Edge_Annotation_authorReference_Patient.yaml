@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/Annotation_authorReference_Patient
+$schema: https://json-schema.org/draft/2020-12/schema
+Annotation_authorReference_Patient:
+  $id: Annotation_authorReference_Patient
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Individual responsible for the annotation. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: annotation
+  destination_type: Patient
+  is_primary: true
+  label: Annotation_authorReference_Patient
+  source_multiplicity: many
+  source_property_name: authorReference
+  source_type: Annotation
+  title: Annotation_authorReference_Patient
+  type: object

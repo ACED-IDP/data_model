@@ -14,6 +14,10 @@ properties:
     element_property: true
     items:
       $ref: Reference.yaml
+    targets:
+    - backref: specimen_processing
+      type:
+        $ref: Substance.yaml
     title: Material used in the processing step
     type: array
   description:

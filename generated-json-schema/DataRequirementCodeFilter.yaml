@@ -84,10 +84,11 @@ properties:
     title: A coded (token) parameter to search on
     type: string
   valueSet:
-    description: The valueset for the code filter. The valueSet and code elements
+    description: 'The valueset for the code filter. The valueSet and code elements
       are additive. If valueSet is specified, the filter will return only those data
       items for which the value of the code-valued element specified in the path is
-      a member of the specified valueset.
+      a member of the specified valueset. Note: following not in scope, see config.dependency_order.
+      ValueSet'
     element_property: true
     pattern: \S*
     title: Valueset for the filter

@@ -80,8 +80,9 @@ properties:
     title: Short label
     type: string
   resource:
-    description: The related resource, such as a library, value set, profile, or other
-      knowledge resource.
+    description: 'The related resource, such as a library, value set, profile, or
+      other knowledge resource. Note: following not in scope, see config.dependency_order.
+      Resource'
     element_property: true
     pattern: \S*
     title: What resource is being referenced

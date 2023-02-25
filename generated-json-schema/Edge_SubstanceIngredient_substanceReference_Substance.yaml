@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/SubstanceIngredient_substanceReference_Substance
+$schema: https://json-schema.org/draft/2020-12/schema
+SubstanceIngredient_substanceReference_Substance:
+  $id: SubstanceIngredient_substanceReference_Substance
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: A component of the substance. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: substance_ingredient
+  destination_type: Substance
+  is_primary: true
+  label: SubstanceIngredient_substanceReference_Substance
+  source_multiplicity: many
+  source_property_name: substanceReference
+  source_type: SubstanceIngredient
+  title: SubstanceIngredient_substanceReference_Substance
+  type: object

@@ -70,13 +70,14 @@ properties:
     title: A component of the substance
   substanceReference:
     $ref: Reference.yaml
-    binding_description: Substance Ingredient codes.
-    binding_strength: example
-    binding_uri: http://hl7.org/fhir/ValueSet/substance-code
     description: Another substance that is a component of this substance. See http://hl7.org/fhir/ValueSet/substance-code
     element_property: true
     one_of_many: substance
     one_of_many_required: true
+    targets:
+    - backref: substance_ingredient
+      type:
+        $ref: Substance.yaml
     title: A component of the substance
 title: SubstanceIngredient
 type: object

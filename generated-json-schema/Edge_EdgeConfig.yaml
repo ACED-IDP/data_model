@@ -1,0 +1,21 @@
+$id: http://bmeg.io/schema/0.0.1/EdgeConfig
+$schema: https://json-schema.org/draft/2020-12/schema
+EdgeConfig:
+  description: Information about the edge between two nodes.
+  id: EdgeConfig
+  properties:
+    resourceType:
+      description: The title of the resource
+      type: string
+    source:
+      $ref: Reference
+      description: A pointer to the source resource, encapsulates type & id.
+    target:
+      $ref: Reference
+      description: A pointer to the target resource, encapsulates type & id.
+  required:
+  - resourceType
+  - source
+  - target
+  title: EdgeConfig
+  type: object

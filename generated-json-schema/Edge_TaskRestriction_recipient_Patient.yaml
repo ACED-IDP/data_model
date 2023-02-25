@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/TaskRestriction_recipient_Patient
+$schema: https://json-schema.org/draft/2020-12/schema
+TaskRestriction_recipient_Patient:
+  $id: TaskRestriction_recipient_Patient
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: For whom is fulfillment sought?. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: task_restriction
+  destination_type: Patient
+  is_primary: true
+  label: TaskRestriction_recipient_Patient
+  source_multiplicity: many
+  source_property_name: recipient
+  source_type: TaskRestriction
+  title: TaskRestriction_recipient_Patient
+  type: object

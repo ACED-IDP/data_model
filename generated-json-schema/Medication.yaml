@@ -126,8 +126,9 @@ properties:
     type: string
   manufacturer:
     $ref: Reference.yaml
-    description: Describes the details of the manufacturer of the medication product.  This
-      is not intended to represent the distributor of a medication product.
+    description: 'Describes the details of the manufacturer of the medication product.  This
+      is not intended to represent the distributor of a medication product. Note:
+      following not in scope, see config.dependency_order. Organization'
     element_property: true
     title: Manufacturer of the item
   meta:

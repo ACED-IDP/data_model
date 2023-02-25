@@ -76,8 +76,8 @@ properties:
     title: A name associated with the contact person
   organization:
     $ref: Reference.yaml
-    description: Organization on behalf of which the contact is acting or for which
-      the contact is working.
+    description: 'Organization on behalf of which the contact is acting or for which
+      the contact is working. Note: following not in scope, see config.dependency_order.'
     element_property: true
     title: Organization that is associated with the contact
   period:

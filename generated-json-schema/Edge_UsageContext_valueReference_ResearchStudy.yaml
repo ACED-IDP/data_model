@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/UsageContext_valueReference_ResearchStudy
+$schema: https://json-schema.org/draft/2020-12/schema
+UsageContext_valueReference_ResearchStudy:
+  $id: UsageContext_valueReference_ResearchStudy
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Value that defines the context. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: usage_context
+  destination_type: ResearchStudy
+  is_primary: true
+  label: UsageContext_valueReference_ResearchStudy
+  source_multiplicity: many
+  source_property_name: valueReference
+  source_type: UsageContext
+  title: UsageContext_valueReference_ResearchStudy
+  type: object

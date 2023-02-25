@@ -54,8 +54,13 @@ properties:
     type: array
   other:
     $ref: Reference.yaml
-    description: The other patient resource that the link refers to.
+    description: 'The other patient resource that the link refers to. Note: following
+      not in scope, see config.dependency_order. RelatedPerson'
     element_property: true
+    targets:
+    - backref: patient_link
+      type:
+        $ref: Patient.yaml
     title: The other patient or related person resource that the link refers to
   resourceType:
     const: PatientLink

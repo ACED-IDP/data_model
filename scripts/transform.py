@@ -164,7 +164,10 @@ def _simple_render(value, name_, **kwargs) -> str:
             for _ in v_.line or []:
                 a_.append(_)
             a_.extend([v_.city, v_.postalCode, v_.country])
-            return name, ' '.join([_ for _ in a_ if _])
+            if v_.extension:
+                extensions = [(f"{name}_{e_[0]}", e_[1]) for e_ in _extension(v_.extension, name=name)]
+                return extensions + [(name, ' '.join([_ for _ in a_ if _]))]
+            return [(name, ' '.join([_ for _ in a_ if _]))]
 
     def _reference(l_, name, **kwargs):
         l_ = _to_list(l_)
@@ -215,22 +218,6 @@ def _simple_render(value, name_, **kwargs) -> str:
                 list_of_name_vals = _simple_render(p_val, name_=attr)
                 # ignore the name from simple render
                 return [nv_[1] for nv_ in list_of_name_vals]
-
-    # # this version flattens, does not create property names
-    # def _observation_component(l_, name, **kwargs):
-    #     l_ = _to_list(l_)
-    #     _nv = []
-    #     for i_, v_ in enumerate(l_):
-    #         codings = _codeable_concept(v_.code, 'code')
-    #         value_parts = _multi(v_, prefix='value')
-    #         array_name = name
-    #         if i_ > 0:
-    #             array_name = name + f"_{i_}"
-    #         for coding in codings:
-    #             _nv.append((f"{array_name}_{coding[0]}", coding[1]))
-    #         for value_part in value_parts:
-    #             _nv.append((f"{array_name}_{value_part[0]}", value_part[1]))
-    #     return _nv
 
     def _observation_component(l_, name, **kwargs):
         """Create property names from component coding displays"""
@@ -408,9 +395,12 @@ def _simplify(resource: FHIRAbstractModel, schemas: dict) -> dict:
             if len(item[1]) != 2:
                 print(f"Error: no mapping for {p_.name} {p_val}")
             name, value = item[1]
-            if name not in schema['properties']:
-                print(f"Skipping {resource.resource_type}.{name} - not in schema.")
-                continue
+            if value and name not in schema['properties']:
+                print(f"Added {resource.resource_type}.{name} - not in schema.")
+                type_ = 'string'
+                if str(value).isnumeric():
+                    type_ = 'number'
+                schema['properties'][name] = {'type': type_}
             # skip nulls
             if value:
                 obj[name] = value
@@ -598,6 +588,10 @@ def bundle_transform(input_path, output_path, schema_path, duplicate_ids_for):
 
     # restore the original dict method
     Reference.dict = orig_dict
+
+    with open(schema_path, "w") as fp:
+        fp.write(orjson.dumps(schemas, option=orjson.OPT_INDENT_2).decode())
+        print(f"{schema_path} updated")
 
 
 def _bundle_schemas(output_path, base_uri):

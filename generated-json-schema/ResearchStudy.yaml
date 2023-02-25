@@ -87,9 +87,10 @@ properties:
     title: What this is study doing
     type: string
   enrollment:
-    description: Reference to a Group that defines the criteria for and quantity of
-      subjects participating in the study.  E.g. " 200 female Europeans between the
-      ages of 20 and 45 with early onset diabetes".
+    description: 'Reference to a Group that defines the criteria for and quantity
+      of subjects participating in the study.  E.g. " 200 female Europeans between
+      the ages of 20 and 45 with early onset diabetes". Note: following not in scope,
+      see config.dependency_order.'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -227,8 +228,10 @@ properties:
     element_property: true
     items:
       $ref: Reference.yaml
-    reference_backrefs:
-      ResearchStudy: research_study
+    targets:
+    - backref: research_study
+      type:
+        $ref: ResearchStudy.yaml
     title: Part of larger study
     type: array
   period:
@@ -278,15 +281,16 @@ properties:
       | basic-science | device-feasibility
   principalInvestigator:
     $ref: Reference.yaml
-    description: A researcher in a study who oversees multiple aspects of the study,
+    description: 'A researcher in a study who oversees multiple aspects of the study,
       such as concept development, protocol writing, protocol submission for IRB approval,
       participant recruitment, informed consent, data collection, analysis, interpretation
-      and presentation.
+      and presentation. Note: following not in scope, see config.dependency_order.
+      Practitioner PractitionerRole'
     element_property: true
     title: Researcher who oversees multiple aspects of the study
   protocol:
-    description: The set of steps expected to be performed as part of the execution
-      of the study.
+    description: 'The set of steps expected to be performed as part of the execution
+      of the study. Note: following not in scope, see config.dependency_order. PlanDefinition'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -319,7 +323,8 @@ properties:
     title: Resource Type
     type: string
   site:
-    description: A facility in which study activities are conducted.
+    description: 'A facility in which study activities are conducted. Note: following
+      not in scope, see config.dependency_order. Location'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -327,8 +332,9 @@ properties:
     type: array
   sponsor:
     $ref: Reference.yaml
-    description: An organization that initiates the investigation and is legally responsible
-      for the study.
+    description: 'An organization that initiates the investigation and is legally
+      responsible for the study. Note: following not in scope, see config.dependency_order.
+      Organization'
     element_property: true
     title: Organization that initiates and is legally responsible for the study
   status:

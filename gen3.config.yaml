@@ -51,8 +51,8 @@ dependency_order:
 #  - Questionnaire
 #  - QuestionnaireResponse
   - DocumentReference
+  - Substance
   - Task
-
 
 
 # edges that we manually curate, _not_ generated
@@ -62,10 +62,10 @@ manually_curated_edges:
   EdgeConfig:
     type: object
     title: EdgeConfig
-    $id: $base_uri/EdgeConfig
+    id: EdgeConfig
     description: Information about the edge between two nodes.
     properties:
-      resource_type:
+      resourceType:
         description: The title of the resource
         type: string
       source:
@@ -75,12 +75,12 @@ manually_curated_edges:
         description: A pointer to the target resource, encapsulates type & id.
         "$ref": Reference
     required:
-    - resource_type
+    - resourceType
     - source
     - target
 
   Task_owner_Patient:
-    $id: $base_uri/Task_owner_Patient
+    id: Task_owner_Patient
     allOf:
     - $ref: EdgeConfig.yaml
     description: Responsible individual.
@@ -97,7 +97,7 @@ manually_curated_edges:
 
 
   Task_for_fhir_Patient:
-    $id: $base_uri/Task_for_fhir_Patient
+    id: Task_for_fhir_Patient
     allOf:
     - $ref: EdgeConfig.yaml
     description: Beneficiary of the Task.
@@ -114,7 +114,7 @@ manually_curated_edges:
 
 
   Task_output_DocumentReference:
-    $id: $base_uri/Task_output_DocumentReference
+    id: Task_output_DocumentReference
     allOf:
     - $ref: EdgeConfig.yaml
     description: Information produced as part of task.
@@ -132,7 +132,7 @@ manually_curated_edges:
 
 
   Observation_hasMember_Observation:
-    $id: $base_uri/Observation_hasMember_Observation
+    id: Observation_hasMember_Observation
     allOf:
     - $ref: EdgeConfig.yaml
     description: Related resource that belongs to the Observation group.
@@ -149,7 +149,7 @@ manually_curated_edges:
 
 
   Task_focus_Specimen:
-    $id: $base_uri/Task_focus_Specimen
+    id: Task_focus_Specimen
     allOf:
     - $ref: EdgeConfig.yaml
     description: What task is acting on.
@@ -165,7 +165,7 @@ manually_curated_edges:
     type: object
 
   Medication_ingredient_Substance:
-    $id: $base_uri/Medication_ingredient_Substance
+    id: Medication_ingredient_Substance
     allOf:
     - $ref: EdgeConfig.yaml
     description: Active or inactive ingredient.
@@ -182,9 +182,9 @@ manually_curated_edges:
     type: object
 
   Observation_partOf_MedicationAdministration:
-    $id: $base_uri/Observation_partOf_MedicationAdministration
+    id: Observation_partOf_MedicationAdministration
     allOf:
-    - $ref: http://bmeg.io/schema/0.0.1/EdgeConfig
+    - $ref: EdgeConfig.yaml
     description: Part of referenced event.
     destination_multiplicity: many
     destination_property_name: observation
@@ -199,9 +199,9 @@ manually_curated_edges:
     type: object
 
   ResearchStudy_project_project:
-    $id: $base_uri/ResearchStudy_project_project
+    id: ResearchStudy_project_project
     allOf:
-    - $ref: http://bmeg.io/schema/0.0.1/EdgeConfig
+    - $ref: EdgeConfig.yaml
     description: Link to required Gen3 project.
     destination_multiplicity: many
     destination_property_name: research_studies
@@ -215,15 +215,15 @@ manually_curated_edges:
     type: object
 
   Observation_focus_ResearchStudy:
-    $id: $base_uri/Observation_focus_ResearchStudy
+    id: Observation_focus_ResearchStudy
     allOf:
-    - $ref: http://bmeg.io/schema/0.0.1/EdgeConfig
+    - $ref: EdgeConfig.yaml
     description: Part of referenced event.
     destination_multiplicity: many
     destination_property_name: observation
     destination_type: ResearchStudy
     is_primary: true
-    label: Observation_partOf_MedicationAdministration
+    label: Observation_focus_ResearchStudy
     source_multiplicity: many
     source_property_name: focus_ResearchStudy
     source_type: Observation
@@ -233,9 +233,9 @@ manually_curated_edges:
 
   # qualify source_property_name
   MedicationAdministration_reasonReference_Condition:
-    $id: $base_uri/MedicationAdministration_reasonReference_Condition
+    id: MedicationAdministration_reasonReference_Condition
     allOf:
-    - $ref: http://bmeg.io/schema/0.0.1/EdgeConfig
+    - $ref: EdgeConfig.yaml
     description: Condition or observation that supports why the medication was administered. (Generated Edge)
     destination_multiplicity: many
     destination_property_name: medication_administration
@@ -248,6 +248,21 @@ manually_curated_edges:
     title: MedicationAdministration_reasonReference_Condition
     type: object
 
+  Signature_who_Patient:
+    id: Signature_who_Patient
+    allOf:
+    - $ref: EdgeConfig.yaml
+    description: Who signed. (Generated Edge)
+    destination_multiplicity: many
+    destination_property_name: who_signature
+    destination_type: Patient
+    is_primary: true
+    label: Signature_who_Patient
+    source_multiplicity: many
+    source_property_name: who
+    source_type: Signature
+    title: Signature_who_Patient
+    type: object
 
 
 extra_properties:
@@ -352,143 +367,141 @@ extra_properties:
     quality_adjusted_life_years_valueDecimal:
         type: number
         description: "Quality Adjusted Life Years as defined in the literature and summarized at https://en.wikipedia.org/wiki/Quality-adjusted_life_year   http://synthetichealth.github.io/synthea/StructureDefinition/quality-adjusted-life-years."
-
-    auth_resource_path:
-        type: string
-        description: Gen3 scaffolding
-
     maritalStatus_coding:
         type: string
         description: This field contains a patient's most recent marital (civil) status. See http://hl7.org/fhir/ValueSet/marital-status
 
+    auth_resource_path:
+        type: string
+        description: Gen3 scaffolding
+
+
   # add genomic observation
   Observation:
-    gene_studied_id:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    gene_studied_id_coding:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    genomic_reference_sequence_id:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    genomic_reference_sequence_id_coding:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    conclusion_string:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    evidence_level:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    evidence_level_coding:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    predicted_phenotype:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    predicted_phenotype_coding:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    predicted_phenotype_1:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    predicted_phenotype_coding_1:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    predicted_phenotype_2:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    predicted_phenotype_coding_2:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    predicted_phenotype_3:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    predicted_phenotype_coding_3:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    predicted_phenotype_4:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    predicted_phenotype_coding_4:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    predicted_phenotype_5:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    predicted_phenotype_coding_5:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    predicted_phenotype_6:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    predicted_phenotype_coding_6:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    valueCodeableConcept_coding_1:
-        type: string
-    valueCodeableConcept_1:
-        type: string
-
-    observation_interpretation:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    observation_interpretation_coding:
-        type: string
-        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
-    systolic_blood_pressure:
-        type: string
-    systolic_blood_pressure_unit:
-        type: string
-    systolic_blood_pressure_value:
-        type: number
-    diastolic_blood_pressure:
-        type: string
-    diastolic_blood_pressure_unit:
-        type: string
-    diastolic_blood_pressure_value:
-        type: number
-
 
     auth_resource_path:
         type: string
         description: Gen3 scaffolding
 
-    identifier_1:
-        type: string
-        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
-    identifier_2:
-        type: string
-        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
-    identifier_3:
-        type: string
-        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
-    identifier_4:
-        type: string
-        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
-    identifier_5:
-        type: string
-        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
-    identifier_6:
-        type: string
-        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
-    category_coding:
-        type: string
-    category_1:
-        type: string
-    category_coding_1:
-        type: string
-    category_coding_display:
-        type: string
-    category_coding_display_1:
-        type: string
-    code_coding:
-        type: string
-    code_coding_1:
-        type: string
-    code_1:
-        type: string
+#    gene_studied_id:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    gene_studied_id_coding:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    genomic_reference_sequence_id:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    genomic_reference_sequence_id_coding:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    conclusion_string:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    evidence_level:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    evidence_level_coding:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    predicted_phenotype:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    predicted_phenotype_coding:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    predicted_phenotype_1:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    predicted_phenotype_coding_1:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    predicted_phenotype_2:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    predicted_phenotype_coding_2:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    predicted_phenotype_3:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    predicted_phenotype_coding_3:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    predicted_phenotype_4:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    predicted_phenotype_coding_4:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    predicted_phenotype_5:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    predicted_phenotype_coding_5:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    predicted_phenotype_6:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    predicted_phenotype_coding_6:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    valueCodeableConcept_coding_1:
+#        type: string
+#    valueCodeableConcept_1:
+#        type: string
+#    observation_interpretation:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    observation_interpretation_coding:
+#        type: string
+#        description: See http://hl7.org/fhir/uv/genomics-reporting/StructureDefinition/genomics-risk-assessment
+#    systolic_blood_pressure:
+#        type: string
+#    systolic_blood_pressure_unit:
+#        type: string
+#    systolic_blood_pressure_value:
+#        type: number
+#    diastolic_blood_pressure:
+#        type: string
+#    diastolic_blood_pressure_unit:
+#        type: string
+#    diastolic_blood_pressure_value:
+#        type: number
+#    identifier_1:
+#        type: string
+#        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
+#    identifier_2:
+#        type: string
+#        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
+#    identifier_3:
+#        type: string
+#        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
+#    identifier_4:
+#        type: string
+#        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
+#    identifier_5:
+#        type: string
+#        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
+#    identifier_6:
+#        type: string
+#        description: A string, typically numeric or alphanumeric, that is associated with a single object or entity within a given system. See https://build.fhir.org/datatypes.html#Identifier
+#    category_coding:
+#        type: string
+#    category_1:
+#        type: string
+#    category_coding_1:
+#        type: string
+#    category_coding_display:
+#        type: string
+#    category_coding_display_1:
+#        type: string
+#    code_coding:
+#        type: string
+#    code_coding_1:
+#        type: string
+#    code_1:
+#        type: string
 
   # inputs and outputs
   Task:

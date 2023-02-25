@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/ConditionStage_assessment_DiagnosticReport
+$schema: https://json-schema.org/draft/2020-12/schema
+ConditionStage_assessment_DiagnosticReport:
+  $id: ConditionStage_assessment_DiagnosticReport
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Formal record of assessment. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: condition_stage
+  destination_type: DiagnosticReport
+  is_primary: true
+  label: ConditionStage_assessment_DiagnosticReport
+  source_multiplicity: many
+  source_property_name: assessment
+  source_type: ConditionStage
+  title: ConditionStage_assessment_DiagnosticReport
+  type: object

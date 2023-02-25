@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/Observation_derivedFrom_DocumentReference
+$schema: https://json-schema.org/draft/2020-12/schema
+Observation_derivedFrom_DocumentReference:
+  $id: Observation_derivedFrom_DocumentReference
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Related measurements the observation is made from. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: observation
+  destination_type: DocumentReference
+  is_primary: true
+  label: Observation_derivedFrom_DocumentReference
+  source_multiplicity: many
+  source_property_name: derivedFrom
+  source_type: Observation
+  title: Observation_derivedFrom_DocumentReference
+  type: object

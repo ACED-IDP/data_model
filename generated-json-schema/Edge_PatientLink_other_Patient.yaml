@@ -1,0 +1,18 @@
+$id: http://bmeg.io/schema/0.0.1/PatientLink_other_Patient
+$schema: https://json-schema.org/draft/2020-12/schema
+PatientLink_other_Patient:
+  $id: PatientLink_other_Patient
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: The other patient or related person resource that the link refers to.
+    (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: patient_link
+  destination_type: Patient
+  is_primary: true
+  label: PatientLink_other_Patient
+  source_multiplicity: many
+  source_property_name: other
+  source_type: PatientLink
+  title: PatientLink_other_Patient
+  type: object

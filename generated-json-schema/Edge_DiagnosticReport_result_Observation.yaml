@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/DiagnosticReport_result_Observation
+$schema: https://json-schema.org/draft/2020-12/schema
+DiagnosticReport_result_Observation:
+  $id: DiagnosticReport_result_Observation
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Observations. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: diagnostic_report
+  destination_type: Observation
+  is_primary: true
+  label: DiagnosticReport_result_Observation
+  source_multiplicity: many
+  source_property_name: result
+  source_type: DiagnosticReport
+  title: DiagnosticReport_result_Observation
+  type: object

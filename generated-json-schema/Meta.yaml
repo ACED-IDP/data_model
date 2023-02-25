@@ -57,9 +57,10 @@ properties:
     title: When the resource version last changed
     type: string
   profile:
-    description: A list of profiles (references to [StructureDefinition](structuredefinition.html#)
+    description: 'A list of profiles (references to [StructureDefinition](structuredefinition.html#)
       resources) that this resource claims to conform to. The URL is a reference to
       [StructureDefinition.url](structuredefinition-definitions.html#StructureDefinition.url).
+      Note: following not in scope, see config.dependency_order.'
     element_property: true
     items:
       pattern: \S*

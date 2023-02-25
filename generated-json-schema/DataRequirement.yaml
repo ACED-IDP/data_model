@@ -93,8 +93,8 @@ properties:
       module
     type: array
   profile:
-    description: The profile of the required data, specified as the uri of the profile
-      definition.
+    description: 'The profile of the required data, specified as the uri of the profile
+      definition. Note: following not in scope, see config.dependency_order. StructureDefinition'
     element_property: true
     items:
       pattern: \S*
@@ -124,10 +124,9 @@ properties:
     title: E.g. Patient, Practitioner, RelatedPerson, Organization, Location, Device
   subjectReference:
     $ref: Reference.yaml
-    binding_strength: extensible
-    binding_uri: http://hl7.org/fhir/ValueSet/subject-type
-    description: The intended subjects of the data requirement. If this element is
+    description: 'The intended subjects of the data requirement. If this element is
       not provided, a Patient subject is assumed. See http://hl7.org/fhir/ValueSet/subject-type
+      Note: following not in scope, see config.dependency_order. Group'
     element_property: true
     one_of_many: subject
     one_of_many_required: false

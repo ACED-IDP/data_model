@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/Observation_hasMember_Observation
+$schema: https://json-schema.org/draft/2020-12/schema
+Observation_hasMember_Observation:
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Related resource that belongs to the Observation group.
+  destination_multiplicity: many
+  destination_property_name: hasMember_observation
+  destination_type: Observation
+  id: Observation_hasMember_Observation
+  is_primary: true
+  label: Observation_hasMember_Observation
+  source_multiplicity: many
+  source_property_name: hasMember
+  source_type: Observation
+  title: Observation_hasMember_Observation
+  type: object

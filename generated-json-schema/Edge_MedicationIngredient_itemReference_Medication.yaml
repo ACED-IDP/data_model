@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/MedicationIngredient_itemReference_Medication
+$schema: https://json-schema.org/draft/2020-12/schema
+MedicationIngredient_itemReference_Medication:
+  $id: MedicationIngredient_itemReference_Medication
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: The actual ingredient or content. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: medication_ingredient
+  destination_type: Medication
+  is_primary: true
+  label: MedicationIngredient_itemReference_Medication
+  source_multiplicity: many
+  source_property_name: itemReference
+  source_type: MedicationIngredient
+  title: MedicationIngredient_itemReference_Medication
+  type: object

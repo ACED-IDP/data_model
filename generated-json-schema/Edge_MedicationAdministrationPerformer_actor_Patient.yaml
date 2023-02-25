@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/MedicationAdministrationPerformer_actor_Patient
+$schema: https://json-schema.org/draft/2020-12/schema
+MedicationAdministrationPerformer_actor_Patient:
+  $id: MedicationAdministrationPerformer_actor_Patient
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Who performed the medication administration. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: medication_administration_performer
+  destination_type: Patient
+  is_primary: true
+  label: MedicationAdministrationPerformer_actor_Patient
+  source_multiplicity: many
+  source_property_name: actor
+  source_type: MedicationAdministrationPerformer
+  title: MedicationAdministrationPerformer_actor_Patient
+  type: object

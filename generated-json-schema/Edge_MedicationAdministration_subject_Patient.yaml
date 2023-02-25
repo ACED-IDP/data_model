@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/MedicationAdministration_subject_Patient
+$schema: https://json-schema.org/draft/2020-12/schema
+MedicationAdministration_subject_Patient:
+  $id: MedicationAdministration_subject_Patient
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Who received medication. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: medication_administration
+  destination_type: Patient
+  is_primary: true
+  label: MedicationAdministration_subject_Patient
+  source_multiplicity: many
+  source_property_name: subject
+  source_type: MedicationAdministration
+  title: MedicationAdministration_subject_Patient
+  type: object

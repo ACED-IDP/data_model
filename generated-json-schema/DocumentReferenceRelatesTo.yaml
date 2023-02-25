@@ -79,6 +79,10 @@ properties:
     $ref: Reference.yaml
     description: The target document of this relationship.
     element_property: true
+    targets:
+    - backref: document_reference_relates_to
+      type:
+        $ref: DocumentReference.yaml
     title: Target of the relationship
 required:
 - target

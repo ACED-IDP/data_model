@@ -148,8 +148,10 @@ properties:
     element_property: true
     items:
       $ref: Reference.yaml
-    reference_backrefs:
-      Specimen: specimen
+    targets:
+    - backref: specimen
+      type:
+        $ref: Specimen.yaml
     title: Specimen from which this specimen originated
     type: array
   processing:
@@ -166,8 +168,8 @@ properties:
     title: The time when specimen was received for processing
     type: string
   request:
-    description: Details concerning a service request that required a specimen to
-      be collected.
+    description: 'Details concerning a service request that required a specimen to
+      be collected. Note: following not in scope, see config.dependency_order. ServiceRequest'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -195,9 +197,13 @@ properties:
   subject:
     $ref: Reference.yaml
     element_property: true
-    reference_backrefs:
-      Patient: specimen
-      Substance: specimen
+    targets:
+    - backref: specimen
+      type:
+        $ref: Patient.yaml
+    - backref: specimen
+      type:
+        $ref: Substance.yaml
     title: Where the specimen came from. This may be from patient(s), from a location
       (e.g., the source of an environmental sample), or a sampling of a substance
       or a device

@@ -62,11 +62,16 @@ properties:
     element_property: true
     title: When fulfillment sought
   recipient:
-    description: For requests that are targeted to more than on potential recipient/target,
-      for whom is fulfillment sought?
+    description: 'For requests that are targeted to more than on potential recipient/target,
+      for whom is fulfillment sought? Note: following not in scope, see config.dependency_order.
+      Organization Group PractitionerRole RelatedPerson'
     element_property: true
     items:
       $ref: Reference.yaml
+    targets:
+    - backref: task_restriction
+      type:
+        $ref: Patient.yaml
     title: For whom is fulfillment sought?
     type: array
   repetitions:

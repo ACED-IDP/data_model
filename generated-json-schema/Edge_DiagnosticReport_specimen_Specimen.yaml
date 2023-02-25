@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/DiagnosticReport_specimen_Specimen
+$schema: https://json-schema.org/draft/2020-12/schema
+DiagnosticReport_specimen_Specimen:
+  $id: DiagnosticReport_specimen_Specimen
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Specimens this report is based on. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: diagnostic_report
+  destination_type: Specimen
+  is_primary: true
+  label: DiagnosticReport_specimen_Specimen
+  source_multiplicity: many
+  source_property_name: specimen
+  source_type: DiagnosticReport
+  title: DiagnosticReport_specimen_Specimen
+  type: object

@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/Task_output_DocumentReference
+$schema: https://json-schema.org/draft/2020-12/schema
+Task_output_DocumentReference:
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Information produced as part of task.
+  destination_multiplicity: many
+  destination_property_name: owner_task
+  destination_type: DocumentReference
+  id: Task_output_DocumentReference
+  is_primary: true
+  label: Task_output_DocumentReference
+  source_multiplicity: one
+  source_property_name: output_valueReference
+  source_type: Task
+  title: Task_output_DocumentReference
+  type: object

@@ -994,7 +994,7 @@
       }
     },
     "treatment_outcome": {
-      "description": "Text term that describes the patient\u00bfs final outcome after the treatment was administered.\n",
+      "description": "Text term that describes the patient¿s final outcome after the treatment was administered.\n",
       "termDef": {
         "term": "Treatment Outcome Type",
         "source": "caDSR",
@@ -1198,7 +1198,7 @@
       },
       "enrollment": {
         "title": "Inclusion & exclusion criteria",
-        "description": "Reference to a Group that defines the criteria for and quantity of subjects participating in the study.  E.g. \" 200 female Europeans between the ages of 20 and 45 with early onset diabetes\". (array)",
+        "description": "Reference to a Group that defines the criteria for and quantity of subjects participating in the study.  E.g. \" 200 female Europeans between the ages of 20 and 45 with early onset diabetes\". Note: following not in scope, see config.dependency_order. (array)",
         "element_property": true,
         "type": "string"
       },
@@ -1315,10 +1315,7 @@
         "title": "Part of larger study",
         "description": "A larger research study of which this particular study is a component or step. (array)",
         "element_property": true,
-        "type": "string",
-        "reference_backrefs": {
-          "ResearchStudy": "research_study"
-        }
+        "type": "string"
       },
       "phase": {
         "title": "n-a | early-phase-1 | phase-1 | phase-1-phase-2 | phase-2 | phase-2-phase-3 | phase-3 | phase-4",
@@ -1393,7 +1390,7 @@
       },
       "protocol": {
         "title": "Steps followed in executing study",
-        "description": "The set of steps expected to be performed as part of the execution of the study. (array)",
+        "description": "The set of steps expected to be performed as part of the execution of the study. Note: following not in scope, see config.dependency_order. PlanDefinition (array)",
         "element_property": true,
         "type": "string"
       },
@@ -1433,14 +1430,14 @@
         "element_property": true,
         "type": "string"
       },
-      "resource_type": {
+      "resourceType": {
         "title": "Resource Type",
         "const": "ResearchStudy",
         "type": "string"
       },
       "site": {
         "title": "Facility where study activities are conducted",
-        "description": "A facility in which study activities are conducted. (array)",
+        "description": "A facility in which study activities are conducted. Note: following not in scope, see config.dependency_order. Location (array)",
         "element_property": true,
         "type": "string"
       },
@@ -1489,10 +1486,10 @@
       }
     },
     "additionalProperties": false,
+    "id": "research_study",
     "program": "*",
     "project": "*",
     "category": "Administrative",
-    "id": "research_study",
     "links": [
       {
         "backref": "research_study",
@@ -1563,10 +1560,6 @@
         "type": "string",
         "format": "date-time"
       },
-      "disability_adjusted_life_years_valueDecimal": {
-        "type": "number",
-        "description": "Disability Adjusted Life Years as defined in the literature and summarized at https://en.wikipedia.org/wiki/Disability-adjusted_life_year http://synthetichealth.github.io/synthea/StructureDefinition/disability-adjusted-life-years"
-      },
       "extension": {
         "title": "Additional content defined by implementations",
         "description": "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. (array)",
@@ -1603,7 +1596,7 @@
       },
       "generalPractitioner": {
         "title": "Patient's nominated primary care provider",
-        "description": "Patient's nominated care provider. (array)",
+        "description": "Patient's nominated care provider. Note: following not in scope, see config.dependency_order. Practitioner PractitionerRole Organization (array)",
         "element_property": true,
         "type": "string"
       },
@@ -1677,7 +1670,7 @@
       },
       "maritalStatus_coding": {
         "type": "string",
-        "description": "This field contains a patient's most recent marital (civil) status. See http://hl7.org/fhir/ValueSet/marital-status"
+        "title": "Coded representation."
       },
       "multipleBirthBoolean": {
         "title": "Whether patient is part of a multiple birth",
@@ -1701,30 +1694,6 @@
         "element_property": true,
         "type": "string"
       },
-      "patient_birthPlace_valueAddress": {
-        "type": "string",
-        "description": "The registered place of birth of the patient. A sytem may use the address.text if they don't store the birthPlace address in discrete elements.",
-        "termDef": {
-          "cde_id": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
-          "term": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
-          "term_url": "http://hl7.org/fhir/StructureDefinition/patient-birthPlace",
-          "cde_version": null,
-          "source": "fhir",
-          "strength": "required"
-        }
-      },
-      "patient_mothersMaidenName": {
-        "type": "string",
-        "description": "Mother's maiden (unmarried) name, commonly collected to help verify patient identity.",
-        "termDef": {
-          "cde_id": "http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName",
-          "term": "http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName",
-          "term_url": "http://hl7.org/fhir/StructureDefinition/patient-mothersMaidenName",
-          "cde_version": null,
-          "source": "fhir",
-          "strength": "required"
-        }
-      },
       "photo": {
         "title": "Image of the patient",
         "element_property": true,
@@ -1733,11 +1702,7 @@
       "project_id": {
         "$ref": "_definitions.yaml#/project_id"
       },
-      "quality_adjusted_life_years_valueDecimal": {
-        "type": "number",
-        "description": "Quality Adjusted Life Years as defined in the literature and summarized at https://en.wikipedia.org/wiki/Quality-adjusted_life_year   http://synthetichealth.github.io/synthea/StructureDefinition/quality-adjusted-life-years."
-      },
-      "resource_type": {
+      "resourceType": {
         "title": "Resource Type",
         "const": "Patient",
         "type": "string"
@@ -1748,56 +1713,48 @@
         "element_property": true,
         "type": "string"
       },
-      "us_core_birthsex_code": {
-        "type": "string",
-        "description": "A code classifying the person\u2019s sex assigned at birth as specified by the Office of the National Coordinator for Health IT (ONC). This extension aligns with the C-CDA Birth Sex Observation (LOINC 76689-9).",
-        "termDef": {
-          "cde_id": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
-          "term": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
-          "term_url": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-birthsex",
-          "cde_version": null,
-          "source": "fhir",
-          "strength": "required"
-        }
-      },
-      "us_core_ethnicity": {
-        "type": "string",
-        "description": "Coding's text value"
-      },
-      "us_core_ethnicity_coding": {
-        "type": "string",
-        "description": "The 2 ethnicity category codes according to the [OMB Standards for Maintaining, Collecting, and Presenting Federal Data on Race and Ethnicity, Statistical Policy Directive No. 15, as revised, October 30, 1997](https://www.govinfo.gov/content/pkg/FR-1997-10-30/pdf/97-28653.pdf).",
-        "termDef": {
-          "cde_id": "http://hl7.org/fhir/us/core/ValueSet/omb-ethnicity-category",
-          "term": "http://hl7.org/fhir/us/core/ValueSet/omb-ethnicity-category",
-          "term_url": "http://hl7.org/fhir/us/core/ValueSet/omb-ethnicity-category",
-          "cde_version": null,
-          "source": "fhir",
-          "strength": "required"
-        }
+      "address_orh_zip_designation_code": {
+        "type": "string"
       },
       "us_core_race": {
-        "type": "string",
-        "description": "Coding's text value"
+        "type": "string"
       },
       "us_core_race_coding": {
-        "type": "string",
-        "description": "The 5 race category codes according to the [OMB Standards for Maintaining, Collecting, and Presenting Federal Data on Race and Ethnicity, Statistical Policy Directive No. 15, as revised, October 30, 1997](https://www.govinfo.gov/content/pkg/FR-1997-10-30/pdf/97-28653.pdf).",
-        "termDef": {
-          "cde_id": "http://hl7.org/fhir/us/core/ValueSet/omb-race-category",
-          "term": "http://hl7.org/fhir/us/core/ValueSet/omb-race-category",
-          "term_url": "http://hl7.org/fhir/us/core/ValueSet/omb-race-category",
-          "cde_version": null,
-          "source": "fhir",
-          "strength": "required"
-        }
+        "type": "string"
+      },
+      "us_core_ethnicity": {
+        "type": "string"
+      },
+      "us_core_ethnicity_coding": {
+        "type": "string"
+      },
+      "patient_mothersMaidenName": {
+        "type": "string"
+      },
+      "us_core_birthsex_code": {
+        "type": "string"
+      },
+      "patient_birthPlace_valueAddress": {
+        "type": "string"
+      },
+      "disability_adjusted_life_years_valueDecimal": {
+        "type": "string"
+      },
+      "quality_adjusted_life_years_valueDecimal": {
+        "type": "string"
+      },
+      "address_geolocation_valueDecimal": {
+        "type": "string"
+      },
+      "name_1": {
+        "type": "string"
       }
     },
     "additionalProperties": false,
+    "id": "patient",
     "program": "*",
     "project": "*",
     "category": "Administrative",
-    "id": "patient",
     "links": []
   },
   "research_subject": {
@@ -1871,7 +1828,7 @@
       "project_id": {
         "$ref": "_definitions.yaml#/project_id"
       },
-      "resource_type": {
+      "resourceType": {
         "title": "Resource Type",
         "const": "ResearchSubject",
         "type": "string"
@@ -1915,22 +1872,19 @@
         }
       }
     },
-    "required": [
-      "individual",
-      "study"
-    ],
+    "required": [],
     "additionalProperties": false,
+    "id": "research_subject",
     "program": "*",
     "project": "*",
     "category": "Administrative",
-    "id": "research_subject",
     "links": [
       {
         "backref": "research_subject",
         "label": "ResearchSubject_individual_Patient",
         "multiplicity": "many_to_many",
         "name": "individual",
-        "required": false,
+        "required": true,
         "target_type": "patient"
       },
       {
@@ -1938,7 +1892,7 @@
         "label": "ResearchSubject_study_ResearchStudy",
         "multiplicity": "many_to_many",
         "name": "study",
-        "required": false,
+        "required": true,
         "target_type": "research_study"
       }
     ]
@@ -2043,10 +1997,7 @@
         "title": "Specimen from which this specimen originated",
         "description": "Reference to the parent (source) specimen which is used when the specimen was either derived from or a component of another specimen. (array)",
         "element_property": true,
-        "type": "string",
-        "reference_backrefs": {
-          "Specimen": "specimen"
-        }
+        "type": "string"
       },
       "processing": {
         "title": "Processing and processing step details",
@@ -2066,11 +2017,11 @@
       },
       "request": {
         "title": "Why the specimen was collected",
-        "description": "Details concerning a service request that required a specimen to be collected. (array)",
+        "description": "Details concerning a service request that required a specimen to be collected. Note: following not in scope, see config.dependency_order. ServiceRequest (array)",
         "element_property": true,
         "type": "string"
       },
-      "resource_type": {
+      "resourceType": {
         "title": "Resource Type",
         "const": "Specimen",
         "type": "string"
@@ -2129,10 +2080,10 @@
       }
     },
     "additionalProperties": false,
+    "id": "specimen",
     "program": "*",
     "project": "*",
     "category": "Biospecimen",
-    "id": "specimen",
     "links": [
       {
         "backref": "specimen",
@@ -2144,19 +2095,19 @@
       },
       {
         "backref": "specimen",
-        "label": "Specimen_subject_Substance",
-        "multiplicity": "many_to_many",
-        "name": "subject_Substance",
-        "required": false,
-        "target_type": "substance"
-      },
-      {
-        "backref": "specimen",
         "label": "Specimen_subject_Patient",
         "multiplicity": "many_to_many",
         "name": "subject",
         "required": false,
         "target_type": "patient"
+      },
+      {
+        "backref": "specimen",
+        "label": "Specimen_subject_Substance",
+        "multiplicity": "many_to_many",
+        "name": "subject_Substance",
+        "required": false,
+        "target_type": "substance"
       }
     ]
   },
@@ -2171,7 +2122,7 @@
       },
       "basedOn": {
         "title": "Fulfills plan, proposal or order",
-        "description": "A plan, proposal or order that is fulfilled in whole or in part by this event.  For example, a MedicationRequest may require a patient to have laboratory test performed before  it is dispensed. (array)",
+        "description": "A plan, proposal or order that is fulfilled in whole or in part by this event.  For example, a MedicationRequest may require a patient to have laboratory test performed before  it is dispensed. Note: following not in scope, see config.dependency_order. ServiceRequest DeviceRequest ImmunizationRecommendation NutritionOrder CarePlan (array)",
         "element_property": true,
         "type": "string"
       },
@@ -2299,13 +2250,9 @@
       },
       "derivedFrom": {
         "title": "Related measurements the observation is made from",
-        "description": "The target resource that represents a measurement from which this observation value is derived. For example, a calculated anion gap or a fetal measurement based on an ultrasound image. (array)",
+        "description": "The target resource that represents a measurement from which this observation value is derived. For example, a calculated anion gap or a fetal measurement based on an ultrasound image. Note: following not in scope, see config.dependency_order. QuestionnaireResponse ImagingStudy MolecularSequence Media (array)",
         "element_property": true,
-        "type": "string",
-        "reference_backrefs": {
-          "DocumentReference": "observation",
-          "Observation": "derivedFrom_observation"
-        }
+        "type": "string"
       },
       "diastolic_blood_pressure": {
         "type": "string"
@@ -2336,7 +2283,7 @@
       },
       "effectivePeriod": {
         "title": "Clinically relevant time/time-period for observation",
-        "description": "The time or time-period the observed value is asserted as being true. For biological subjects - e.g. human patients - this is usually called the \"physiologically relevant time\". This is usually either the time of the procedure or of specimen collection, but very often the source of the date/time is not known, only the date/time itself.",
+        "description": "The time or time-period the observed value is asserted as being true. For biological subjects - e.g. human patients - this is usually called the \"physiologically relevant time\". This is usually either the time of the procedure or of specimen collection, but very often the source of the date/time is not known, only the date/time itself. Period",
         "element_property": true,
         "one_of_many": "effective",
         "one_of_many_required": false,
@@ -2344,7 +2291,7 @@
       },
       "effectiveTiming": {
         "title": "Clinically relevant time/time-period for observation",
-        "description": "The time or time-period the observed value is asserted as being true. For biological subjects - e.g. human patients - this is usually called the \"physiologically relevant time\". This is usually either the time of the procedure or of specimen collection, but very often the source of the date/time is not known, only the date/time itself.",
+        "description": "The time or time-period the observed value is asserted as being true. For biological subjects - e.g. human patients - this is usually called the \"physiologically relevant time\". This is usually either the time of the procedure or of specimen collection, but very often the source of the date/time is not known, only the date/time itself. Timing",
         "element_property": true,
         "one_of_many": "effective",
         "one_of_many_required": false,
@@ -2366,7 +2313,7 @@
       },
       "focus": {
         "title": "What the observation is about, when it is not about the subject of record",
-        "description": "The actual focus of an observation when it is not the patient of record representing something or someone associated with the patient such as a spouse, parent, fetus, or donor. For example, fetus observations in a mother's record.  The focus of an observation could also be an existing condition,  an intervention, the subject's diet,  another observation of the subject,  or a body structure such as tumor or implanted device.   An example use case would be using the Observation resource to capture whether the mother is trained to change her child's tracheostomy tube. In this example, the child is the patient of record and the mother is the focus. (array)",
+        "description": "The actual focus of an observation when it is not the patient of record representing something or someone associated with the patient such as a spouse, parent, fetus, or donor. For example, fetus observations in a mother's record.  The focus of an observation could also be an existing condition,  an intervention, the subject's diet,  another observation of the subject,  or a body structure such as tumor or implanted device.   An example use case would be using the Observation resource to capture whether the mother is trained to change her child's tracheostomy tube. In this example, the child is the patient of record and the mother is the focus. Note: following not in scope, see config.dependency_order. Resource (array)",
         "element_property": true,
         "type": "string"
       },
@@ -2388,12 +2335,9 @@
       },
       "hasMember": {
         "title": "Related resource that belongs to the Observation group",
-        "description": "This observation is a group observation (e.g. a battery, a panel of tests, a set of vital sign measurements) that includes the target as a member of the group. (array)",
+        "description": "This observation is a group observation (e.g. a battery, a panel of tests, a set of vital sign measurements) that includes the target as a member of the group. Note: following not in scope, see config.dependency_order. QuestionnaireResponse MolecularSequence (array)",
         "element_property": true,
-        "type": "string",
-        "reference_backrefs": {
-          "Observation": "hasMember_observation"
-        }
+        "type": "string"
       },
       "id": {
         "title": "Logical id of this artifact",
@@ -2509,21 +2453,15 @@
       },
       "partOf": {
         "title": "Part of referenced event",
-        "description": "A larger event of which this particular Observation is a component or step.  For example,  an observation as part of a procedure. (array)",
+        "description": "A larger event of which this particular Observation is a component or step.  For example,  an observation as part of a procedure. Note: following not in scope, see config.dependency_order. Immunization Procedure ImagingStudy MedicationDispense MedicationStatement (array)",
         "element_property": true,
-        "type": "string",
-        "reference_backrefs": {
-          "MedicationAdministration": "observation"
-        }
+        "type": "string"
       },
       "performer": {
         "title": "Who is responsible for the observation",
-        "description": "Who was responsible for asserting the observed value as \"true\". (array)",
+        "description": "Who was responsible for asserting the observed value as \"true\". Note: following not in scope, see config.dependency_order. Organization PractitionerRole RelatedPerson CareTeam (array)",
         "element_property": true,
-        "type": "string",
-        "reference_backrefs": {
-          "Patient": "performer_observation"
-        }
+        "type": "string"
       },
       "predicted_phenotype": {
         "type": "string",
@@ -2590,7 +2528,7 @@
         "element_property": true,
         "type": "string"
       },
-      "resource_type": {
+      "resourceType": {
         "title": "Resource Type",
         "const": "Observation",
         "type": "string"
@@ -2644,7 +2582,7 @@
       },
       "valueCodeableConcept": {
         "title": "Actual result",
-        "description": "The information determined as a result of making the observation, if the information has a simple value.",
+        "description": "The information determined as a result of making the observation, if the information has a simple value. CodeableConcept",
         "element_property": true,
         "one_of_many": "value",
         "one_of_many_required": false,
@@ -2679,7 +2617,7 @@
       },
       "valuePeriod": {
         "title": "Actual result",
-        "description": "The information determined as a result of making the observation, if the information has a simple value.",
+        "description": "The information determined as a result of making the observation, if the information has a simple value. Period",
         "element_property": true,
         "one_of_many": "value",
         "one_of_many_required": false,
@@ -2687,7 +2625,7 @@
       },
       "valueQuantity": {
         "title": "Actual result",
-        "description": "The information determined as a result of making the observation, if the information has a simple value.",
+        "description": "The information determined as a result of making the observation, if the information has a simple value. Quantity",
         "element_property": true,
         "one_of_many": "value",
         "one_of_many_required": false,
@@ -2703,7 +2641,7 @@
       },
       "valueRange": {
         "title": "Actual result",
-        "description": "The information determined as a result of making the observation, if the information has a simple value.",
+        "description": "The information determined as a result of making the observation, if the information has a simple value. Range",
         "element_property": true,
         "one_of_many": "value",
         "one_of_many_required": false,
@@ -2711,7 +2649,7 @@
       },
       "valueRatio": {
         "title": "Actual result",
-        "description": "The information determined as a result of making the observation, if the information has a simple value.",
+        "description": "The information determined as a result of making the observation, if the information has a simple value. Ratio",
         "element_property": true,
         "one_of_many": "value",
         "one_of_many_required": false,
@@ -2719,7 +2657,7 @@
       },
       "valueSampledData": {
         "title": "Actual result",
-        "description": "The information determined as a result of making the observation, if the information has a simple value.",
+        "description": "The information determined as a result of making the observation, if the information has a simple value. SampledData",
         "element_property": true,
         "one_of_many": "value",
         "one_of_many_required": false,
@@ -2748,10 +2686,10 @@
       "code"
     ],
     "additionalProperties": false,
+    "id": "observation",
     "program": "*",
     "project": "*",
     "category": "Clinical",
-    "id": "observation",
     "links": [
       {
         "backref": "observation",
@@ -2778,14 +2716,6 @@
         "target_type": "specimen"
       },
       {
-        "backref": "observation",
-        "label": "Observation_subject_Substance",
-        "multiplicity": "many_to_many",
-        "name": "subject_Substance",
-        "required": false,
-        "target_type": "substance"
-      },
-      {
         "backref": "subject_observation",
         "label": "Observation_subject_Patient",
         "multiplicity": "many_to_many",
@@ -2803,7 +2733,15 @@
       },
       {
         "backref": "observation",
-        "label": "Observation_partOf_MedicationAdministration",
+        "label": "Observation_subject_Substance",
+        "multiplicity": "many_to_many",
+        "name": "subject_Substance",
+        "required": false,
+        "target_type": "substance"
+      },
+      {
+        "backref": "observation",
+        "label": "Observation_focus_ResearchStudy",
         "multiplicity": "many_to_many",
         "name": "focus_ResearchStudy",
         "required": false,
@@ -2818,7 +2756,7 @@
     "properties": {
       "basedOn": {
         "title": "What was requested",
-        "description": "Details concerning a service requested. (array)",
+        "description": "Details concerning a service requested. Note: following not in scope, see config.dependency_order. MedicationRequest ServiceRequest ImmunizationRecommendation NutritionOrder CarePlan (array)",
         "element_property": true,
         "type": "string"
       },
@@ -2912,7 +2850,7 @@
       },
       "effectivePeriod": {
         "title": "Clinically relevant time/time-period for report",
-        "description": "The time or time-period the observed values are related to. When the subject of the report is a patient, this is usually either the time of the procedure or of specimen collection(s), but very often the source of the date/time is not known, only the date/time itself.",
+        "description": "The time or time-period the observed values are related to. When the subject of the report is a patient, this is usually either the time of the procedure or of specimen collection(s), but very often the source of the date/time is not known, only the date/time itself. Period",
         "element_property": true,
         "one_of_many": "effective",
         "one_of_many_required": false,
@@ -2969,7 +2907,7 @@
       },
       "imagingStudy": {
         "title": "Reference to full details of imaging associated with the diagnostic report",
-        "description": "One or more links to full details of any imaging performed during the diagnostic investigation. Typically, this is imaging performed by DICOM enabled modalities, but this is not required. A fully enabled PACS viewer can use this information to provide views of the source images. (array)",
+        "description": "One or more links to full details of any imaging performed during the diagnostic investigation. Typically, this is imaging performed by DICOM enabled modalities, but this is not required. A fully enabled PACS viewer can use this information to provide views of the source images. Note: following not in scope, see config.dependency_order. ImagingStudy (array)",
         "element_property": true,
         "type": "string"
       },
@@ -2988,7 +2926,7 @@
       },
       "performer": {
         "title": "Responsible Diagnostic Service",
-        "description": "The diagnostic service that is responsible for issuing the report. (array)",
+        "description": "The diagnostic service that is responsible for issuing the report. Note: following not in scope, see config.dependency_order. CareTeam Practitioner PractitionerRole Organization (array)",
         "element_property": true,
         "type": "string"
       },
@@ -3001,7 +2939,7 @@
       "project_id": {
         "$ref": "_definitions.yaml#/project_id"
       },
-      "resource_type": {
+      "resourceType": {
         "title": "Resource Type",
         "const": "DiagnosticReport",
         "type": "string"
@@ -3010,14 +2948,11 @@
         "title": "Observations",
         "description": "[Observations](observation.html)  that are part of this diagnostic report. (array)",
         "element_property": true,
-        "type": "string",
-        "reference_backrefs": {
-          "Observation": "diagnostic_report"
-        }
+        "type": "string"
       },
       "resultsInterpreter": {
         "title": "Primary result interpreter",
-        "description": "The practitioner or organization that is responsible for the report's conclusions and interpretations. (array)",
+        "description": "The practitioner or organization that is responsible for the report's conclusions and interpretations. Note: following not in scope, see config.dependency_order. CareTeam Practitioner PractitionerRole Organization (array)",
         "element_property": true,
         "type": "string"
       },
@@ -3025,10 +2960,7 @@
         "title": "Specimens this report is based on",
         "description": "Details about the specimens on which this diagnostic report is based. (array)",
         "element_property": true,
-        "type": "string",
-        "reference_backrefs": {
-          "Specimen": "diagnostic_report"
-        }
+        "type": "string"
       },
       "status": {
         "title": "registered | partial | preliminary | final +",
@@ -3065,10 +2997,10 @@
       "code"
     ],
     "additionalProperties": false,
+    "id": "diagnostic_report",
     "program": "*",
     "project": "*",
     "category": "Clinical",
-    "id": "diagnostic_report",
     "links": [
       {
         "backref": "diagnostic_report",
@@ -3088,14 +3020,6 @@
       },
       {
         "backref": "diagnostic_report",
-        "label": "DiagnosticReport_subject_Substance",
-        "multiplicity": "many_to_many",
-        "name": "subject_Substance",
-        "required": false,
-        "target_type": "substance"
-      },
-      {
-        "backref": "diagnostic_report",
         "label": "DiagnosticReport_subject_Patient",
         "multiplicity": "many_to_many",
         "name": "subject",
@@ -3109,6 +3033,14 @@
         "name": "subject_Medication",
         "required": false,
         "target_type": "medication"
+      },
+      {
+        "backref": "diagnostic_report",
+        "label": "DiagnosticReport_subject_Substance",
+        "multiplicity": "many_to_many",
+        "name": "subject_Substance",
+        "required": false,
+        "target_type": "substance"
       }
     ]
   },
@@ -3119,7 +3051,7 @@
     "properties": {
       "abatementAge": {
         "title": "When in resolution/remission",
-        "description": "The date or estimated date that the condition resolved or went into remission. This is called \"abatement\" because of the many overloaded connotations associated with \"remission\" or \"resolution\" - Conditions are never really resolved, but they can abate.",
+        "description": "The date or estimated date that the condition resolved or went into remission. This is called \"abatement\" because of the many overloaded connotations associated with \"remission\" or \"resolution\" - Conditions are never really resolved, but they can abate. Age",
         "element_property": true,
         "one_of_many": "abatement",
         "one_of_many_required": false,
@@ -3136,7 +3068,7 @@
       },
       "abatementPeriod": {
         "title": "When in resolution/remission",
-        "description": "The date or estimated date that the condition resolved or went into remission. This is called \"abatement\" because of the many overloaded connotations associated with \"remission\" or \"resolution\" - Conditions are never really resolved, but they can abate.",
+        "description": "The date or estimated date that the condition resolved or went into remission. This is called \"abatement\" because of the many overloaded connotations associated with \"remission\" or \"resolution\" - Conditions are never really resolved, but they can abate. Period",
         "element_property": true,
         "one_of_many": "abatement",
         "one_of_many_required": false,
@@ -3144,7 +3076,7 @@
       },
       "abatementRange": {
         "title": "When in resolution/remission",
-        "description": "The date or estimated date that the condition resolved or went into remission. This is called \"abatement\" because of the many overloaded connotations associated with \"remission\" or \"resolution\" - Conditions are never really resolved, but they can abate.",
+        "description": "The date or estimated date that the condition resolved or went into remission. This is called \"abatement\" because of the many overloaded connotations associated with \"remission\" or \"resolution\" - Conditions are never really resolved, but they can abate. Range",
         "element_property": true,
         "one_of_many": "abatement",
         "one_of_many_required": false,
@@ -3331,7 +3263,7 @@
       },
       "onsetAge": {
         "title": "Estimated or actual date,  date-time, or age",
-        "description": "Estimated or actual date or date-time  the condition began, in the opinion of the clinician.",
+        "description": "Estimated or actual date or date-time  the condition began, in the opinion of the clinician. Age",
         "element_property": true,
         "one_of_many": "onset",
         "one_of_many_required": false,
@@ -3348,7 +3280,7 @@
       },
       "onsetPeriod": {
         "title": "Estimated or actual date,  date-time, or age",
-        "description": "Estimated or actual date or date-time  the condition began, in the opinion of the clinician.",
+        "description": "Estimated or actual date or date-time  the condition began, in the opinion of the clinician. Period",
         "element_property": true,
         "one_of_many": "onset",
         "one_of_many_required": false,
@@ -3356,7 +3288,7 @@
       },
       "onsetRange": {
         "title": "Estimated or actual date,  date-time, or age",
-        "description": "Estimated or actual date or date-time  the condition began, in the opinion of the clinician.",
+        "description": "Estimated or actual date or date-time  the condition began, in the opinion of the clinician. Range",
         "element_property": true,
         "one_of_many": "onset",
         "one_of_many_required": false,
@@ -3381,7 +3313,7 @@
         "type": "string",
         "format": "date-time"
       },
-      "resource_type": {
+      "resourceType": {
         "title": "Resource Type",
         "const": "Condition",
         "type": "string"
@@ -3450,21 +3382,19 @@
         "title": "Coded representation."
       }
     },
-    "required": [
-      "subject"
-    ],
+    "required": [],
     "additionalProperties": false,
+    "id": "condition",
     "program": "*",
     "project": "*",
     "category": "Clinical",
-    "id": "condition",
     "links": [
       {
         "backref": "subject_condition",
         "label": "Condition_subject_Patient",
         "multiplicity": "many_to_many",
         "name": "subject",
-        "required": false,
+        "required": true,
         "target_type": "patient"
       }
     ]
@@ -3593,7 +3523,7 @@
       "project_id": {
         "$ref": "_definitions.yaml#/project_id"
       },
-      "resource_type": {
+      "resourceType": {
         "title": "Resource Type",
         "const": "Substance",
         "type": "string"
@@ -3630,10 +3560,10 @@
       "code"
     ],
     "additionalProperties": false,
+    "id": "substance",
     "program": "*",
     "project": "*",
     "category": "Clinical",
-    "id": "substance",
     "links": []
   },
   "medication": {
@@ -3752,7 +3682,7 @@
       "project_id": {
         "$ref": "_definitions.yaml#/project_id"
       },
-      "resource_type": {
+      "resourceType": {
         "title": "Resource Type",
         "const": "Medication",
         "type": "string"
@@ -3786,10 +3716,10 @@
       }
     },
     "additionalProperties": false,
+    "id": "medication",
     "program": "*",
     "project": "*",
     "category": "Clinical",
-    "id": "medication",
     "links": [
       {
         "backref": "ingredient_medication",
@@ -3836,7 +3766,7 @@
       },
       "device": {
         "title": "Device used to administer",
-        "description": "The device used in administering the medication to the patient.  For example, a particular infusion pump. (array)",
+        "description": "The device used in administering the medication to the patient.  For example, a particular infusion pump. Note: following not in scope, see config.dependency_order. Device (array)",
         "element_property": true,
         "type": "string"
       },
@@ -3851,7 +3781,7 @@
       },
       "effectivePeriod": {
         "title": "Start and end time of administration",
-        "description": "A specific date/time or interval of time during which the administration took place (or did not take place, when the 'notGiven' attribute is true). For many administrations, such as swallowing a tablet the use of dateTime is more appropriate.",
+        "description": "A specific date/time or interval of time during which the administration took place (or did not take place, when the 'notGiven' attribute is true). For many administrations, such as swallowing a tablet the use of dateTime is more appropriate. Period",
         "element_property": true,
         "one_of_many": "effective",
         "one_of_many_required": true,
@@ -3859,7 +3789,7 @@
       },
       "eventHistory": {
         "title": "A list of events of interest in the lifecycle",
-        "description": "A summary of the events of interest that have occurred, such as when the administration was verified. (array)",
+        "description": "A summary of the events of interest that have occurred, such as when the administration was verified. Note: following not in scope, see config.dependency_order. Provenance (array)",
         "element_property": true,
         "type": "string"
       },
@@ -3920,7 +3850,7 @@
       },
       "medicationCodeableConcept": {
         "title": "What was administered",
-        "description": "Identifies the medication that was administered. This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications. See http://hl7.org/fhir/ValueSet/medication-codes",
+        "description": "Identifies the medication that was administered. This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications. See http://hl7.org/fhir/ValueSet/medication-codes CodeableConcept",
         "element_property": true,
         "one_of_many": "medication",
         "one_of_many_required": true,
@@ -3946,28 +3876,11 @@
       },
       "medicationReference": {
         "title": "What was administered",
-        "description": "Identifies the medication that was administered. This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications. See http://hl7.org/fhir/ValueSet/medication-codes",
+        "description": "Identifies the medication that was administered. This is either a link to a resource representing the details of the medication or a simple attribute carrying a code that identifies the medication from a known list of medications. See http://hl7.org/fhir/ValueSet/medication-codes Reference",
         "element_property": true,
         "one_of_many": "medication",
         "one_of_many_required": true,
-        "binding_description": "Codes identifying substance or product that can be administered.",
-        "binding_strength": "example",
-        "binding_uri": "http://hl7.org/fhir/ValueSet/medication-codes",
-        "type": "string",
-        "reference_backrefs": {
-          "Medication": "medication_administration"
-        },
-        "term": {
-          "description": "Codes identifying substance or product that can be administered.",
-          "termDef": {
-            "cde_id": "http://hl7.org/fhir/ValueSet/medication-codes",
-            "term": "http://hl7.org/fhir/ValueSet/medication-codes",
-            "term_url": "http://hl7.org/fhir/ValueSet/medication-codes",
-            "cde_version": null,
-            "source": "fhir",
-            "strength": "example"
-          }
-        }
+        "type": "string"
       },
       "note": {
         "title": "Information about the administration",
@@ -3977,12 +3890,9 @@
       },
       "partOf": {
         "title": "Part of referenced event",
-        "description": "A larger event of which this particular event is a component or step. (array)",
+        "description": "A larger event of which this particular event is a component or step. Note: following not in scope, see config.dependency_order. Procedure (array)",
         "element_property": true,
-        "type": "string",
-        "reference_backrefs": {
-          "MedicationAdministration": "medication_administration"
-        }
+        "type": "string"
       },
       "performer": {
         "title": "Who performed the medication administration and what they did",
@@ -4020,20 +3930,15 @@
       "reasonReference": {
         "title": "Condition or observation that supports why the medication was administered",
         "element_property": true,
-        "type": "string",
-        "reference_backrefs": {
-          "Condition": "medication_administration",
-          "Observation": "medication_administration",
-          "DiagnosticReport": "medication_administration"
-        }
+        "type": "string"
       },
       "request": {
         "title": "Request administration performed against",
-        "description": "The original request, instruction or authority to perform the administration. Reference",
+        "description": "The original request, instruction or authority to perform the administration. Note: following not in scope, see config.dependency_order. MedicationRequest Reference",
         "element_property": true,
         "type": "string"
       },
-      "resource_type": {
+      "resourceType": {
         "title": "Resource Type",
         "const": "MedicationAdministration",
         "type": "string"
@@ -4096,28 +4001,23 @@
       },
       "subject": {
         "title": "Who received medication",
-        "description": "The person or animal or group receiving the medication. Reference",
+        "description": "The person or animal or group receiving the medication. Note: following not in scope, see config.dependency_order. Group Reference",
         "element_property": true,
-        "type": "string",
-        "reference_backrefs": {
-          "Patient": "medication_administration"
-        }
+        "type": "string"
       },
       "supportingInformation": {
         "title": "Additional information to support administration",
-        "description": "Additional information (for example, patient height and weight) that supports the administration of the medication. (array)",
+        "description": "Additional information (for example, patient height and weight) that supports the administration of the medication. Note: following not in scope, see config.dependency_order. Resource (array)",
         "element_property": true,
         "type": "string"
       }
     },
-    "required": [
-      "subject"
-    ],
+    "required": [],
     "additionalProperties": false,
+    "id": "medication_administration",
     "program": "*",
     "project": "*",
     "category": "Clinical",
-    "id": "medication_administration",
     "links": [
       {
         "backref": "medication_administration",
@@ -4137,6 +4037,14 @@
       },
       {
         "backref": "medication_administration",
+        "label": "MedicationAdministration_reasonReference_Condition",
+        "multiplicity": "many_to_many",
+        "name": "reasonReference_Condition",
+        "required": false,
+        "target_type": "condition"
+      },
+      {
+        "backref": "medication_administration",
         "label": "MedicationAdministration_reasonReference_DiagnosticReport",
         "multiplicity": "many_to_many",
         "name": "reasonReference",
@@ -4153,18 +4061,10 @@
       },
       {
         "backref": "medication_administration",
-        "label": "MedicationAdministration_reasonReference_Condition",
-        "multiplicity": "many_to_many",
-        "name": "reasonReference_Condition",
-        "required": false,
-        "target_type": "condition"
-      },
-      {
-        "backref": "medication_administration",
         "label": "MedicationAdministration_subject_Patient",
         "multiplicity": "many_to_many",
         "name": "subject",
-        "required": false,
+        "required": true,
         "target_type": "patient"
       }
     ]
@@ -4181,12 +4081,9 @@
       },
       "author": {
         "title": "Who and/or what authored the document",
-        "description": "Identifies who is responsible for adding the information to the document. (array)",
+        "description": "Identifies who is responsible for adding the information to the document. Note: following not in scope, see config.dependency_order. Organization PractitionerRole Device RelatedPerson (array)",
         "element_property": true,
-        "type": "string",
-        "reference_backrefs": {
-          "Patient": "author_document_reference"
-        }
+        "type": "string"
       },
       "category": {
         "title": "Categorization of document",
@@ -4350,7 +4247,7 @@
         "element_property": true,
         "type": "string"
       },
-      "resource_type": {
+      "resourceType": {
         "title": "Resource Type",
         "const": "DocumentReference",
         "type": "string"
@@ -4438,16 +4335,19 @@
       },
       "type_coding_display_1": {
         "type": "string"
+      },
+      "type_1": {
+        "type": "string"
       }
     },
     "required": [
       "content"
     ],
     "additionalProperties": false,
+    "id": "document_reference",
     "program": "*",
     "project": "*",
     "category": "data_file",
-    "id": "document_reference",
     "links": [
       {
         "backref": "subject_document_reference",
@@ -4473,7 +4373,7 @@
       },
       "basedOn": {
         "title": "Request fulfilled by this task",
-        "description": "BasedOn refers to a higher-level authorization that triggered the creation of the task.  It references a \"request\" resource such as a ServiceRequest, MedicationRequest, ServiceRequest, CarePlan, etc. which is distinct from the \"request\" resource the task is seeking to fulfill.  This latter resource is referenced by FocusOn.  For example, based on a ServiceRequest (= BasedOn), a task is created to fulfill a procedureRequest ( = FocusOn ) to collect a specimen from a patient. (array)",
+        "description": "BasedOn refers to a higher-level authorization that triggered the creation of the task.  It references a \"request\" resource such as a ServiceRequest, MedicationRequest, ServiceRequest, CarePlan, etc. which is distinct from the \"request\" resource the task is seeking to fulfill.  This latter resource is referenced by FocusOn.  For example, based on a ServiceRequest (= BasedOn), a task is created to fulfill a procedureRequest ( = FocusOn ) to collect a specimen from a patient. Note: following not in scope, see config.dependency_order. Resource (array)",
         "element_property": true,
         "type": "string"
       },
@@ -4592,7 +4492,7 @@
       },
       "instantiatesCanonical": {
         "title": "Formal definition of task",
-        "description": "The URL pointing to a *FHIR*-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this Task.",
+        "description": "The URL pointing to a *FHIR*-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this Task. Note: following not in scope, see config.dependency_order. ActivityDefinition",
         "element_property": true,
         "pattern": "\\S*",
         "type": "string"
@@ -4606,7 +4506,7 @@
       },
       "insurance": {
         "title": "Associated insurance coverage",
-        "description": "Insurance plans, coverage extensions, pre-authorizations and/or pre-determinations that may be relevant to the Task. (array)",
+        "description": "Insurance plans, coverage extensions, pre-authorizations and/or pre-determinations that may be relevant to the Task. Note: following not in scope, see config.dependency_order. ClaimResponse Coverage (array)",
         "element_property": true,
         "type": "string"
       },
@@ -4676,10 +4576,7 @@
         "title": "Composite task",
         "description": "Task that this particular task is part of. (array)",
         "element_property": true,
-        "type": "string",
-        "reference_backrefs": {
-          "Task": "task"
-        }
+        "type": "string"
       },
       "performerType": {
         "title": "Requested performer",
@@ -4750,11 +4647,11 @@
       },
       "relevantHistory": {
         "title": "Key events in history of the Task",
-        "description": "Links to Provenance records for past versions of this Task that identify key state transitions or updates that are likely to be relevant to a user looking at the current version of the task. (array)",
+        "description": "Links to Provenance records for past versions of this Task that identify key state transitions or updates that are likely to be relevant to a user looking at the current version of the task. Note: following not in scope, see config.dependency_order. (array)",
         "element_property": true,
         "type": "string"
       },
-      "resource_type": {
+      "resourceType": {
         "title": "Resource Type",
         "const": "Task",
         "type": "string"
@@ -4803,10 +4700,10 @@
       }
     },
     "additionalProperties": false,
+    "id": "task",
     "program": "*",
     "project": "*",
     "category": "Analysis",
-    "id": "task",
     "links": [
       {
         "backref": "task",

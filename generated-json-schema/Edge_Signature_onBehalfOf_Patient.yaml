@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/Signature_onBehalfOf_Patient
+$schema: https://json-schema.org/draft/2020-12/schema
+Signature_onBehalfOf_Patient:
+  $id: Signature_onBehalfOf_Patient
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: The party represented. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: onBehalfOf_signature
+  destination_type: Patient
+  is_primary: false
+  label: Signature_onBehalfOf_Patient
+  source_multiplicity: many
+  source_property_name: onBehalfOf
+  source_type: Signature
+  title: Signature_onBehalfOf_Patient
+  type: object

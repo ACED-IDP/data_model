@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/Specimen_parent_Specimen
+$schema: https://json-schema.org/draft/2020-12/schema
+Specimen_parent_Specimen:
+  $id: Specimen_parent_Specimen
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Specimen from which this specimen originated. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: specimen
+  destination_type: Specimen
+  is_primary: true
+  label: Specimen_parent_Specimen
+  source_multiplicity: many
+  source_property_name: parent
+  source_type: Specimen
+  title: Specimen_parent_Specimen
+  type: object

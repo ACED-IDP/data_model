@@ -37,8 +37,8 @@ properties:
     type: string
   consent:
     $ref: Reference.yaml
-    description: A record of the patient's informed agreement to participate in the
-      study.
+    description: 'A record of the patient''s informed agreement to participate in
+      the study. Note: following not in scope, see config.dependency_order. Consent'
     element_property: true
     title: Agreement to participate in study
   contained:
@@ -99,8 +99,10 @@ properties:
     $ref: Reference.yaml
     description: The record of the person or animal who is involved in the study.
     element_property: true
-    reference_backrefs:
-      Patient: research_subject
+    targets:
+    - backref: research_subject
+      type:
+        $ref: Patient.yaml
     title: Who is part of study
   language:
     binding_description: IETF language tag
@@ -176,8 +178,10 @@ properties:
     $ref: Reference.yaml
     description: Reference to the study the subject is participating in.
     element_property: true
-    reference_backrefs:
-      ResearchStudy: research_subject
+    targets:
+    - backref: research_subject
+      type:
+        $ref: ResearchStudy.yaml
     title: Study subject is part of
   text:
     $ref: Narrative.yaml

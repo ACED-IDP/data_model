@@ -24,8 +24,8 @@ fi
 # create schema if necessary
 if [ ! -d "generated-json-schema" ]
 then
-    python3 scripts/etl.py schema --output_path generated-json-schema
-    python3 scripts/etl.py schema-publish --dictionary_path generated-json-schema/aced.json
+    python3 scripts/schema.py generate --output_path generated-json-schema
+    python3 scripts/schema.py publish --dictionary_path generated-json-schema/aced.json
 fi
 
 # transform into gen3 graph form, will skip study if already done.
@@ -40,7 +40,7 @@ for study in ${synthetic_studies[*]}; do
   mkdir -p studies/$study/extractions
   # TODO this is too slow
   # intentionally set the ids relative to study, allows entities to be "duplicated" in separate projects
-  python3 scripts/etl.py transform --input_path studies/$study/  --output_path studies/$study/extractions  --duplicate_ids_for $study
+  python3 scripts/transform.py transform --input_path studies/$study/  --output_path studies/$study/extractions  --duplicate_ids_for $study
 done
 
 
@@ -58,6 +58,11 @@ cat scripts/truncate_indexd_tables.sql |  docker exec -i  postgres psql -U postg
 cat scripts/truncate_buckets.sh |  docker exec -i  etl-service bash
 
 
+# create program and projects based on resources found in user.yaml
+python3 scripts/load.py init
+
+
+
 # upload will start multiple processes to submit files to bucket and update studies DocumentReferences
 nice -n 10 scripts/upload-files Alcoholism aced-ohsu
 nice -n 10 scripts/upload-files Alzheimers aced-ucl
@@ -72,7 +77,7 @@ for study in ${synthetic_studies[*]}; do
   nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code $study
 done
 
-nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code HOP
+nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code HOP
 
 # load metadata to elastic
 
@@ -81,7 +86,7 @@ nice -10 scripts/gen3_emitter.py data load --db_host localhost --sheepdog_creds_
 
 for study in ${synthetic_studies[*]}; do
   rm patient.sqlite
-  nice -10 python3 scripts/load.py load  flat --project_id aced-$study --index patient --path studies/$study/extractions/Patient.ndjson
+  nice -10 python3 scripts/load.py  load  flat --project_id aced-$study --index patient --path studies/$study/extractions/Patient.ndjson
   nice -10 python3 scripts/load.py  load  flat --project_id aced-$study --index file --path studies/$study/extractions/DocumentReference.ndjson
   nice -10 python3 scripts/load.py  load  flat --project_id aced-$study --index observation --path studies/$study/extractions/Observation.ndjson
 done

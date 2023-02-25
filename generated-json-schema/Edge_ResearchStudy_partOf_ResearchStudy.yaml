@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/ResearchStudy_partOf_ResearchStudy
+$schema: https://json-schema.org/draft/2020-12/schema
+ResearchStudy_partOf_ResearchStudy:
+  $id: ResearchStudy_partOf_ResearchStudy
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Part of larger study. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: research_study
+  destination_type: ResearchStudy
+  is_primary: true
+  label: ResearchStudy_partOf_ResearchStudy
+  source_multiplicity: many
+  source_property_name: partOf
+  source_type: ResearchStudy
+  title: ResearchStudy_partOf_ResearchStudy
+  type: object

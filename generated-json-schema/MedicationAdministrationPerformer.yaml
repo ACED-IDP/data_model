@@ -8,8 +8,14 @@ id: MedicationAdministrationPerformer
 properties:
   actor:
     $ref: Reference.yaml
-    description: Indicates who or what performed the medication administration.
+    description: 'Indicates who or what performed the medication administration. Note:
+      following not in scope, see config.dependency_order. PractitionerRole Device
+      RelatedPerson'
     element_property: true
+    targets:
+    - backref: medication_administration_performer
+      type:
+        $ref: Patient.yaml
     title: Who performed the medication administration
   extension:
     description: May be used to represent additional information that is not part

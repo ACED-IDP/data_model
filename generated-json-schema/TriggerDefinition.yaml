@@ -91,7 +91,8 @@ properties:
     type: string
   timingReference:
     $ref: Reference.yaml
-    description: The timing of the event (if this is a periodic trigger).
+    description: 'The timing of the event (if this is a periodic trigger). Note: following
+      not in scope, see config.dependency_order. Schedule'
     element_property: true
     one_of_many: timing
     one_of_many_required: false

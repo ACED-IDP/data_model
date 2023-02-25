@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/SpecimenProcessing_additive_Substance
+$schema: https://json-schema.org/draft/2020-12/schema
+SpecimenProcessing_additive_Substance:
+  $id: SpecimenProcessing_additive_Substance
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Material used in the processing step. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: specimen_processing
+  destination_type: Substance
+  is_primary: true
+  label: SpecimenProcessing_additive_Substance
+  source_multiplicity: many
+  source_property_name: additive
+  source_type: SpecimenProcessing
+  title: SpecimenProcessing_additive_Substance
+  type: object

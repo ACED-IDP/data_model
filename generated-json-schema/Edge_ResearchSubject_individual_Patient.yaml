@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/ResearchSubject_individual_Patient
+$schema: https://json-schema.org/draft/2020-12/schema
+ResearchSubject_individual_Patient:
+  $id: ResearchSubject_individual_Patient
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Who is part of study. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: research_subject
+  destination_type: Patient
+  is_primary: true
+  label: ResearchSubject_individual_Patient
+  source_multiplicity: many
+  source_property_name: individual
+  source_type: ResearchSubject
+  title: ResearchSubject_individual_Patient
+  type: object

@@ -5,8 +5,9 @@ description: 'Clinical context of document.
 id: DocumentReferenceContext
 properties:
   encounter:
-    description: Describes the clinical encounter or type of care that the document
-      content is associated with.
+    description: 'Describes the clinical encounter or type of care that the document
+      content is associated with. Note: following not in scope, see config.dependency_order.
+      EpisodeOfCare Encounter'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -96,7 +97,8 @@ properties:
     element_property: true
     title: Additional details about where the content was created (e.g. clinical specialty)
   related:
-    description: Related identifiers or resources associated with the DocumentReference.
+    description: 'Related identifiers or resources associated with the DocumentReference.
+      Note: following not in scope, see config.dependency_order. Resource'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -111,6 +113,10 @@ properties:
     description: The Patient Information as known when the document was published.
       May be a reference to a version specific, or contained.
     element_property: true
+    targets:
+    - backref: document_reference_context
+      type:
+        $ref: Patient.yaml
     title: Patient demographics from source
 title: DocumentReferenceContext
 type: object

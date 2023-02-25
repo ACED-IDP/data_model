@@ -82,13 +82,17 @@ properties:
     title: Value that defines the context
   valueReference:
     $ref: Reference.yaml
-    binding_strength: example
-    binding_uri: http://hl7.org/fhir/ValueSet/use-context
-    description: A value that defines the context specified in this context of use.
+    description: 'A value that defines the context specified in this context of use.
       The interpretation of the value is defined by the code. See http://hl7.org/fhir/ValueSet/use-context
+      Note: following not in scope, see config.dependency_order. InsurancePlan Location
+      Organization HealthcareService Group PlanDefinition'
     element_property: true
     one_of_many: value
     one_of_many_required: true
+    targets:
+    - backref: usage_context
+      type:
+        $ref: ResearchStudy.yaml
     title: Value that defines the context
 required:
 - code

@@ -1,0 +1,17 @@
+$id: http://bmeg.io/schema/0.0.1/SpecimenContainer_additiveReference_Substance
+$schema: https://json-schema.org/draft/2020-12/schema
+SpecimenContainer_additiveReference_Substance:
+  $id: SpecimenContainer_additiveReference_Substance
+  allOf:
+  - $ref: EdgeConfig.yaml
+  description: Additive associated with container. (Generated Edge)
+  destination_multiplicity: many
+  destination_property_name: specimen_container
+  destination_type: Substance
+  is_primary: true
+  label: SpecimenContainer_additiveReference_Substance
+  source_multiplicity: many
+  source_property_name: additiveReference
+  source_type: SpecimenContainer
+  title: SpecimenContainer_additiveReference_Substance
+  type: object

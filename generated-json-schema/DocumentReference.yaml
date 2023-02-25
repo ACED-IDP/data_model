@@ -32,17 +32,22 @@ properties:
     title: Extension field for ``status``.
   authenticator:
     $ref: Reference.yaml
-    description: Which person or organization authenticates that this document is
-      valid.
+    description: 'Which person or organization authenticates that this document is
+      valid. Note: following not in scope, see config.dependency_order. Practitioner
+      PractitionerRole Organization'
     element_property: true
     title: Who/what authenticated the document
   author:
-    description: Identifies who is responsible for adding the information to the document.
+    description: 'Identifies who is responsible for adding the information to the
+      document. Note: following not in scope, see config.dependency_order. Organization
+      PractitionerRole Device RelatedPerson'
     element_property: true
     items:
       $ref: Reference.yaml
-    reference_backrefs:
-      Patient: author_document_reference
+    targets:
+    - backref: author_document_reference
+      type:
+        $ref: Patient.yaml
     title: Who and/or what authored the document
     type: array
   category:
@@ -81,8 +86,9 @@ properties:
     title: Clinical context of document
   custodian:
     $ref: Reference.yaml
-    description: Identifies the organization or group who is responsible for ongoing
-      maintenance of and access to the document.
+    description: 'Identifies the organization or group who is responsible for ongoing
+      maintenance of and access to the document. Note: following not in scope, see
+      config.dependency_order. Organization'
     element_property: true
     title: Organization which maintains the document
   date:
@@ -242,13 +248,16 @@ properties:
     type: string
   subject:
     $ref: Reference.yaml
-    description: Who or what the document is about. The document can be about a person,
+    description: 'Who or what the document is about. The document can be about a person,
       (patient or healthcare practitioner), a device (e.g. a machine) or even a group
       of subjects (such as a document about a herd of farm animals, or a set of patients
-      that share a common exposure).
+      that share a common exposure). Note: following not in scope, see config.dependency_order.
+      Group Practitioner Device'
     element_property: true
-    reference_backrefs:
-      Patient: subject_document_reference
+    targets:
+    - backref: subject_document_reference
+      type:
+        $ref: Patient.yaml
     title: Who/what is the subject of the document
   text:
     $ref: Narrative.yaml

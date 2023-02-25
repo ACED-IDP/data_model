@@ -50,13 +50,15 @@ properties:
     type: array
   context:
     $ref: Reference.yaml
-    description: The visit, admission, or other contact between patient and health
-      care provider during which the medication administration was performed.
+    description: 'The visit, admission, or other contact between patient and health
+      care provider during which the medication administration was performed. Note:
+      following not in scope, see config.dependency_order. EpisodeOfCare Encounter'
     element_property: true
     title: Encounter or Episode of Care administered as part of
   device:
-    description: The device used in administering the medication to the patient.  For
-      example, a particular infusion pump.
+    description: 'The device used in administering the medication to the patient.  For
+      example, a particular infusion pump. Note: following not in scope, see config.dependency_order.
+      Device'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -90,8 +92,9 @@ properties:
     one_of_many_required: true
     title: Start and end time of administration
   eventHistory:
-    description: A summary of the events of interest that have occurred, such as when
-      the administration was verified.
+    description: 'A summary of the events of interest that have occurred, such as
+      when the administration was verified. Note: following not in scope, see config.dependency_order.
+      Provenance'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -179,9 +182,6 @@ properties:
     title: What was administered
   medicationReference:
     $ref: Reference.yaml
-    binding_description: Codes identifying substance or product that can be administered.
-    binding_strength: example
-    binding_uri: http://hl7.org/fhir/ValueSet/medication-codes
     description: Identifies the medication that was administered. This is either a
       link to a resource representing the details of the medication or a simple attribute
       carrying a code that identifies the medication from a known list of medications.
@@ -189,8 +189,10 @@ properties:
     element_property: true
     one_of_many: medication
     one_of_many_required: true
-    reference_backrefs:
-      Medication: medication_administration
+    targets:
+    - backref: medication_administration
+      type:
+        $ref: Medication.yaml
     title: What was administered
   meta:
     $ref: Meta.yaml
@@ -225,12 +227,15 @@ properties:
     title: Information about the administration
     type: array
   partOf:
-    description: A larger event of which this particular event is a component or step.
+    description: 'A larger event of which this particular event is a component or
+      step. Note: following not in scope, see config.dependency_order. Procedure'
     element_property: true
     items:
       $ref: Reference.yaml
-    reference_backrefs:
-      MedicationAdministration: medication_administration
+    targets:
+    - backref: medication_administration
+      type:
+        $ref: MedicationAdministration.yaml
     title: Part of referenced event
     type: array
   performer:
@@ -256,15 +261,22 @@ properties:
     element_property: true
     items:
       $ref: Reference.yaml
-    reference_backrefs:
-      Condition: medication_administration
-      DiagnosticReport: medication_administration
-      Observation: medication_administration
+    targets:
+    - backref: medication_administration
+      type:
+        $ref: Condition.yaml
+    - backref: medication_administration
+      type:
+        $ref: Observation.yaml
+    - backref: medication_administration
+      type:
+        $ref: DiagnosticReport.yaml
     title: Condition or observation that supports why the medication was administered
     type: array
   request:
     $ref: Reference.yaml
-    description: The original request, instruction or authority to perform the administration.
+    description: 'The original request, instruction or authority to perform the administration.
+      Note: following not in scope, see config.dependency_order. MedicationRequest'
     element_property: true
     title: Request administration performed against
   resourceType:
@@ -307,14 +319,18 @@ properties:
     type: array
   subject:
     $ref: Reference.yaml
-    description: The person or animal or group receiving the medication.
+    description: 'The person or animal or group receiving the medication. Note: following
+      not in scope, see config.dependency_order. Group'
     element_property: true
-    reference_backrefs:
-      Patient: medication_administration
+    targets:
+    - backref: medication_administration
+      type:
+        $ref: Patient.yaml
     title: Who received medication
   supportingInformation:
-    description: Additional information (for example, patient height and weight) that
-      supports the administration of the medication.
+    description: 'Additional information (for example, patient height and weight)
+      that supports the administration of the medication. Note: following not in scope,
+      see config.dependency_order. Resource'
     element_property: true
     items:
       $ref: Reference.yaml
