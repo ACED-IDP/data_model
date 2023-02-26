@@ -274,6 +274,7 @@ def observation_generator(project_id, path) -> Iterator[Dict]:
             o_['gender'] = row.get('gender', None)
             o_['birthDate'] = row.get('birthDate', None)
             o_['us_core_ethnicity'] = row.get('us_core_ethnicity', None)
+            o_['address_orh_zip_designation_code'] = row.get('us_core_ethnicity', None)
 
         yield o_
 
