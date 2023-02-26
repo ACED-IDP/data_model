@@ -25,7 +25,6 @@ fi
 if [ ! -d "generated-json-schema" ]
 then
     python3 scripts/schema.py generate --output_path generated-json-schema
-    python3 scripts/schema.py publish --dictionary_path generated-json-schema/aced.json
 fi
 
 # transform into gen3 graph form, will skip study if already done.
@@ -100,3 +99,6 @@ nice -10 python3 scripts/load.py load  flat --project_id aced-$study --index obs
 
 nice -10 python3 scripts/load.py load  flat --project_id HOP-CORE --index patient --path studies/CORE/extractions/Patient.ndjson
 nice -10 python3 scripts/load.py load  flat --project_id HOP-CORE --index observation --path studies/CORE/extractions/Observation.ndjson
+
+
+# python3 scripts/schema.py publish --dictionary_path generated-json-schema/aced.json --production
