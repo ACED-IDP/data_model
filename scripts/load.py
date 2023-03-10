@@ -108,6 +108,7 @@ def create_index_from_source(_schema, _index, _type):
             mappings['gender'] = {"type": "keyword"}
             mappings['birthDate'] = {"type": "keyword"}
             mappings['us_core_ethnicity'] = {"type": "keyword"}
+            mappings['address_orh_zip_designation_code'] = {"type": "keyword"}
 
     return {
         # https://www.elastic.co/guide/en/elasticsearch/reference/current/dynamic.html#dynamic-parameters
@@ -274,7 +275,7 @@ def observation_generator(project_id, path) -> Iterator[Dict]:
             o_['gender'] = row.get('gender', None)
             o_['birthDate'] = row.get('birthDate', None)
             o_['us_core_ethnicity'] = row.get('us_core_ethnicity', None)
-            o_['address_orh_zip_designation_code'] = row.get('us_core_ethnicity', None)
+            o_['address_orh_zip_designation_code'] = row.get('address_orh_zip_designation_code', None)
 
         yield o_
 
