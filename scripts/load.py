@@ -96,6 +96,10 @@ def create_index_from_source(_schema, _index, _type):
             mappings[k] = {
                 "type": "date"
             }
+        elif 'array' in prop_type:
+            mappings[k] = {
+                "type": "keyword"
+            }
         else:
             # naive, there are probably other types
             mappings[k] = {"type": "float"}
@@ -326,7 +330,23 @@ def setup_aliases(alias, doc_type, elastic, field_array, index):
     # TODO - find a doc or code reference in guppy that explains how this is used
     alias_index = f'{DEFAULT_NAMESPACE}_{doc_type}-array-config_0'
     try:
-        elastic.create(alias_index, id='alias', doc_type='_doc',
+        mapping = {
+            "mappings": {
+                "_doc": {
+                    "properties": {
+                        "timestamp": {"type": "date"},
+                        "array": {"type": "keyword"},
+                    }
+                }
+            }
+        }
+        elastic.indices.create(index=alias_index, body=mapping)
+    except Exception as e:
+        logger.warning(f"Could not create index. {index} {str(e)}")
+        logger.warning("Continuing to load.")
+
+    try:
+        elastic.create(alias_index, id=alias, doc_type='_doc',
                        body={"timestamp": datetime.now().isoformat(), "array": field_array})
     except elasticsearch.exceptions.ConflictError:
         pass
@@ -375,11 +395,12 @@ def load():
               default=None,
               show_default=True,
               help='Max number of rows per index.')
-@click.option('--dictionary_url',
-              default='https://aced-public.s3.us-west-2.amazonaws.com/aced.json',
+@click.option('--schema_path', required=True,
+              default='generated-json-schema/aced.json',
               show_default=True,
-              help='Gen3 schema')
-def load_flat(project_id, index, path, limit, elastic_url, dictionary_url):
+              help='Path to gen3 schema json'
+              )
+def load_flat(project_id, index, path, limit, elastic_url, schema_path):
     """Gen3 elastic search (guppy)."""
     # replaces tube_lite
 
@@ -391,13 +412,13 @@ def load_flat(project_id, index, path, limit, elastic_url, dictionary_url):
     index = index.lower()
 
     # schema = requests.get(dictionary_url).json()
-    schema = DataDictionary(url=dictionary_url).schema
+    schema = DataDictionary(local_file=schema_path).schema
 
     if index == 'patient':
         doc_type = 'patient'
         index = f"{DEFAULT_NAMESPACE}_{doc_type}_0"
         alias = 'patient'
-        field_array = []
+        field_array = [k for k, v in schema['patient']['properties'].items() if 'array' in v.get('type', {})]
 
         # create the index and write data into it.
         write_bulk_http(elastic=elastic, index=index, doc_type=doc_type, limit=limit,
@@ -412,7 +433,8 @@ def load_flat(project_id, index, path, limit, elastic_url, dictionary_url):
         doc_type = 'observation'
         index = f"{DEFAULT_NAMESPACE}_{doc_type}_0"
         alias = 'observation'
-        field_array = ['data_format', 'data_type', '_file_id', 'medications', 'conditions']
+        field_array = [k for k, v in schema['observation']['properties'].items() if 'array' in v.get('type', {})]
+        # field_array = ['data_format', 'data_type', '_file_id', 'medications', 'conditions']
 
         # create the index and write data into it.
         write_bulk_http(elastic=elastic, index=index, doc_type=doc_type, limit=limit,
@@ -424,8 +446,9 @@ def load_flat(project_id, index, path, limit, elastic_url, dictionary_url):
         doc_type = 'file'
         alias = 'file'
         index = f"{DEFAULT_NAMESPACE}_{doc_type}_0"
-        field_array = ["project_code", "program_name"]
 
+        field_array = [k for k, v in schema['document_reference']['properties'].items() if 'array' in v.get('type',
+                                                                                                            {})]
         # create the index and write data into it.
         write_bulk_http(elastic=elastic, index=index, doc_type=doc_type, limit=limit,
                         generator=file_generator(project_id, path), schema=schema)

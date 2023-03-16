@@ -472,32 +472,20 @@ def _gen3_schemas(gen3_config, output_path, schemas, gen3_fixtures, edge_schemas
                 properties_to_delete.append(name_)
                 continue
             elif property_type in ['array']:
-                properties_to_delete.append(name_)
                 if 'description' in property_:
-                    property_['description'] += " (array)"
-
-                item_ref = None
-                if '$ref' in property_['items']:
-                    item_ref = property_['items']['$ref'].split('.')[0]
-
-                if item_ref in ['CodeableConcept']:
-                    properties_to_add.append((f"{name_}_coding", {'type': 'string', 'title': "Coded representation."}))
-
-                if item_ref in ['Quantity']:
-                    properties_to_add.append((f"{name_}_unit", {'type': 'string', 'title': "Unit representation."}))
-                    properties_to_add.append((f"{name_}_value", {'type': 'number', 'title': "Numerical value (with implicit precision)"}))
-
-                is_expandable = item_ref in ['Identifier']
-
-                property_['type'] = 'string'
-
-                del property_['items']
-                properties_to_add.append((name_, property_))
-                if is_expandable:
-                    for i in range(1, IDENTIFIER_LIST_SIZE):
-                        properties_to_add.append(
-                            (f"{name_}_{i}",
-                             {'type': 'string', 'title': property_.get('title', 'An identifier.')}))
+                    item_type = None
+                    if '$ref' in property_['items']:
+                        item_type = property_['items']['$ref']
+                    else:
+                        assert 'type' in property_['items'], property_['items']
+                        item_type = property_['items']['type']
+                    assert item_type, property_
+                    property_['description'] += f" (array: {item_type}"
+                print(schema['title'], name_, property_['items'], "list")
+                property_['type'] = 'array'
+                property_['items'] = {
+                    "type": "string"
+                }
                 continue
             elif 'one_of_many' in property_ and property_type in schemas:
                 if property_type in ['CodeableConcept']:

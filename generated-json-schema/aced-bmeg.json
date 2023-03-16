@@ -493,12 +493,12 @@
         },
         "authenticator": {
           "$ref": "http://bmeg.io/schema/0.0.1/Reference",
-          "description": "Which person or organization authenticates that this document is valid. Note: following not in scope, see config.dependency_order. Practitioner PractitionerRole Organization",
+          "description": "Which person or organization authenticates that this document is valid. Note: following not in scope, see config.dependency_order. Organization Practitioner PractitionerRole",
           "element_property": true,
           "title": "Who/what authenticated the document"
         },
         "author": {
-          "description": "Identifies who is responsible for adding the information to the document. Note: following not in scope, see config.dependency_order. Organization PractitionerRole Device RelatedPerson",
+          "description": "Identifies who is responsible for adding the information to the document. Note: following not in scope, see config.dependency_order. Organization PractitionerRole RelatedPerson Device",
           "element_property": true,
           "items": {
             "$ref": "http://bmeg.io/schema/0.0.1/Reference"
@@ -712,7 +712,7 @@
         },
         "subject": {
           "$ref": "http://bmeg.io/schema/0.0.1/Reference",
-          "description": "Who or what the document is about. The document can be about a person, (patient or healthcare practitioner), a device (e.g. a machine) or even a group of subjects (such as a document about a herd of farm animals, or a set of patients that share a common exposure). Note: following not in scope, see config.dependency_order. Group Practitioner Device",
+          "description": "Who or what the document is about. The document can be about a person, (patient or healthcare practitioner), a device (e.g. a machine) or even a group of subjects (such as a document about a herd of farm animals, or a set of patients that share a common exposure). Note: following not in scope, see config.dependency_order. Device Group Practitioner",
           "element_property": true,
           "targets": [
             {
@@ -1190,7 +1190,7 @@
           "title": "Extension field for ``valueTime``."
         },
         "basedOn": {
-          "description": "A plan, proposal or order that is fulfilled in whole or in part by this event.  For example, a MedicationRequest may require a patient to have laboratory test performed before  it is dispensed. Note: following not in scope, see config.dependency_order. ServiceRequest DeviceRequest ImmunizationRecommendation NutritionOrder CarePlan",
+          "description": "A plan, proposal or order that is fulfilled in whole or in part by this event.  For example, a MedicationRequest may require a patient to have laboratory test performed before  it is dispensed. Note: following not in scope, see config.dependency_order. CarePlan DeviceRequest ServiceRequest NutritionOrder ImmunizationRecommendation",
           "element_property": true,
           "items": {
             "$ref": "http://bmeg.io/schema/0.0.1/Reference"
@@ -1256,7 +1256,7 @@
           "title": "Why the result is missing"
         },
         "derivedFrom": {
-          "description": "The target resource that represents a measurement from which this observation value is derived. For example, a calculated anion gap or a fetal measurement based on an ultrasound image. Note: following not in scope, see config.dependency_order. QuestionnaireResponse ImagingStudy MolecularSequence Media",
+          "description": "The target resource that represents a measurement from which this observation value is derived. For example, a calculated anion gap or a fetal measurement based on an ultrasound image. Note: following not in scope, see config.dependency_order. QuestionnaireResponse Media ImagingStudy MolecularSequence",
           "element_property": true,
           "items": {
             "$ref": "http://bmeg.io/schema/0.0.1/Reference"
@@ -1366,7 +1366,7 @@
           "type": "array"
         },
         "hasMember": {
-          "description": "This observation is a group observation (e.g. a battery, a panel of tests, a set of vital sign measurements) that includes the target as a member of the group. Note: following not in scope, see config.dependency_order. QuestionnaireResponse MolecularSequence",
+          "description": "This observation is a group observation (e.g. a battery, a panel of tests, a set of vital sign measurements) that includes the target as a member of the group. Note: following not in scope, see config.dependency_order. MolecularSequence QuestionnaireResponse",
           "element_property": true,
           "items": {
             "$ref": "http://bmeg.io/schema/0.0.1/Reference"
@@ -1470,7 +1470,7 @@
           "type": "array"
         },
         "partOf": {
-          "description": "A larger event of which this particular Observation is a component or step.  For example,  an observation as part of a procedure. Note: following not in scope, see config.dependency_order. Immunization Procedure ImagingStudy MedicationDispense MedicationStatement",
+          "description": "A larger event of which this particular Observation is a component or step.  For example,  an observation as part of a procedure. Note: following not in scope, see config.dependency_order. Procedure Immunization ImagingStudy MedicationDispense MedicationStatement",
           "element_property": true,
           "items": {
             "$ref": "http://bmeg.io/schema/0.0.1/Reference"
@@ -1487,7 +1487,7 @@
           "type": "array"
         },
         "performer": {
-          "description": "Who was responsible for asserting the observed value as \"true\". Note: following not in scope, see config.dependency_order. Organization PractitionerRole RelatedPerson CareTeam",
+          "description": "Who was responsible for asserting the observed value as \"true\". Note: following not in scope, see config.dependency_order. Organization PractitionerRole CareTeam RelatedPerson",
           "element_property": true,
           "items": {
             "$ref": "http://bmeg.io/schema/0.0.1/Reference"
@@ -1552,7 +1552,7 @@
         },
         "subject": {
           "$ref": "http://bmeg.io/schema/0.0.1/Reference",
-          "description": "The patient, or group of patients, location, or device this observation is about and into whose record the observation is placed. If the actual focus of the observation is different from the subject (or a sample of, part, or region of the subject), the `focus` element or the `code` itself specifies the actual focus of the observation. Note: following not in scope, see config.dependency_order. Location Organization Procedure Group Device Practitioner",
+          "description": "The patient, or group of patients, location, or device this observation is about and into whose record the observation is placed. If the actual focus of the observation is different from the subject (or a sample of, part, or region of the subject), the `focus` element or the `code` itself specifies the actual focus of the observation. Note: following not in scope, see config.dependency_order. Procedure Group Organization Location Device Practitioner",
           "element_property": true,
           "targets": [
             {
@@ -2894,7 +2894,7 @@
           "type": "string"
         },
         "generalPractitioner": {
-          "description": "Patient's nominated care provider. Note: following not in scope, see config.dependency_order. Practitioner PractitionerRole Organization",
+          "description": "Patient's nominated care provider. Note: following not in scope, see config.dependency_order. Organization Practitioner PractitionerRole",
           "element_property": true,
           "items": {
             "$ref": "http://bmeg.io/schema/0.0.1/Reference"
@@ -3051,7 +3051,7 @@
         },
         "authorReference": {
           "$ref": "http://bmeg.io/schema/0.0.1/Reference",
-          "description": "The individual responsible for making the annotation. Note: following not in scope, see config.dependency_order. Practitioner RelatedPerson Organization",
+          "description": "The individual responsible for making the annotation. Note: following not in scope, see config.dependency_order. RelatedPerson Practitioner Organization",
           "element_property": true,
           "one_of_many": "author",
           "one_of_many_required": false,
@@ -3439,7 +3439,7 @@
         },
         "valueReference": {
           "$ref": "http://bmeg.io/schema/0.0.1/Reference",
-          "description": "A value that defines the context specified in this context of use. The interpretation of the value is defined by the code. See http://hl7.org/fhir/ValueSet/use-context Note: following not in scope, see config.dependency_order. InsurancePlan Location Organization HealthcareService Group PlanDefinition",
+          "description": "A value that defines the context specified in this context of use. The interpretation of the value is defined by the code. See http://hl7.org/fhir/ValueSet/use-context Note: following not in scope, see config.dependency_order. Group Organization PlanDefinition InsurancePlan Location HealthcareService",
           "element_property": true,
           "one_of_many": "value",
           "one_of_many_required": true,
@@ -3937,7 +3937,7 @@
           "title": "Extension field for ``status``."
         },
         "basedOn": {
-          "description": "Details concerning a service requested. Note: following not in scope, see config.dependency_order. MedicationRequest ServiceRequest ImmunizationRecommendation NutritionOrder CarePlan",
+          "description": "Details concerning a service requested. Note: following not in scope, see config.dependency_order. CarePlan ServiceRequest NutritionOrder ImmunizationRecommendation MedicationRequest",
           "element_property": true,
           "items": {
             "$ref": "http://bmeg.io/schema/0.0.1/Reference"
@@ -4117,7 +4117,7 @@
           "type": "array"
         },
         "performer": {
-          "description": "The diagnostic service that is responsible for issuing the report. Note: following not in scope, see config.dependency_order. CareTeam Practitioner PractitionerRole Organization",
+          "description": "The diagnostic service that is responsible for issuing the report. Note: following not in scope, see config.dependency_order. Organization CareTeam Practitioner PractitionerRole",
           "element_property": true,
           "items": {
             "$ref": "http://bmeg.io/schema/0.0.1/Reference"
@@ -4157,7 +4157,7 @@
           "type": "array"
         },
         "resultsInterpreter": {
-          "description": "The practitioner or organization that is responsible for the report's conclusions and interpretations. Note: following not in scope, see config.dependency_order. CareTeam Practitioner PractitionerRole Organization",
+          "description": "The practitioner or organization that is responsible for the report's conclusions and interpretations. Note: following not in scope, see config.dependency_order. Organization CareTeam Practitioner PractitionerRole",
           "element_property": true,
           "items": {
             "$ref": "http://bmeg.io/schema/0.0.1/Reference"
@@ -4203,7 +4203,7 @@
         },
         "subject": {
           "$ref": "http://bmeg.io/schema/0.0.1/Reference",
-          "description": "The subject of the report. Usually, but not always, this is a patient. However, diagnostic services also perform analyses on specimens collected from a variety of other sources. Note: following not in scope, see config.dependency_order. Location Organization Procedure Group Device Practitioner",
+          "description": "The subject of the report. Usually, but not always, this is a patient. However, diagnostic services also perform analyses on specimens collected from a variety of other sources. Note: following not in scope, see config.dependency_order. Procedure Group Organization Location Device Practitioner",
           "element_property": true,
           "targets": [
             {
@@ -4511,7 +4511,7 @@
           "type": "string"
         },
         "insurance": {
-          "description": "Insurance plans, coverage extensions, pre-authorizations and/or pre-determinations that may be relevant to the Task. Note: following not in scope, see config.dependency_order. ClaimResponse Coverage",
+          "description": "Insurance plans, coverage extensions, pre-authorizations and/or pre-determinations that may be relevant to the Task. Note: following not in scope, see config.dependency_order. Coverage ClaimResponse",
           "element_property": true,
           "items": {
             "$ref": "http://bmeg.io/schema/0.0.1/Reference"
@@ -4600,7 +4600,7 @@
         },
         "owner": {
           "$ref": "http://bmeg.io/schema/0.0.1/Reference",
-          "description": "Individual organization or Device currently responsible for task execution. Note: following not in scope, see config.dependency_order. Organization HealthcareService PractitionerRole RelatedPerson CareTeam",
+          "description": "Individual organization or Device currently responsible for task execution. Note: following not in scope, see config.dependency_order. Organization PractitionerRole CareTeam RelatedPerson HealthcareService",
           "element_property": true,
           "targets": [
             {
@@ -4683,7 +4683,7 @@
         },
         "requester": {
           "$ref": "http://bmeg.io/schema/0.0.1/Reference",
-          "description": "The creator of the task. Note: following not in scope, see config.dependency_order. Organization PractitionerRole Device RelatedPerson",
+          "description": "The creator of the task. Note: following not in scope, see config.dependency_order. Organization PractitionerRole RelatedPerson Device",
           "element_property": true,
           "targets": [
             {
@@ -5154,7 +5154,7 @@
         },
         "asserter": {
           "$ref": "http://bmeg.io/schema/0.0.1/Reference",
-          "description": "Individual who is making the condition statement. Note: following not in scope, see config.dependency_order. Practitioner RelatedPerson PractitionerRole",
+          "description": "Individual who is making the condition statement. Note: following not in scope, see config.dependency_order. RelatedPerson Practitioner PractitionerRole",
           "element_property": true,
           "targets": [
             {
@@ -5379,7 +5379,7 @@
         },
         "recorder": {
           "$ref": "http://bmeg.io/schema/0.0.1/Reference",
-          "description": "Individual who recorded the record and takes responsibility for its content. Note: following not in scope, see config.dependency_order. Practitioner RelatedPerson PractitionerRole",
+          "description": "Individual who recorded the record and takes responsibility for its content. Note: following not in scope, see config.dependency_order. RelatedPerson Practitioner PractitionerRole",
           "element_property": true,
           "targets": [
             {
@@ -6088,7 +6088,7 @@
           "title": "When fulfillment sought"
         },
         "recipient": {
-          "description": "For requests that are targeted to more than on potential recipient/target, for whom is fulfillment sought? Note: following not in scope, see config.dependency_order. Organization Group PractitionerRole RelatedPerson",
+          "description": "For requests that are targeted to more than on potential recipient/target, for whom is fulfillment sought? Note: following not in scope, see config.dependency_order. Group Organization PractitionerRole RelatedPerson",
           "element_property": true,
           "items": {
             "$ref": "http://bmeg.io/schema/0.0.1/Reference"
@@ -8754,7 +8754,7 @@
         },
         "onBehalfOf": {
           "$ref": "http://bmeg.io/schema/0.0.1/Reference",
-          "description": "A reference to an application-usable description of the identity that is represented by the signature. Note: following not in scope, see config.dependency_order. Organization PractitionerRole Device RelatedPerson",
+          "description": "A reference to an application-usable description of the identity that is represented by the signature. Note: following not in scope, see config.dependency_order. Organization PractitionerRole RelatedPerson Device",
           "element_property": true,
           "targets": [
             {
@@ -8814,7 +8814,7 @@
         },
         "who": {
           "$ref": "http://bmeg.io/schema/0.0.1/Reference",
-          "description": "A reference to an application-usable description of the identity that signed  (e.g. the signature used their private key). Note: following not in scope, see config.dependency_order. Organization PractitionerRole Device RelatedPerson",
+          "description": "A reference to an application-usable description of the identity that signed  (e.g. the signature used their private key). Note: following not in scope, see config.dependency_order. Organization PractitionerRole RelatedPerson Device",
           "element_property": true,
           "targets": [
             {
@@ -10824,7 +10824,7 @@
       "properties": {
         "actor": {
           "$ref": "http://bmeg.io/schema/0.0.1/Reference",
-          "description": "Indicates who or what performed the medication administration. Note: following not in scope, see config.dependency_order. PractitionerRole Device RelatedPerson",
+          "description": "Indicates who or what performed the medication administration. Note: following not in scope, see config.dependency_order. PractitionerRole RelatedPerson Device",
           "element_property": true,
           "targets": [
             {

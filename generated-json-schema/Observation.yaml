@@ -43,8 +43,8 @@ properties:
     description: 'A plan, proposal or order that is fulfilled in whole or in part
       by this event.  For example, a MedicationRequest may require a patient to have
       laboratory test performed before  it is dispensed. Note: following not in scope,
-      see config.dependency_order. ServiceRequest DeviceRequest ImmunizationRecommendation
-      NutritionOrder CarePlan'
+      see config.dependency_order. CarePlan DeviceRequest ServiceRequest NutritionOrder
+      ImmunizationRecommendation'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -113,8 +113,7 @@ properties:
     description: 'The target resource that represents a measurement from which this
       observation value is derived. For example, a calculated anion gap or a fetal
       measurement based on an ultrasound image. Note: following not in scope, see
-      config.dependency_order. QuestionnaireResponse ImagingStudy MolecularSequence
-      Media'
+      config.dependency_order. QuestionnaireResponse Media ImagingStudy MolecularSequence'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -229,8 +228,8 @@ properties:
   hasMember:
     description: 'This observation is a group observation (e.g. a battery, a panel
       of tests, a set of vital sign measurements) that includes the target as a member
-      of the group. Note: following not in scope, see config.dependency_order. QuestionnaireResponse
-      MolecularSequence'
+      of the group. Note: following not in scope, see config.dependency_order. MolecularSequence
+      QuestionnaireResponse'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -334,7 +333,7 @@ properties:
   partOf:
     description: 'A larger event of which this particular Observation is a component
       or step.  For example,  an observation as part of a procedure. Note: following
-      not in scope, see config.dependency_order. Immunization Procedure ImagingStudy
+      not in scope, see config.dependency_order. Procedure Immunization ImagingStudy
       MedicationDispense MedicationStatement'
     element_property: true
     items:
@@ -348,7 +347,7 @@ properties:
   performer:
     description: 'Who was responsible for asserting the observed value as "true".
       Note: following not in scope, see config.dependency_order. Organization PractitionerRole
-      RelatedPerson CareTeam'
+      CareTeam RelatedPerson'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -405,7 +404,7 @@ properties:
       of the observation is different from the subject (or a sample of, part, or region
       of the subject), the `focus` element or the `code` itself specifies the actual
       focus of the observation. Note: following not in scope, see config.dependency_order.
-      Location Organization Procedure Group Device Practitioner'
+      Procedure Group Organization Location Device Practitioner'
     element_property: true
     targets:
     - backref: subject_observation

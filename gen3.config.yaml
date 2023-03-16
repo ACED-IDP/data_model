@@ -286,21 +286,24 @@ extra_properties:
         type: string
         description: Gen3 scaffolding
     category_coding:
-        type: string
+        type: array
+        items:
+          type: string
     category_coding_display:
         type: string
     content_url:
         type: string
     patient_id:
         type: string
-    type_coding:
-        type: string
-    type_coding_1:
-        type: string
-    type_coding_display:
-        type: string
-    type_coding_display_1:
-        type: string
+
+#    type_coding:
+#        type: string
+#    type_coding_1:
+#        type: string
+#    type_coding_display:
+#        type: string
+#    type_coding_display_1:
+#        type: string
 
   # add us-core-race, us-core-ethnicity and synthea extensions
   Patient:
