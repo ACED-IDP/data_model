@@ -68,7 +68,7 @@ python3 scripts/load.py init
 
 
 # upload will start multiple processes to submit files to bucket and update studies DocumentReferences
-nice -n 10 scripts/upload-files Alcoholism aced-ohsu
+nice -n 10 scripts/upload-files Alcoholism aced-ohsu-staging
 nice -n 10 scripts/upload-files Alzheimers aced-ucl
 nice -n 10 scripts/upload-files Breast_Cancer aced-manchester
 nice -n 10 scripts/upload-files Colon_Cancer aced-stanford
