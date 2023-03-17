@@ -27,10 +27,13 @@ ignored_properties:
 
 
 dependency_order:
+  # gen3 scaffolding
   - _definitions.yaml
   - _terms.yaml
+  # gen3 required objects
   - Program
   - Project
+  # FHIR - "in scope"
 #  - Organization
 #  - Location
 #  - Practitioner
@@ -48,8 +51,6 @@ dependency_order:
   - MedicationAdministration
 #  - ImagingStudy
 #  - Procedure
-#  - Questionnaire
-#  - QuestionnaireResponse
   - DocumentReference
   - Substance
   - Task
