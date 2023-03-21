@@ -8,7 +8,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime
 from importlib import import_module
-from typing import TextIO, Optional, List
+from typing import TextIO, Optional, List, Tuple
 
 import click
 import pathlib
@@ -73,71 +73,65 @@ def bundle():
     pass
 
 
-def _simple_render(value, name_, **kwargs) -> str:
+def _simple_render(value, name_, **kwargs) -> List[Tuple]:
+    """Render a value, simplified for gen3."""
 
     def _to_list(x):
         """Ensure item is list."""
         if isinstance(x, list):
             return x
-        return[x]
+        return [x]
 
-    def _name_values(name, values):
-        """Adds index to name if list > 1."""
-        # return list of tuple name, value
+    def _noop(v_, name):
+        return [(name, v_)]
 
-        if not values:
-            return [(name, values)]
+    def _to_str(v_, name):
+        return [(name, v_)]
 
-        _nv = []
-        for i_, v_ in enumerate(values):
-            if i_ > 0:
-                _nv.append((f"{name}_{i_}", v_))
-            else:
-                _nv.append((name, v_))
-        return _nv
+    def _to_iso(v_, name):
+        return [(name, v_.isoformat())]
 
-    def _noop(v_, name, **kwargs):
-        return _name_values(name, [v_])
+    def _codeable_concept(v_, name):
+        codings = []
+        if isinstance(v_, list):
+            for concept in v_:
+                for coding in concept.coding:
+                    codings.extend(_coding(coding, name))
+        else:
+            for coding in v_.coding:
+                codings.extend(_coding(coding, name))
 
-    def _to_str(v_, name, **kwargs):
-        return _name_values(name, [str(v_)])
+        return codings
+        # l_ = _to_list(l_)
+        # _nv = []
+        # for i_, v_ in enumerate(l_):
+        #     text_ = v_.text
+        #     if not text_:
+        #         text_ = next(iter([coding[1] for coding in codings if 'coding_display' in coding[0]]), None)
+        #     array_name = name
+        #     if i_ > 0:
+        #         array_name = name + f"_{i_}"
+        #     _nv.append((f"{array_name}", [text_]))
+        #
+        #     for index_, coding in enumerate(codings):
+        #         if 'coding_display' in coding[0] and text_ and index_ == 0:
+        #             continue
+        #         if 'coding_display' in coding[0]:
+        #             _nv.append((f"{array_name}_{index_}", [coding[1]]))
+        #             continue
+        #
+        #         _nv.append((f"{array_name}_{coding[0]}", [coding[1]]))
+        # return _nv
 
-    def _to_iso(l_, name, **kwargs):
+    def _contact_point(l_, name):
         l_ = _to_list(l_)
-        return _name_values(name, [v_.isoformat() for v_ in l_])
+        return [(name, [f"{v_.system}:{v_.use}:{v_.value}" for v_ in l_])]
 
-    def _codeable_concept(l_, name, **kwargs):
+    def _identifier(l_, name):
         l_ = _to_list(l_)
-        _nv = []
-        for i_, v_ in enumerate(l_):
-            codings = _coding(v_.coding, 'coding')
-            text_ = v_.text
-            if not text_:
-                text_ = next(iter([coding[1] for coding in codings if 'coding_display' in coding[0]]), None)
-            array_name = name
-            if i_ > 0:
-                array_name = name + f"_{i_}"
-            _nv.append((f"{array_name}", text_))
+        return [(name, [f"{v_.system}#{v_.value}" for v_ in l_])]
 
-            for index_, coding in enumerate(codings):
-                if 'coding_display' in coding[0] and text_ and index_ == 0:
-                    continue
-                if 'coding_display' in coding[0]:
-                    _nv.append((f"{array_name}_{index_}", coding[1]))
-                    continue
-
-                _nv.append((f"{array_name}_{coding[0]}", coding[1]))
-        return _nv
-
-    def _contact_point(l_, name, **kwargs):
-        l_ = _to_list(l_)
-        return _name_values(name, [f"{v_.system}:{v_.use}:{v_.value}" for v_ in l_])
-
-    def _identifier(l_, name, **kwargs):
-        l_ = _to_list(l_)
-        return _name_values(name, [f"{v_.system}#{v_.value}" for v_ in l_])
-
-    def _patient_communication(l_, name, **kwargs):
+    def _patient_communication(l_, name):
         l_ = _to_list(l_)
         _nv = []
         array_name = name
@@ -152,11 +146,11 @@ def _simple_render(value, name_, **kwargs) -> str:
             #     _nv.append((f"{array_name}_{codeable_concept[0]}", codeable_concept[1]))
         return _nv
 
-    def _human_name(l_, name, **kwargs):
+    def _human_name(l_, name):
         l_ = _to_list(l_)
-        return _name_values(name, [f"{v_.family} {' '.join(v_.given)}" for v_ in l_])
+        return [(name, [f"{v_.family} {' '.join(v_.given)}" for v_ in l_])]
 
-    def _address(l_, name, **kwargs):
+    def _address(l_, name):
         l_ = _to_list(l_)
         for v_ in l_:
             # first one wins
@@ -169,11 +163,11 @@ def _simple_render(value, name_, **kwargs) -> str:
                 return extensions + [(name, ' '.join([_ for _ in a_ if _]))]
             return [(name, ' '.join([_ for _ in a_ if _]))]
 
-    def _reference(l_, name, **kwargs):
+    def _reference(l_, name):
         l_ = _to_list(l_)
-        return _name_values(name, [v_.reference for v_ in l_])
+        return [(name, [v_.reference for v_ in l_])]
 
-    def _document_reference_content(l_, name, **kwargs):
+    def _document_reference_content(l_, name):
         l_ = _to_list(l_)
         urls = []
         for v_ in l_:
@@ -181,34 +175,28 @@ def _simple_render(value, name_, **kwargs) -> str:
                 urls.append(f'data:,{str(v_.attachment.data, encoding="ascii", errors="ignore")}')
             else:
                 urls.append(v_.attachment.url)
-        return _name_values(name + "_url", urls)
+        return [(name + "_url", urls)]
 
-    def _quantity(l_, name, **kwargs):
-        l_ = _to_list(l_)
+    def _quantity(v_, name):
         _nv = []
-        for i_, v_ in enumerate(l_):
-            array_name = name
-            if i_ > 0:
-                array_name = name + f"_{i_}"
-            unit_display = ''
-            if v_.unit:
-                unit_display = f' {v_.unit}'
-            _nv.append((f"{array_name}", f"{v_.value}{unit_display}"))
-            _nv.append((f"{array_name}_value", float(str(v_.value))))  # decimal.Decimal
-            _nv.append((f"{array_name}_unit", f"{v_.system}#{v_.unit}"))
+        array_name = name
+        unit_display = ''
+        if v_.unit:
+            unit_display = f' {v_.unit}'
+        _nv.append((f"{array_name}", f"{v_.value}{unit_display}"))
+        _nv.append((f"{array_name}_value", float(str(v_.value))))  # decimal.Decimal
+        _nv.append((f"{array_name}_unit", f"{v_.system}#{v_.unit}"))
         return _nv
 
-    def _coding(l_, name, **kwargs):
-        l_ = _to_list(l_)
-
+    def _coding(v_, name):
         # quick fix for coherent data, should really be in coherent_refactor_bundle
-        for v_ in l_:
-            if v_.display == 'survey':
-                v_.display = 'Survey'
+        if v_.display == 'survey':
+            v_.display = 'Survey'
 
-        _nv = _name_values(f"{name}_display", [f"{v_.display}" for v_ in l_])
-        _nv.extend(_name_values(name, [f"{v_.system}#{v_.code}" for v_ in l_]))
-        return _nv
+        return [
+            (f"{name}_coding", f"{v_.system}#{v_.code}"),
+            (name, v_.display),
+        ]
 
     def _multi(v_, prefix):
         """Return single tuple"""
@@ -217,13 +205,14 @@ def _simple_render(value, name_, **kwargs) -> str:
             if p_val:
                 list_of_name_vals = _simple_render(p_val, name_=attr)
                 # ignore the name from simple render
-                return [nv_[1] for nv_ in list_of_name_vals]
+                return list_of_name_vals
 
-    def _observation_component(l_, name, **kwargs):
+    def _observation_component(l_, name):
         """Create property names from component coding displays"""
-        l_ = _to_list(l_)
         _nv = []
-        for i_, v_ in enumerate(l_):
+        if not isinstance(l_, list):
+            l_ = [l_]
+        for v_ in l_:
             value_parts = _multi(v_, prefix='value')
             array_name = v_.code.coding[0].display.replace('-', '_').replace(' ', '_').lower()
             for value_part in value_parts:
@@ -235,66 +224,34 @@ def _simple_render(value, name_, **kwargs) -> str:
                 _nv.append((edited_name, value_part[1]))
         return _nv
 
-    def _task_input(l_, name, **kwargs):
-        l_ = _to_list(l_)
+    def _task_input(l_, name):
         _nv = []
-        for i_, v_ in enumerate(l_):
+        for v_ in l_:
             codings = _codeable_concept(v_.type, 'type')
             value_parts = _multi(v_, prefix='value')
             array_name = name
-            if i_ > 0:
-                array_name = name + f"_{i_}"
             for value_part in value_parts:
                 _nv.append((f"{array_name}_{value_part[0]}", value_part[1]))
             for coding in codings:
                 _nv.append((f"{array_name}_{coding[0]}", coding[1]))
         return _nv
 
-    def _task_output(l_, name, **kwargs):
-        l_ = _to_list(l_)
+    def _task_output(l_, name):
         _nv = []
-        for i_, v_ in enumerate(l_):
+        for v_ in l_:
             codings = _codeable_concept(v_.type, 'type')
             value_parts = _multi(v_, prefix='value')
             array_name = name
-            if i_ > 0:
-                array_name = name + f"_{i_}"
             for value_part in value_parts:
                 _nv.append((f"{array_name}_{value_part[0]}", value_part[1]))
             for coding in codings:
                 _nv.append((f"{array_name}_{coding[0]}", coding[1]))
         return _nv
 
-    def _sampled_data(l_, name, **kwargs):
-        l_ = _to_list(l_)
-        return _name_values(name, [v_.data for v_ in l_])
+    def _sampled_data(v_, name):
+        return [(name, v_.data)]
 
-    # # this version flattens, does not create property names
-    # def _extension(l_, name, depth=0, **kwargs):
-    #     if depth == 2:
-    #         return []
-    #     l_ = _to_list(l_)
-    #     _nv = []
-    #     for i_, v_ in enumerate(l_):
-    #         array_name = name
-    #         if i_ > 0 and depth == 0:
-    #             array_name = name + f"_{i_}"
-    #         if depth == 0:
-    #             _nv.append((f"{array_name}_url", v_.url))
-    #         value_parts = _multi(v_, prefix='value')
-    #         if value_parts:
-    #             for value_part in value_parts:
-    #                 if depth == 0:
-    #                     _nv.append((f"{array_name}_{value_part[0]}", value_part[1]))
-    #                 else:
-    #                     _nv.append((f"{value_part[0]}", value_part[1]))
-    #         else:
-    #             extensions = _extension(v_.extension, name=name, depth=depth+1)
-    #             for extension in extensions:
-    #                 _nv.append((f"{array_name}_{extension[0]}", extension[1]))
-    #     return _nv
-
-    def _extension(l_, name, depth=0, **kwargs):
+    def _extension(l_, name, depth=0):
         """Creates property names from """
         if depth == 2:
             return []
@@ -328,9 +285,8 @@ def _simple_render(value, name_, **kwargs) -> str:
                     _nv.append((f"{array_name}{edited_name}", extension[1]))
         return _nv
 
-    def _decimal(l_, name, depth=0, **kwargs):
-        l_ = _to_list(l_)
-        return _name_values(name, [float(str(v_)) for v_ in l_])
+    def _decimal(v_, name):
+        return [(name, float(str(v_)))]
 
     mapping = {
         'str': _noop,
@@ -361,20 +317,12 @@ def _simple_render(value, name_, **kwargs) -> str:
     if isinstance(value, list):
         _type = type(value[0])
     if _type.__name__ not in mapping:
-        print(f"H2 {_type}")
+        print(f"Missing mapping for: {_type}")
         return [(name_, str(value))]
 
     mapped_values = mapping[_type.__name__](value, name=name_)
 
-    named_mapped_values = []
-    if mapped_values and isinstance(mapped_values, list):
-        for index, mapped_value in enumerate(mapped_values):
-            if index > 0:
-                name_ = f"{name_}_{index}"
-            named_mapped_values.append((name_, mapped_value))
-    else:
-        named_mapped_values.append((name_, mapped_values))
-    return named_mapped_values
+    return mapped_values
 
 
 def _simplify(resource: FHIRAbstractModel, schemas: dict) -> dict:
@@ -389,12 +337,10 @@ def _simplify(resource: FHIRAbstractModel, schemas: dict) -> dict:
         if p_.name not in schema['properties']:
             continue
         p_val = getattr(resource, p_.name)
-        if not p_val or p_val == {}:
+        if p_val is None or p_val == {}:
             continue
         for item in _simple_render(p_val, name_=p_.name):
-            if len(item[1]) != 2:
-                print(f"Error: no mapping for {p_.name} {p_val}")
-            name, value = item[1]
+            name, value = item
             if value and name not in schema['properties']:
                 print(f"Added {resource.resource_type}.{name} - not in schema.")
                 type_ = 'string'
@@ -402,8 +348,16 @@ def _simplify(resource: FHIRAbstractModel, schemas: dict) -> dict:
                     type_ = 'number'
                 schema['properties'][name] = {'type': type_}
             # skip nulls
-            if value:
-                obj[name] = value
+            if value is not None:
+                if schema['properties'][p_.name]['type'] == 'array' and not isinstance(value, list):
+                    value = [value]
+                if name in obj and isinstance(obj[name], list):
+                    if isinstance(value, list):
+                        obj[name].extend(value)
+                    else:
+                        obj[name].append(value)
+                else:
+                    obj[name] = value
 
     # gen3 boiler plate
     if resource.resource_type == 'DocumentReference':
@@ -572,7 +526,12 @@ def bundle_transform(input_path, output_path, schema_path, duplicate_ids_for):
         with open(input_file) as fp_:
             for line in fp_.readlines():
                 obj_ = orjson.loads(line)
+                if inflection.underscore(obj_['resourceType']) not in schemas:
+                    print(f"WARNING {obj_['resourceType']} not in schemas")
+                    break
+
                 klass = mod.get_fhir_model_class(obj_['resourceType'])
+
                 try:
                     resource_ = klass.parse_obj(obj_)
                 except ValidationError as e:

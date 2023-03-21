@@ -1237,6 +1237,7 @@ async def upload_and_decorate_document_reference(document_reference, bucket_name
     object_name = document_reference['file_name'].lstrip('./')
 
     hashes = {'md5': md5sum}
+    assert 'id' in document_reference, document_reference
     guid = document_reference['id']
     metadata = {
         **{

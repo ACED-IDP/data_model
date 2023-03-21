@@ -49,3 +49,7 @@ aiohttp~=3.8.1
 gen3~=4.16.1
 fastavro~=1.4.1
 setuptools~=65.5.1
+
+
+# for mime types
+python-magic

@@ -116,7 +116,7 @@ properties:
   url:
     description: A location where the data can be accessed.
     element_property: true
-    format: uri
+#    format: uri
     maxLength: 65536
     minLength: 1
     title: Uri where the data can be found
