@@ -458,19 +458,23 @@ def load_flat(project_id, index, path, limit, elastic_url, schema_path):
 
 def _connect_to_postgres(db_host, sheepdog_creds_path):
     """Use credential file, overloaded with passed db host to connect."""
-    sheepdog_creds = json.load(open(sheepdog_creds_path))
-    db_username = sheepdog_creds['db_username']
-    db_password = sheepdog_creds['db_password']
-    db_database = sheepdog_creds['db_database']
-    if not db_host:
-        db_host = sheepdog_creds['db_host']
-    conn = psycopg2.connect(
-        database=db_database,
-        user=db_username,
-        password=db_password,
-        host=db_host,
-        # port=DATABASE_CONFIG.get('port'),
-    )
+    if pathlib.Path(sheepdog_creds_path):
+        sheepdog_creds = json.load(open(sheepdog_creds_path))
+        db_username = sheepdog_creds['db_username']
+        db_password = sheepdog_creds['db_password']
+        db_database = sheepdog_creds['db_database']
+        if not db_host:
+            db_host = sheepdog_creds['db_host']
+        conn = psycopg2.connect(
+            database=db_database,
+            user=db_username,
+            password=db_password,
+            host=db_host,
+            # port=DATABASE_CONFIG.get('port'),
+        )
+    else:
+        # read from env variables
+        conn = psycopg2.connect('')
     return conn
 
 
@@ -771,10 +775,10 @@ def _extract_endpoint(gen3_credentials_file):
 
 
 @cli.command('init')
-@click.option('--gen3_credentials_file', default='../compose-services-training/Secrets/credentials.json', show_default=True,
+@click.option('--gen3_credentials_file', default=f"{pathlib.Path.home()}/.gen3/credentials.json", show_default=True,
               help='API credentials file downloaded from gen3 profile.')
 @click.option('--user_path',
-              default='../compose-services-training/Secrets/user.yaml',
+              default='/creds/user.yaml',
               show_default=True,
               help='Path to gen3 user file.')
 def init(gen3_credentials_file, user_path):
