@@ -46,10 +46,11 @@ dictionaryutils~=3.4.4
 asyncio~=3.4.3
 requests~=2.27.1
 aiohttp~=3.8.1
-gen3~=4.16.1
+gen3~=4.17.1
 fastavro~=1.4.1
 setuptools~=65.5.1
 
 
 # for mime types
 python-magic
+
