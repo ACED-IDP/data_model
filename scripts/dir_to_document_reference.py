@@ -7,13 +7,11 @@ import magic
 import pathlib
 import click
 import logging
-
 import orjson
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 ACED_NAMESPACE = uuid.uuid3(uuid.NAMESPACE_DNS, 'aced-ipd.org')
-
 
 def create_research_study(name, description):
     """Creates bare-bones study."""
@@ -25,7 +23,6 @@ def create_research_study(name, description):
         "resourceType": "ResearchStudy",
     }
     return study
-
 
 # open file pointers
 emitters = {}

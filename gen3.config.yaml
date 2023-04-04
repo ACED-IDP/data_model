@@ -41,18 +41,17 @@ dependency_order:
   - ResearchStudy
   - Patient
   - ResearchSubject
+  - Substance
   - Specimen
 #  - Encounter
   - Observation
   - DiagnosticReport
   - Condition
-  - Substance
   - Medication
   - MedicationAdministration
 #  - ImagingStudy
 #  - Procedure
   - DocumentReference
-  - Substance
   - Task
 
 
