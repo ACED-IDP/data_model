@@ -12,6 +12,7 @@ from collections import defaultdict
 from datetime import datetime
 from itertools import islice
 from typing import Dict, Iterator, List
+import math
 
 import click
 import elasticsearch
@@ -111,6 +112,7 @@ def create_index_from_source(_schema, _index, _type):
             mappings['address'] = {"type": "keyword"}
             mappings['gender'] = {"type": "keyword"}
             mappings['birthDate'] = {"type": "keyword"}
+            mappings['ageRange'] = {"type": "keyword"}
             mappings['us_core_ethnicity'] = {"type": "keyword"}
             mappings['address_orh_zip_designation_code'] = {"type": "keyword"}
 
@@ -268,20 +270,36 @@ def observation_generator(project_id, path) -> Iterator[Dict]:
         # # o_["bodySite"] = o_['bodySite_coding_0_code']
 
         #
+
         for required_field in []:
             if required_field not in o_:
                 o_[required_field] = None
 
+        #comment this out for MCF10A
+        today_year = int(datetime.today().strftime('%Y-%m-%d').split("-")[0])
         for row in connection.execute('select entity from patient where id = ? limit 1', (o_['patient_id'], )):
             row = orjson.loads(row[0])
+            birthDate = row.get('birthDate', None)
+            if birthDate != None:
+
+                year = today_year - int(row.get('birthDate', None).split("-")[0])
+                year = str(str(math.floor(year/5)*5)+ "-" +str(math.floor(year/5)*5+5))
+            else:
+                year = None
+
+            o_['ageRange'] = [year]
             o_['us_core_race'] = row.get('us_core_race', None)
             o_['address'] = row.get('address', None)
             o_['gender'] = row.get('gender', None)
-            o_['birthDate'] = row.get('birthDate', None)
+            o_['birthDate'] = birthDate
+
+
             o_['us_core_ethnicity'] = row.get('us_core_ethnicity', None)
             o_['address_orh_zip_designation_code'] = row.get('address_orh_zip_designation_code', None)
 
         yield o_
+
+
 
 
 def patient_generator(project_id, path) -> Iterator[Dict]:
