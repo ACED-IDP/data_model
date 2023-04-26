@@ -34,8 +34,8 @@ properties:
     title: Extension field for ``status``.
   basedOn:
     description: 'Details concerning a service requested. Note: following not in scope,
-      see config.dependency_order. CarePlan ServiceRequest NutritionOrder ImmunizationRecommendation
-      MedicationRequest'
+      see config.dependency_order. NutritionOrder CarePlan MedicationRequest ImmunizationRecommendation
+      ServiceRequest'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -223,8 +223,8 @@ properties:
     type: array
   performer:
     description: 'The diagnostic service that is responsible for issuing the report.
-      Note: following not in scope, see config.dependency_order. Organization CareTeam
-      Practitioner PractitionerRole'
+      Note: following not in scope, see config.dependency_order. Organization PractitionerRole
+      CareTeam'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -257,7 +257,7 @@ properties:
   resultsInterpreter:
     description: 'The practitioner or organization that is responsible for the report''s
       conclusions and interpretations. Note: following not in scope, see config.dependency_order.
-      Organization CareTeam Practitioner PractitionerRole'
+      Organization PractitionerRole CareTeam'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -296,7 +296,7 @@ properties:
     description: 'The subject of the report. Usually, but not always, this is a patient.
       However, diagnostic services also perform analyses on specimens collected from
       a variety of other sources. Note: following not in scope, see config.dependency_order.
-      Procedure Group Organization Location Device Practitioner'
+      Group Device Location Procedure Practitioner Organization'
     element_property: true
     targets:
     - backref: diagnostic_report

@@ -63,7 +63,7 @@ properties:
     $ref: Reference.yaml
     description: 'A reference to an application-usable description of the identity
       that is represented by the signature. Note: following not in scope, see config.dependency_order.
-      Organization PractitionerRole RelatedPerson Device'
+      Device Practitioner PractitionerRole Organization RelatedPerson'
     element_property: true
     targets:
     - backref: onBehalfOf_signature
@@ -120,8 +120,8 @@ properties:
     $ref: Reference.yaml
     description: 'A reference to an application-usable description of the identity
       that signed  (e.g. the signature used their private key). Note: following not
-      in scope, see config.dependency_order. Organization PractitionerRole RelatedPerson
-      Device'
+      in scope, see config.dependency_order. Device Practitioner PractitionerRole
+      Organization RelatedPerson'
     element_property: true
     targets:
     - backref: who_signature

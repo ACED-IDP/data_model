@@ -7,7 +7,7 @@ properties:
   encounter:
     description: 'Describes the clinical encounter or type of care that the document
       content is associated with. Note: following not in scope, see config.dependency_order.
-      EpisodeOfCare Encounter'
+      Encounter EpisodeOfCare'
     element_property: true
     items:
       $ref: Reference.yaml

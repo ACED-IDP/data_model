@@ -18,7 +18,7 @@ properties:
   authorReference:
     $ref: Reference.yaml
     description: 'The individual responsible for making the annotation. Note: following
-      not in scope, see config.dependency_order. RelatedPerson Practitioner Organization'
+      not in scope, see config.dependency_order. RelatedPerson Organization Practitioner'
     element_property: true
     one_of_many: author
     one_of_many_required: false

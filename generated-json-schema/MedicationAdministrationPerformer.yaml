@@ -9,8 +9,8 @@ properties:
   actor:
     $ref: Reference.yaml
     description: 'Indicates who or what performed the medication administration. Note:
-      following not in scope, see config.dependency_order. PractitionerRole RelatedPerson
-      Device'
+      following not in scope, see config.dependency_order. Device Practitioner PractitionerRole
+      RelatedPerson'
     element_property: true
     targets:
     - backref: medication_administration_performer

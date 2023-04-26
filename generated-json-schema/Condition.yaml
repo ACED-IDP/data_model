@@ -82,7 +82,7 @@ properties:
   asserter:
     $ref: Reference.yaml
     description: 'Individual who is making the condition statement. Note: following
-      not in scope, see config.dependency_order. RelatedPerson Practitioner PractitionerRole'
+      not in scope, see config.dependency_order. RelatedPerson PractitionerRole'
     element_property: true
     targets:
     - backref: asserter_condition
@@ -302,7 +302,7 @@ properties:
     $ref: Reference.yaml
     description: 'Individual who recorded the record and takes responsibility for
       its content. Note: following not in scope, see config.dependency_order. RelatedPerson
-      Practitioner PractitionerRole'
+      PractitionerRole'
     element_property: true
     targets:
     - backref: recorder_condition

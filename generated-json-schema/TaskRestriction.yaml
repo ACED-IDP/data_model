@@ -64,7 +64,7 @@ properties:
   recipient:
     description: 'For requests that are targeted to more than on potential recipient/target,
       for whom is fulfillment sought? Note: following not in scope, see config.dependency_order.
-      Group Organization PractitionerRole RelatedPerson'
+      Group Practitioner PractitionerRole Organization RelatedPerson'
     element_property: true
     items:
       $ref: Reference.yaml

@@ -14,10 +14,10 @@ git+https://github.com/ACED-IDP/pelican.git@chore/python-version
 psycopg2-binary
 
 # fhirclient
-https://github.com/bmeg/client-py/archive/feature/embedded-schema.zip
+# https://github.com/bmeg/client-py/archive/feature/embedded-schema.zip
 
-# fhir.resources
-https://github.com/bmeg/fhir.resources/archive/feature/backref.zip
+fhir.resources
+# https://github.com/bmeg/fhir.resources/archive/feature/backref.zip
 
 # pluralization
 inflection~=0.5.1
