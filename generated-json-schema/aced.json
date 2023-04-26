@@ -1612,7 +1612,7 @@
       },
       "generalPractitioner": {
         "title": "Patient's nominated primary care provider",
-        "description": "Patient's nominated care provider. Note: following not in scope, see config.dependency_order. Organization Practitioner PractitionerRole (array: Reference.yaml",
+        "description": "Patient's nominated care provider. Note: following not in scope, see config.dependency_order. Organization PractitionerRole (array: Reference.yaml",
         "element_property": true,
         "type": "array",
         "items": {
@@ -1791,9 +1791,6 @@
           "strength": "required"
         }
       },
-      "address_geolocation_valueDecimal": {
-        "type": "string"
-      },
       "address_orh_zip_designation_code": {
         "type": "string"
       },
@@ -1928,6 +1925,156 @@
         "target_type": "research_study"
       }
     ]
+  },
+  "substance": {
+    "title": "Substance",
+    "description": "A homogeneous material with a definite composition.",
+    "type": "object",
+    "properties": {
+      "category": {
+        "title": "What class/type of substance this is",
+        "description": "A code that classifies the general type of substance.  This is used  for searching, sorting and display purposes. See http://hl7.org/fhir/ValueSet/substance-category (array: CodeableConcept.yaml",
+        "element_property": true,
+        "binding_description": "Category or classification of substance.",
+        "binding_strength": "extensible",
+        "binding_uri": "http://hl7.org/fhir/ValueSet/substance-category",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "term": {
+          "description": "Category or classification of substance.",
+          "termDef": {
+            "cde_id": "http://hl7.org/fhir/ValueSet/substance-category",
+            "term": "http://hl7.org/fhir/ValueSet/substance-category",
+            "term_url": "http://hl7.org/fhir/ValueSet/substance-category",
+            "cde_version": null,
+            "source": "fhir",
+            "strength": "extensible"
+          }
+        }
+      },
+      "code": {
+        "title": "What substance this is",
+        "description": "A code (or set of codes) that identify this substance. See http://hl7.org/fhir/ValueSet/substance-code CodeableConcept",
+        "element_property": true,
+        "binding_description": "Substance codes.",
+        "binding_strength": "example",
+        "binding_uri": "http://hl7.org/fhir/ValueSet/substance-code",
+        "type": "string",
+        "term": {
+          "description": "Substance codes.",
+          "termDef": {
+            "cde_id": "http://hl7.org/fhir/ValueSet/substance-code",
+            "term": "http://hl7.org/fhir/ValueSet/substance-code",
+            "term_url": "http://hl7.org/fhir/ValueSet/substance-code",
+            "cde_version": null,
+            "source": "fhir",
+            "strength": "example"
+          }
+        }
+      },
+      "code_coding": {
+        "type": "string",
+        "title": "Coded representation."
+      },
+      "description": {
+        "title": "Textual description of the substance, comments",
+        "description": "A description of the substance - its appearance, handling requirements, and other usage notes.",
+        "element_property": true,
+        "pattern": "[ \\r\\n\\t\\S]+",
+        "type": "string"
+      },
+      "extension": {
+        "title": "Additional content defined by implementations",
+        "description": "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. (array: Extension.yaml",
+        "element_property": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "id": {
+        "title": "Logical id of this artifact",
+        "description": "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.",
+        "element_property": true,
+        "minLength": 1,
+        "maxLength": 64,
+        "pattern": "^[A-Za-z0-9\\-.]+$",
+        "type": "string"
+      },
+      "identifier": {
+        "title": "Unique identifier",
+        "description": "Unique identifier for the substance. (array: Identifier.yaml",
+        "element_property": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "ingredient": {
+        "title": "Composition information about the substance",
+        "description": "A substance can be composed of other substances. (array: SubstanceIngredient.yaml",
+        "element_property": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "instance": {
+        "title": "If this describes a specific package/container of the substance",
+        "description": "Substance may be used to describe a kind of substance, or a specific package/container of the substance: an instance. (array: SubstanceInstance.yaml",
+        "element_property": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "project_id": {
+        "$ref": "_definitions.yaml#/project_id"
+      },
+      "resourceType": {
+        "title": "Resource Type",
+        "const": "Substance",
+        "type": "string"
+      },
+      "status": {
+        "title": "active | inactive | entered-in-error",
+        "description": "A code to indicate if the substance is actively used. See http://hl7.org/fhir/ValueSet/substance-status",
+        "element_property": true,
+        "enum_values": [
+          "active",
+          "inactive",
+          "entered-in-error"
+        ],
+        "binding_description": "A code to indicate if the substance is actively used.",
+        "binding_strength": "required",
+        "binding_uri": "http://hl7.org/fhir/ValueSet/substance-status",
+        "binding_version": "4.3.0",
+        "pattern": "^[^\\s]+(\\s[^\\s]+)*$",
+        "type": "string",
+        "term": {
+          "description": "A code to indicate if the substance is actively used.",
+          "termDef": {
+            "cde_id": "http://hl7.org/fhir/ValueSet/substance-status",
+            "term": "http://hl7.org/fhir/ValueSet/substance-status",
+            "term_url": "http://hl7.org/fhir/ValueSet/substance-status",
+            "cde_version": null,
+            "source": "fhir",
+            "strength": "required"
+          }
+        }
+      }
+    },
+    "required": [
+      "code"
+    ],
+    "additionalProperties": false,
+    "id": "substance",
+    "program": "*",
+    "project": "*",
+    "category": "Clinical",
+    "links": []
   },
   "specimen": {
     "title": "Specimen",
@@ -2119,19 +2266,19 @@
       },
       {
         "backref": "specimen",
-        "label": "Specimen_subject_Patient",
-        "multiplicity": "many_to_many",
-        "name": "subject",
-        "required": false,
-        "target_type": "patient"
-      },
-      {
-        "backref": "specimen",
         "label": "Specimen_subject_Substance",
         "multiplicity": "many_to_many",
         "name": "subject_Substance",
         "required": false,
         "target_type": "substance"
+      },
+      {
+        "backref": "specimen",
+        "label": "Specimen_subject_Patient",
+        "multiplicity": "many_to_many",
+        "name": "subject",
+        "required": false,
+        "target_type": "patient"
       }
     ]
   },
@@ -2146,7 +2293,7 @@
       },
       "basedOn": {
         "title": "Fulfills plan, proposal or order",
-        "description": "A plan, proposal or order that is fulfilled in whole or in part by this event.  For example, a MedicationRequest may require a patient to have laboratory test performed before  it is dispensed. Note: following not in scope, see config.dependency_order. CarePlan DeviceRequest ServiceRequest NutritionOrder ImmunizationRecommendation (array: Reference.yaml",
+        "description": "A plan, proposal or order that is fulfilled in whole or in part by this event.  For example, a MedicationRequest may require a patient to have laboratory test performed before  it is dispensed. Note: following not in scope, see config.dependency_order. NutritionOrder DeviceRequest CarePlan ImmunizationRecommendation ServiceRequest (array: Reference.yaml",
         "element_property": true,
         "type": "array",
         "items": {
@@ -2259,7 +2406,7 @@
       },
       "derivedFrom": {
         "title": "Related measurements the observation is made from",
-        "description": "The target resource that represents a measurement from which this observation value is derived. For example, a calculated anion gap or a fetal measurement based on an ultrasound image. Note: following not in scope, see config.dependency_order. QuestionnaireResponse Media ImagingStudy MolecularSequence (array: Reference.yaml",
+        "description": "The target resource that represents a measurement from which this observation value is derived. For example, a calculated anion gap or a fetal measurement based on an ultrasound image. Note: following not in scope, see config.dependency_order. Media ImagingStudy QuestionnaireResponse MolecularSequence (array: Reference.yaml",
         "element_property": true,
         "type": "array",
         "items": {
@@ -2410,7 +2557,7 @@
       },
       "partOf": {
         "title": "Part of referenced event",
-        "description": "A larger event of which this particular Observation is a component or step.  For example,  an observation as part of a procedure. Note: following not in scope, see config.dependency_order. Procedure Immunization ImagingStudy MedicationDispense MedicationStatement (array: Reference.yaml",
+        "description": "A larger event of which this particular Observation is a component or step.  For example,  an observation as part of a procedure. Note: following not in scope, see config.dependency_order. ImagingStudy Procedure MedicationDispense Immunization MedicationStatement (array: Reference.yaml",
         "element_property": true,
         "type": "array",
         "items": {
@@ -2419,7 +2566,7 @@
       },
       "performer": {
         "title": "Who is responsible for the observation",
-        "description": "Who was responsible for asserting the observed value as \"true\". Note: following not in scope, see config.dependency_order. Organization PractitionerRole CareTeam RelatedPerson (array: Reference.yaml",
+        "description": "Who was responsible for asserting the observed value as \"true\". Note: following not in scope, see config.dependency_order. Practitioner PractitionerRole CareTeam Organization RelatedPerson (array: Reference.yaml",
         "element_property": true,
         "type": "array",
         "items": {
@@ -2579,73 +2726,31 @@
       "category_coding": {
         "type": "string"
       },
-      "diastolic_blood_pressure": {
-        "type": "string"
-      },
-      "diastolic_blood_pressure_value": {
-        "type": "string"
-      },
-      "diastolic_blood_pressure_unit": {
-        "type": "string"
-      },
-      "systolic_blood_pressure": {
-        "type": "string"
-      },
-      "systolic_blood_pressure_value": {
-        "type": "string"
-      },
-      "systolic_blood_pressure_unit": {
+      "gene_studied_id_coding": {
         "type": "string"
       },
       "gene_studied_id": {
         "type": "string"
       },
-      "gene_studied_id_coding": {
+      "genomic_reference_sequence_id_coding": {
         "type": "string"
       },
       "genomic_reference_sequence_id": {
         "type": "string"
       },
-      "genomic_reference_sequence_id_coding": {
-        "type": "string"
-      },
       "conclusion_string": {
-        "type": "string"
-      },
-      "evidence_level": {
         "type": "string"
       },
       "evidence_level_coding": {
         "type": "string"
       },
-      "predicted_phenotype": {
-        "type": "string"
-      },
-      "predicted_phenotype_coding": {
-        "type": "string"
-      },
-      "observation_interpretation": {
+      "evidence_level": {
         "type": "string"
       },
       "observation_interpretation_coding": {
         "type": "string"
       },
-      "coding_display": {
-        "type": "string"
-      },
-      "coding": {
-        "type": "string"
-      },
-      "gene_studied_id_display": {
-        "type": "string"
-      },
-      "genomic_reference_sequence_id_display": {
-        "type": "string"
-      },
-      "evidence_level_display": {
-        "type": "string"
-      },
-      "observation_interpretation_display": {
+      "observation_interpretation": {
         "type": "string"
       }
     },
@@ -2684,11 +2789,11 @@
       },
       {
         "backref": "observation",
-        "label": "Observation_subject_Medication",
+        "label": "Observation_subject_Substance",
         "multiplicity": "many_to_many",
-        "name": "subject_Medication",
+        "name": "subject_Substance",
         "required": false,
-        "target_type": "medication"
+        "target_type": "substance"
       },
       {
         "backref": "subject_observation",
@@ -2700,11 +2805,11 @@
       },
       {
         "backref": "observation",
-        "label": "Observation_subject_Substance",
+        "label": "Observation_subject_Medication",
         "multiplicity": "many_to_many",
-        "name": "subject_Substance",
+        "name": "subject_Medication",
         "required": false,
-        "target_type": "substance"
+        "target_type": "medication"
       },
       {
         "backref": "observation",
@@ -2723,7 +2828,7 @@
     "properties": {
       "basedOn": {
         "title": "What was requested",
-        "description": "Details concerning a service requested. Note: following not in scope, see config.dependency_order. CarePlan ServiceRequest NutritionOrder ImmunizationRecommendation MedicationRequest (array: Reference.yaml",
+        "description": "Details concerning a service requested. Note: following not in scope, see config.dependency_order. NutritionOrder CarePlan MedicationRequest ImmunizationRecommendation ServiceRequest (array: Reference.yaml",
         "element_property": true,
         "type": "array",
         "items": {
@@ -2878,7 +2983,7 @@
       },
       "performer": {
         "title": "Responsible Diagnostic Service",
-        "description": "The diagnostic service that is responsible for issuing the report. Note: following not in scope, see config.dependency_order. Organization CareTeam Practitioner PractitionerRole (array: Reference.yaml",
+        "description": "The diagnostic service that is responsible for issuing the report. Note: following not in scope, see config.dependency_order. Organization PractitionerRole CareTeam (array: Reference.yaml",
         "element_property": true,
         "type": "array",
         "items": {
@@ -2913,7 +3018,7 @@
       },
       "resultsInterpreter": {
         "title": "Primary result interpreter",
-        "description": "The practitioner or organization that is responsible for the report's conclusions and interpretations. Note: following not in scope, see config.dependency_order. Organization CareTeam Practitioner PractitionerRole (array: Reference.yaml",
+        "description": "The practitioner or organization that is responsible for the report's conclusions and interpretations. Note: following not in scope, see config.dependency_order. Organization PractitionerRole CareTeam (array: Reference.yaml",
         "element_property": true,
         "type": "array",
         "items": {
@@ -2987,11 +3092,11 @@
       },
       {
         "backref": "diagnostic_report",
-        "label": "DiagnosticReport_subject_Medication",
+        "label": "DiagnosticReport_subject_Substance",
         "multiplicity": "many_to_many",
-        "name": "subject_Medication",
+        "name": "subject_Substance",
         "required": false,
-        "target_type": "medication"
+        "target_type": "substance"
       },
       {
         "backref": "diagnostic_report",
@@ -3003,11 +3108,11 @@
       },
       {
         "backref": "diagnostic_report",
-        "label": "DiagnosticReport_subject_Substance",
+        "label": "DiagnosticReport_subject_Medication",
         "multiplicity": "many_to_many",
-        "name": "subject_Substance",
+        "name": "subject_Medication",
         "required": false,
-        "target_type": "substance"
+        "target_type": "medication"
       }
     ]
   },
@@ -3332,9 +3437,6 @@
       "verificationStatus_coding": {
         "type": "string",
         "title": "Coded representation."
-      },
-      "category_coding": {
-        "type": "string"
       }
     },
     "required": [],
@@ -3353,156 +3455,6 @@
         "target_type": "patient"
       }
     ]
-  },
-  "substance": {
-    "title": "Substance",
-    "description": "A homogeneous material with a definite composition.",
-    "type": "object",
-    "properties": {
-      "category": {
-        "title": "What class/type of substance this is",
-        "description": "A code that classifies the general type of substance.  This is used  for searching, sorting and display purposes. See http://hl7.org/fhir/ValueSet/substance-category (array: CodeableConcept.yaml",
-        "element_property": true,
-        "binding_description": "Category or classification of substance.",
-        "binding_strength": "extensible",
-        "binding_uri": "http://hl7.org/fhir/ValueSet/substance-category",
-        "type": "array",
-        "items": {
-          "type": "string"
-        },
-        "term": {
-          "description": "Category or classification of substance.",
-          "termDef": {
-            "cde_id": "http://hl7.org/fhir/ValueSet/substance-category",
-            "term": "http://hl7.org/fhir/ValueSet/substance-category",
-            "term_url": "http://hl7.org/fhir/ValueSet/substance-category",
-            "cde_version": null,
-            "source": "fhir",
-            "strength": "extensible"
-          }
-        }
-      },
-      "code": {
-        "title": "What substance this is",
-        "description": "A code (or set of codes) that identify this substance. See http://hl7.org/fhir/ValueSet/substance-code CodeableConcept",
-        "element_property": true,
-        "binding_description": "Substance codes.",
-        "binding_strength": "example",
-        "binding_uri": "http://hl7.org/fhir/ValueSet/substance-code",
-        "type": "string",
-        "term": {
-          "description": "Substance codes.",
-          "termDef": {
-            "cde_id": "http://hl7.org/fhir/ValueSet/substance-code",
-            "term": "http://hl7.org/fhir/ValueSet/substance-code",
-            "term_url": "http://hl7.org/fhir/ValueSet/substance-code",
-            "cde_version": null,
-            "source": "fhir",
-            "strength": "example"
-          }
-        }
-      },
-      "code_coding": {
-        "type": "string",
-        "title": "Coded representation."
-      },
-      "description": {
-        "title": "Textual description of the substance, comments",
-        "description": "A description of the substance - its appearance, handling requirements, and other usage notes.",
-        "element_property": true,
-        "pattern": "[ \\r\\n\\t\\S]+",
-        "type": "string"
-      },
-      "extension": {
-        "title": "Additional content defined by implementations",
-        "description": "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. (array: Extension.yaml",
-        "element_property": true,
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
-      },
-      "id": {
-        "title": "Logical id of this artifact",
-        "description": "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.",
-        "element_property": true,
-        "minLength": 1,
-        "maxLength": 64,
-        "pattern": "^[A-Za-z0-9\\-.]+$",
-        "type": "string"
-      },
-      "identifier": {
-        "title": "Unique identifier",
-        "description": "Unique identifier for the substance. (array: Identifier.yaml",
-        "element_property": true,
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
-      },
-      "ingredient": {
-        "title": "Composition information about the substance",
-        "description": "A substance can be composed of other substances. (array: SubstanceIngredient.yaml",
-        "element_property": true,
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
-      },
-      "instance": {
-        "title": "If this describes a specific package/container of the substance",
-        "description": "Substance may be used to describe a kind of substance, or a specific package/container of the substance: an instance. (array: SubstanceInstance.yaml",
-        "element_property": true,
-        "type": "array",
-        "items": {
-          "type": "string"
-        }
-      },
-      "project_id": {
-        "$ref": "_definitions.yaml#/project_id"
-      },
-      "resourceType": {
-        "title": "Resource Type",
-        "const": "Substance",
-        "type": "string"
-      },
-      "status": {
-        "title": "active | inactive | entered-in-error",
-        "description": "A code to indicate if the substance is actively used. See http://hl7.org/fhir/ValueSet/substance-status",
-        "element_property": true,
-        "enum_values": [
-          "active",
-          "inactive",
-          "entered-in-error"
-        ],
-        "binding_description": "A code to indicate if the substance is actively used.",
-        "binding_strength": "required",
-        "binding_uri": "http://hl7.org/fhir/ValueSet/substance-status",
-        "binding_version": "4.3.0",
-        "pattern": "^[^\\s]+(\\s[^\\s]+)*$",
-        "type": "string",
-        "term": {
-          "description": "A code to indicate if the substance is actively used.",
-          "termDef": {
-            "cde_id": "http://hl7.org/fhir/ValueSet/substance-status",
-            "term": "http://hl7.org/fhir/ValueSet/substance-status",
-            "term_url": "http://hl7.org/fhir/ValueSet/substance-status",
-            "cde_version": null,
-            "source": "fhir",
-            "strength": "required"
-          }
-        }
-      }
-    },
-    "required": [
-      "code"
-    ],
-    "additionalProperties": false,
-    "id": "substance",
-    "program": "*",
-    "project": "*",
-    "category": "Clinical",
-    "links": []
   },
   "medication": {
     "title": "Medication",
@@ -3959,11 +3911,11 @@
       },
       {
         "backref": "medication_administration",
-        "label": "MedicationAdministration_reasonReference_Observation",
+        "label": "MedicationAdministration_reasonReference_DiagnosticReport",
         "multiplicity": "many_to_many",
         "name": "reasonReference",
         "required": false,
-        "target_type": "observation"
+        "target_type": "diagnostic_report"
       },
       {
         "backref": "medication_administration",
@@ -3975,11 +3927,11 @@
       },
       {
         "backref": "medication_administration",
-        "label": "MedicationAdministration_reasonReference_DiagnosticReport",
+        "label": "MedicationAdministration_reasonReference_Observation",
         "multiplicity": "many_to_many",
         "name": "reasonReference",
         "required": false,
-        "target_type": "diagnostic_report"
+        "target_type": "observation"
       },
       {
         "backref": "medication_administration",
@@ -4003,7 +3955,7 @@
       },
       "author": {
         "title": "Who and/or what authored the document",
-        "description": "Identifies who is responsible for adding the information to the document. Note: following not in scope, see config.dependency_order. Organization PractitionerRole RelatedPerson Device (array: Reference.yaml",
+        "description": "Identifies who is responsible for adding the information to the document. Note: following not in scope, see config.dependency_order. Device Practitioner PractitionerRole Organization RelatedPerson (array: Reference.yaml",
         "element_property": true,
         "type": "array",
         "items": {
@@ -4393,7 +4345,7 @@
       },
       "insurance": {
         "title": "Associated insurance coverage",
-        "description": "Insurance plans, coverage extensions, pre-authorizations and/or pre-determinations that may be relevant to the Task. Note: following not in scope, see config.dependency_order. Coverage ClaimResponse (array: Reference.yaml",
+        "description": "Insurance plans, coverage extensions, pre-authorizations and/or pre-determinations that may be relevant to the Task. Note: following not in scope, see config.dependency_order. ClaimResponse Coverage (array: Reference.yaml",
         "element_property": true,
         "type": "array",
         "items": {
@@ -4637,6 +4589,409 @@
         "name": "focus",
         "required": false,
         "target_type": "specimen"
+      }
+    ]
+  },
+  "family_member_history": {
+    "title": "FamilyMemberHistory",
+    "description": "Information about patient's relatives, relevant for patient.\nSignificant health conditions for a person related to the patient relevant\nin the context of care for the patient.",
+    "type": "object",
+    "properties": {
+      "_instantiatesCanonical": {
+        "title": "Extension field for ``instantiatesCanonical``.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "_instantiatesUri": {
+        "title": "Extension field for ``instantiatesUri``.",
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "ageAge": {
+        "title": "(approximate) age",
+        "description": "The age of the relative at the time the family member history is recorded. Age",
+        "element_property": true,
+        "one_of_many": "age",
+        "one_of_many_required": false,
+        "type": "string"
+      },
+      "ageRange": {
+        "title": "(approximate) age",
+        "description": "The age of the relative at the time the family member history is recorded. Range",
+        "element_property": true,
+        "one_of_many": "age",
+        "one_of_many_required": false,
+        "type": "string"
+      },
+      "ageString": {
+        "title": "(approximate) age",
+        "description": "The age of the relative at the time the family member history is recorded.",
+        "element_property": true,
+        "one_of_many": "age",
+        "one_of_many_required": false,
+        "pattern": "[ \\r\\n\\t\\S]+",
+        "type": "string"
+      },
+      "bornDate": {
+        "title": "(approximate) date of birth",
+        "description": "The actual or approximate date of birth of the relative.",
+        "element_property": true,
+        "one_of_many": "born",
+        "one_of_many_required": false,
+        "type": "string",
+        "format": "date"
+      },
+      "bornPeriod": {
+        "title": "(approximate) date of birth",
+        "description": "The actual or approximate date of birth of the relative. Period",
+        "element_property": true,
+        "one_of_many": "born",
+        "one_of_many_required": false,
+        "type": "string"
+      },
+      "bornString": {
+        "title": "(approximate) date of birth",
+        "description": "The actual or approximate date of birth of the relative.",
+        "element_property": true,
+        "one_of_many": "born",
+        "one_of_many_required": false,
+        "pattern": "[ \\r\\n\\t\\S]+",
+        "type": "string"
+      },
+      "condition": {
+        "title": "Condition that the related person had",
+        "description": "The significant Conditions (or condition) that the family member had. This is a repeating section to allow a system to represent more than one condition per resource, though there is nothing stopping multiple resources - one per condition. (array: FamilyMemberHistoryCondition.yaml",
+        "element_property": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "dataAbsentReason": {
+        "title": "subject-unknown | withheld | unable-to-obtain | deferred",
+        "description": "Describes why the family member's history is not available. See http://hl7.org/fhir/ValueSet/history-absent-reason CodeableConcept",
+        "element_property": true,
+        "enum_values": [
+          "subject-unknown",
+          "withheld",
+          "unable-to-obtain",
+          "deferred"
+        ],
+        "binding_description": "Codes describing the reason why a family member's history is not available.",
+        "binding_strength": "example",
+        "binding_uri": "http://hl7.org/fhir/ValueSet/history-absent-reason",
+        "type": "string",
+        "term": {
+          "description": "Codes describing the reason why a family member's history is not available.",
+          "termDef": {
+            "cde_id": "http://hl7.org/fhir/ValueSet/history-absent-reason",
+            "term": "http://hl7.org/fhir/ValueSet/history-absent-reason",
+            "term_url": "http://hl7.org/fhir/ValueSet/history-absent-reason",
+            "cde_version": null,
+            "source": "fhir",
+            "strength": "example"
+          }
+        }
+      },
+      "dataAbsentReason_coding": {
+        "type": "string",
+        "title": "Coded representation."
+      },
+      "date": {
+        "title": "When history was recorded or last updated",
+        "description": "The date (and possibly time) when the family member history was recorded or last updated.",
+        "element_property": true,
+        "type": "string",
+        "format": "date-time"
+      },
+      "deceasedAge": {
+        "title": "Dead? How old/when?",
+        "description": "Deceased flag or the actual or approximate age of the relative at the time of death for the family member history record. Age",
+        "element_property": true,
+        "one_of_many": "deceased",
+        "one_of_many_required": false,
+        "type": "string"
+      },
+      "deceasedBoolean": {
+        "title": "Dead? How old/when?",
+        "description": "Deceased flag or the actual or approximate age of the relative at the time of death for the family member history record.",
+        "element_property": true,
+        "one_of_many": "deceased",
+        "one_of_many_required": false,
+        "type": "boolean"
+      },
+      "deceasedDate": {
+        "title": "Dead? How old/when?",
+        "description": "Deceased flag or the actual or approximate age of the relative at the time of death for the family member history record.",
+        "element_property": true,
+        "one_of_many": "deceased",
+        "one_of_many_required": false,
+        "type": "string",
+        "format": "date"
+      },
+      "deceasedRange": {
+        "title": "Dead? How old/when?",
+        "description": "Deceased flag or the actual or approximate age of the relative at the time of death for the family member history record. Range",
+        "element_property": true,
+        "one_of_many": "deceased",
+        "one_of_many_required": false,
+        "type": "string"
+      },
+      "deceasedString": {
+        "title": "Dead? How old/when?",
+        "description": "Deceased flag or the actual or approximate age of the relative at the time of death for the family member history record.",
+        "element_property": true,
+        "one_of_many": "deceased",
+        "one_of_many_required": false,
+        "pattern": "[ \\r\\n\\t\\S]+",
+        "type": "string"
+      },
+      "estimatedAge": {
+        "title": "Age is estimated?",
+        "description": "If true, indicates that the age value specified is an estimated value.",
+        "element_property": true,
+        "type": "boolean"
+      },
+      "extension": {
+        "title": "Additional content defined by implementations",
+        "description": "May be used to represent additional information that is not part of the basic definition of the resource. To make the use of extensions safe and manageable, there is a strict set of governance  applied to the definition and use of extensions. Though any implementer can define an extension, there is a set of requirements that SHALL be met as part of the definition of the extension. (array: Extension.yaml",
+        "element_property": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "id": {
+        "title": "Logical id of this artifact",
+        "description": "The logical id of the resource, as used in the URL for the resource. Once assigned, this value never changes.",
+        "element_property": true,
+        "minLength": 1,
+        "maxLength": 64,
+        "pattern": "^[A-Za-z0-9\\-.]+$",
+        "type": "string"
+      },
+      "identifier": {
+        "title": "External Id(s) for this record",
+        "description": "Business identifiers assigned to this family member history by the performer or other systems which remain constant as the resource is updated and propagates from server to server. (array: Identifier.yaml",
+        "element_property": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "instantiatesCanonical": {
+        "title": "Instantiates FHIR protocol or definition",
+        "description": "The URL pointing to a FHIR-defined protocol, guideline, orderset or other definition that is adhered to in whole or in part by this FamilyMemberHistory. Note: following not in scope, see config.dependency_order. Measure OperationDefinition Questionnaire ActivityDefinition PlanDefinition (array: string",
+        "element_property": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "instantiatesUri": {
+        "title": "Instantiates external protocol or definition",
+        "description": "The URL pointing to an externally maintained protocol, guideline, orderset or other definition that is adhered to in whole or in part by this FamilyMemberHistory. (array: string",
+        "element_property": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "name": {
+        "title": "The family member described",
+        "description": "This will either be a name or a description; e.g. \"Aunt Susan\", \"my cousin with the red hair\".",
+        "element_property": true,
+        "pattern": "[ \\r\\n\\t\\S]+",
+        "type": "string"
+      },
+      "note": {
+        "title": "General note about related person",
+        "description": "This property allows a non condition-specific note to the made about the related person. Ideally, the note would be in the condition property, but this is not always possible. (array: Annotation.yaml",
+        "element_property": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "project_id": {
+        "$ref": "_definitions.yaml#/project_id"
+      },
+      "reasonCode": {
+        "title": "Why was family member history performed?",
+        "description": "Describes why the family member history occurred in coded or textual form. See http://hl7.org/fhir/ValueSet/clinical-findings (array: CodeableConcept.yaml",
+        "element_property": true,
+        "binding_description": "Codes indicating why the family member history was done.",
+        "binding_strength": "example",
+        "binding_uri": "http://hl7.org/fhir/ValueSet/clinical-findings",
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "term": {
+          "description": "Codes indicating why the family member history was done.",
+          "termDef": {
+            "cde_id": "http://hl7.org/fhir/ValueSet/clinical-findings",
+            "term": "http://hl7.org/fhir/ValueSet/clinical-findings",
+            "term_url": "http://hl7.org/fhir/ValueSet/clinical-findings",
+            "cde_version": null,
+            "source": "fhir",
+            "strength": "example"
+          }
+        }
+      },
+      "reasonReference": {
+        "title": "Why was family member history performed?",
+        "description": "Indicates a Condition, Observation, AllergyIntolerance, or QuestionnaireResponse that justifies this family member history event. Note: following not in scope, see config.dependency_order. (array: Reference.yaml",
+        "element_property": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "relationship": {
+        "title": "Relationship to the subject",
+        "description": "The type of relationship this person has to the patient (father, mother, brother etc.). See http://terminology.hl7.org/ValueSet/v3-FamilyMember CodeableConcept",
+        "element_property": true,
+        "binding_description": "The nature of the relationship between the patient and the related person being described in the family member history.",
+        "binding_strength": "example",
+        "binding_uri": "http://terminology.hl7.org/ValueSet/v3-FamilyMember",
+        "type": "string",
+        "term": {
+          "description": "The nature of the relationship between the patient and the related person being described in the family member history.",
+          "termDef": {
+            "cde_id": "http://terminology.hl7.org/ValueSet/v3-FamilyMember",
+            "term": "http://terminology.hl7.org/ValueSet/v3-FamilyMember",
+            "term_url": "http://terminology.hl7.org/ValueSet/v3-FamilyMember",
+            "cde_version": null,
+            "source": "fhir",
+            "strength": "example"
+          }
+        }
+      },
+      "relationship_coding": {
+        "type": "string",
+        "title": "Coded representation."
+      },
+      "resourceType": {
+        "title": "Resource Type",
+        "const": "FamilyMemberHistory",
+        "type": "string"
+      },
+      "sex": {
+        "title": "male | female | other | unknown",
+        "description": "The birth sex of the family member. See http://hl7.org/fhir/ValueSet/administrative-gender CodeableConcept",
+        "element_property": true,
+        "enum_values": [
+          "male",
+          "female",
+          "other",
+          "unknown"
+        ],
+        "binding_description": "Codes describing the sex assigned at birth as documented on the birth registration.",
+        "binding_strength": "extensible",
+        "binding_uri": "http://hl7.org/fhir/ValueSet/administrative-gender",
+        "type": "string",
+        "term": {
+          "description": "Codes describing the sex assigned at birth as documented on the birth registration.",
+          "termDef": {
+            "cde_id": "http://hl7.org/fhir/ValueSet/administrative-gender",
+            "term": "http://hl7.org/fhir/ValueSet/administrative-gender",
+            "term_url": "http://hl7.org/fhir/ValueSet/administrative-gender",
+            "cde_version": null,
+            "source": "fhir",
+            "strength": "extensible"
+          }
+        }
+      },
+      "sex_coding": {
+        "type": "string",
+        "title": "Coded representation."
+      },
+      "status": {
+        "title": "partial | completed | entered-in-error | health-unknown",
+        "description": "A code specifying the status of the record of the family history of a specific family member. See http://hl7.org/fhir/ValueSet/history-status",
+        "element_property": true,
+        "element_required": true,
+        "enum_values": [
+          "partial",
+          "completed",
+          "entered-in-error",
+          "health-unknown"
+        ],
+        "binding_description": "A code that identifies the status of the family history record.",
+        "binding_strength": "required",
+        "binding_uri": "http://hl7.org/fhir/ValueSet/history-status",
+        "binding_version": "4.3.0",
+        "pattern": "^[^\\s]+(\\s[^\\s]+)*$",
+        "type": "string",
+        "term": {
+          "description": "A code that identifies the status of the family history record.",
+          "termDef": {
+            "cde_id": "http://hl7.org/fhir/ValueSet/history-status",
+            "term": "http://hl7.org/fhir/ValueSet/history-status",
+            "term_url": "http://hl7.org/fhir/ValueSet/history-status",
+            "cde_version": null,
+            "source": "fhir",
+            "strength": "required"
+          }
+        }
+      },
+      "condition_coding": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "relationship"
+    ],
+    "additionalProperties": false,
+    "id": "family_member_history",
+    "program": "*",
+    "project": "*",
+    "category": "Clinical",
+    "links": [
+      {
+        "backref": "family_member_history",
+        "label": "FamilyMemberHistory_patient_Patient",
+        "multiplicity": "many_to_many",
+        "name": "patient",
+        "required": true,
+        "target_type": "patient"
+      },
+      {
+        "backref": "family_member_history",
+        "label": "FamilyMemberHistory_reasonReference_DiagnosticReport",
+        "multiplicity": "many_to_many",
+        "name": "reasonReference",
+        "required": false,
+        "target_type": "diagnostic_report"
+      },
+      {
+        "backref": "family_member_history",
+        "label": "FamilyMemberHistory_reasonReference_Condition",
+        "multiplicity": "many_to_many",
+        "name": "reasonReference",
+        "required": false,
+        "target_type": "condition"
+      },
+      {
+        "backref": "family_member_history",
+        "label": "FamilyMemberHistory_reasonReference_Observation",
+        "multiplicity": "many_to_many",
+        "name": "reasonReference",
+        "required": false,
+        "target_type": "observation"
+      },
+      {
+        "backref": "family_member_history",
+        "label": "FamilyMemberHistory_reasonReference_DocumentReference",
+        "multiplicity": "many_to_many",
+        "name": "reasonReference",
+        "required": false,
+        "target_type": "document_reference"
       }
     ]
   },

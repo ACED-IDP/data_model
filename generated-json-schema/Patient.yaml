@@ -127,7 +127,7 @@ properties:
     type: string
   generalPractitioner:
     description: 'Patient''s nominated care provider. Note: following not in scope,
-      see config.dependency_order. Organization Practitioner PractitionerRole'
+      see config.dependency_order. Organization PractitionerRole'
     element_property: true
     items:
       $ref: Reference.yaml
