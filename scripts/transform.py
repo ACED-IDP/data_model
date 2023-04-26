@@ -10,15 +10,22 @@ from datetime import datetime
 from importlib import import_module
 from typing import TextIO, Optional, List, Tuple
 
+import gzip
+import io
+
 import click
 import pathlib
 
 import inflection
 from fhir.resources import FHIRAbstractModel
 from fhir.resources.bundle import Bundle
+from fhir.resources.documentreference import DocumentReference
+from fhir.resources.encounter import Encounter
 from fhir.resources.codeableconcept import CodeableConcept
 from fhir.resources.core.utils.common import normalize_fhir_type_class, get_fhir_type_name
 from fhir.resources.fhirprimitiveextension import FHIRPrimitiveExtension
+from fhir.resources.medicationadministration import MedicationAdministration
+from fhir.resources.observation import Observation
 from pydantic import ValidationError
 from yaml import SafeLoader
 from fhir.resources.core.utils import yaml
@@ -102,26 +109,6 @@ def _simple_render(value, name_, **kwargs) -> List[Tuple]:
                 codings.extend(_coding(coding, name))
 
         return codings
-        # l_ = _to_list(l_)
-        # _nv = []
-        # for i_, v_ in enumerate(l_):
-        #     text_ = v_.text
-        #     if not text_:
-        #         text_ = next(iter([coding[1] for coding in codings if 'coding_display' in coding[0]]), None)
-        #     array_name = name
-        #     if i_ > 0:
-        #         array_name = name + f"_{i_}"
-        #     _nv.append((f"{array_name}", [text_]))
-        #
-        #     for index_, coding in enumerate(codings):
-        #         if 'coding_display' in coding[0] and text_ and index_ == 0:
-        #             continue
-        #         if 'coding_display' in coding[0]:
-        #             _nv.append((f"{array_name}_{index_}", [coding[1]]))
-        #             continue
-        #
-        #         _nv.append((f"{array_name}_{coding[0]}", [coding[1]]))
-        # return _nv
 
     def _contact_point(l_, name):
         l_ = _to_list(l_)
@@ -150,6 +137,20 @@ def _simple_render(value, name_, **kwargs) -> List[Tuple]:
         l_ = _to_list(l_)
         return [(name, [f"{v_.family} {' '.join(v_.given)}" for v_ in l_])]
 
+    def _age(l_, name):
+        l_ = _to_list(l_)
+        return [(name, [float(v_.value) for v_ in l_])]
+
+    def _condition(l_, name):
+        l_ = _to_list(l_)
+        _nv = []
+        array_name = name
+        for i_, v_ in enumerate(l_):
+            codeable_concepts = _codeable_concept(v_.code, 'code')
+            _nv.append((array_name, codeable_concepts[1][1]))
+            _nv.append((f"{array_name}_coding", codeable_concepts[0][1]))
+        return _nv
+
     def _address(l_, name):
         l_ = _to_list(l_)
         for v_ in l_:
@@ -166,6 +167,10 @@ def _simple_render(value, name_, **kwargs) -> List[Tuple]:
     def _reference(l_, name):
         l_ = _to_list(l_)
         return [(name, [v_.reference for v_ in l_])]
+
+    def _codeable_reference(l_, name):
+        l_ = _to_list(l_)
+        return [(name, [v_.reference.reference for v_ in l_])]
 
     def _document_reference_content(l_, name):
         l_ = _to_list(l_)
@@ -207,6 +212,17 @@ def _simple_render(value, name_, **kwargs) -> List[Tuple]:
                 # ignore the name from simple render
                 return list_of_name_vals
 
+    def _specimen_processing(l_, name):
+        l_ = _to_list(l_)
+        return_values = []
+        for v_ in l_:
+            for attr in [a_ for a_ in vars(v_) if not a_.endswith('_ext')]:
+                p_val = getattr(v_, attr)
+                if p_val:
+                    list_of_name_vals = _simple_render(p_val, name_=attr)
+                    return_values.extend(list_of_name_vals)
+        return return_values
+
     def _observation_component(l_, name):
         """Create property names from component coding displays"""
         _nv = []
@@ -216,7 +232,7 @@ def _simple_render(value, name_, **kwargs) -> List[Tuple]:
             value_parts = _multi(v_, prefix='value')
             array_name = v_.code.coding[0].display.replace('-', '_').replace(' ', '_').lower()
             for value_part in value_parts:
-                # remove valueXXX
+                # remove value
                 edited_name = '_'.join(value_part[0].split('_')[1:])
                 edited_name = f"{array_name}_{edited_name}"
                 if edited_name.endswith('_'):
@@ -262,7 +278,7 @@ def _simple_render(value, name_, **kwargs) -> List[Tuple]:
             value_parts = _multi(v_, prefix='value')
             if value_parts:
                 for value_part in value_parts:
-                    # remove valueXXX
+                    # remove value
                     # edited_name = value_part[0]
                     edited_name = value_part[0].replace('valueCoding_display', '').replace('valueString', '').replace('valueCoding', 'coding').replace('valueCode', 'code')
                     if len(edited_name) > 0:
@@ -277,7 +293,7 @@ def _simple_render(value, name_, **kwargs) -> List[Tuple]:
             else:
                 extensions = _extension(v_.extension, name=array_name, depth=depth+1)
                 for extension in extensions:
-                    # remove valueXXX
+                    # remove value
                     edited_name = extension[0].replace('valueCoding_display', '').replace('valueString', '').replace('valueCoding', 'coding').replace('valueCode', 'code')
                     if len(edited_name) > 0:
                         edited_name = f"_{edited_name}"
@@ -301,6 +317,7 @@ def _simple_render(value, name_, **kwargs) -> List[Tuple]:
         'HumanName': _human_name,
         'Address': _address,
         'Reference': _reference,
+        'CodeableReference': _codeable_reference,
         'DocumentReferenceContent': _document_reference_content,
         'Quantity': _quantity,
         'ObservationComponent': _observation_component,
@@ -311,13 +328,17 @@ def _simple_render(value, name_, **kwargs) -> List[Tuple]:
         'Decimal': _decimal,
         'Coding': _coding,
         'int': _noop,
+        'Age': _age,
+        'FamilyMemberHistoryCondition': _condition,
+        'SpecimenProcessing': _specimen_processing,
     }
 
     _type = type(value)
     if isinstance(value, list):
         _type = type(value[0])
     if _type.__name__ not in mapping:
-        print(f"Missing mapping for: {_type}")
+        print(f"Missing mapping for: {_type} {str(value)}")
+        exit()
         return [(name_, str(value))]
 
     mapped_values = mapping[_type.__name__](value, name=name_)
@@ -346,10 +367,10 @@ def _simplify(resource: FHIRAbstractModel, schemas: dict) -> dict:
                 type_ = 'string'
                 if str(value).isnumeric():
                     type_ = 'number'
-                schema['properties'][name] = {'type': type_}
+                schema['properties'][name] = {'type': type_, 'description': 'From FHIR extension.'}
             # skip nulls
             if value is not None:
-                if schema['properties'][p_.name]['type'] == 'array' and not isinstance(value, list):
+                if schema['properties'][p_.name].get('type', None) == 'array' and not isinstance(value, list):
                     value = [value]
                 if name in obj and isinstance(obj[name], list):
                     if isinstance(value, list):
@@ -385,6 +406,148 @@ def _simplify(resource: FHIRAbstractModel, schemas: dict) -> dict:
     return obj
 
 
+@bundle.command('migrate')
+@click.option('--input_path', required=True,
+              default=None,
+              show_default=True,
+              help='Path containing bundles (*.json) or resources (*.ndjson)'
+              )
+@click.option('--output_path', required=True,
+              default=None,
+              show_default=True,
+              help='Path where migrated resources will be stored'
+              )
+@click.option('--validate', default=False, is_flag=True, show_default=True,
+              help="Validate after migration")
+def migrate(input_path, output_path, validate):
+    """Migrate from FHIR R4B to R5.0"""
+
+    input_path = pathlib.Path(input_path)
+    output_path = pathlib.Path(output_path)
+    assert input_path.is_dir(), input_path
+    assert output_path.is_dir(), output_path
+
+    for input_file in input_path.glob('*.json'):
+        with open(input_file, "rb") as fp:
+            bundle_ = orjson.loads(fp.read())
+            if 'entry' not in bundle_:
+                print(f"No 'entry' in file.")
+                break
+        for entry in bundle_['entry']:
+            resource = entry['resource']
+            _ = _migrate_resource(resource, validate)
+
+        if validate:
+            _ = Bundle.parse_obj(bundle_)
+
+        output_file = output_path / input_file.name
+        with open(output_file, "wb") as fp:
+            fp.write(orjson.dumps(bundle_))
+        print('migrate', input_file, output_file)
+
+    for input_file in input_path.glob('*.ndjson'):
+        with open(input_file, "r") as fp:
+            output_file = output_path / input_file.name
+            print('migrate', input_file, output_file)
+            with open(output_file, "wb") as out_fp:
+
+                for line in fp.readlines():
+                    resource = orjson.loads(line)
+                    _ = _migrate_resource(resource, validate)
+                    out_fp.write(orjson.dumps(_, option=orjson.OPT_APPEND_NEWLINE))
+
+    for input_file in input_path.glob('*.json.gz'):
+
+        with io.TextIOWrapper(io.BufferedReader(gzip.GzipFile(input_file))) as fp:
+            output_file = output_path / input_file.name
+            print('migrate', input_file, output_file)
+            with gzip.open(output_file, 'wb') as out_fp:
+                for line in fp.readlines():
+                    resource = orjson.loads(line)
+                    try:
+                        _ = _migrate_resource(resource, validate)
+                        out_fp.write(orjson.dumps(_, option=orjson.OPT_APPEND_NEWLINE))
+                    except Exception as e:
+                        print('\t', str(e))
+                        break
+
+
+def _migrate_resource(resource, validate):
+    """Apply migrations"""
+    #
+    # xform all bundles to 5.0 see https://build.fhir.org/<lower-case-resource-name>
+    # from https://hl7.org/fhir/r4b/<lower-case-resource-name>
+    #
+    assert 'resourceType' in resource, ('missing resourceType', orjson.dumps(resource).decode())
+
+    resource_type = resource['resourceType']
+
+    if resource_type == "Encounter":
+        resource['class'] = [
+            {
+                'coding': [resource['class']]
+            }
+        ]
+        for _ in resource['participant']:
+            _['actor'] = _['individual']
+            del _['individual']
+        resource['actualPeriod'] = resource['period']
+        del resource['period']
+        if 'reasonCode' in resource:
+            resource['reason'] = [{'use': resource['reasonCode']}]
+            del resource['reasonCode']
+        if 'hospitalization' in resource:
+            resource['admission'] = resource['hospitalization']
+            del resource['hospitalization']
+
+    if resource_type == "DocumentReference":
+        for _ in resource['content']:
+            if 'format' in _:
+                del _['format']
+        if 'context' in resource:
+            del resource['context']['period']
+            resource['context'] = resource['context']['encounter']
+
+    if resource_type == "Observation":
+        _ = resource.get('valueSampledData', None)
+        if _:
+            _['intervalUnit'] = '/s'
+            _['interval'] = _['period']
+            del _['period']
+
+    if resource_type == "MedicationAdministration":
+        resource['occurenceDateTime'] = resource['effectiveDateTime']
+        del resource['effectiveDateTime']
+
+        resource['medication'] = {
+            'concept': resource['medicationCodeableConcept']
+        }
+        del resource['medicationCodeableConcept']
+
+        resource['encounter'] = resource['context']
+        del resource['context']
+
+        if 'reasonReference' in resource:
+            resource['reason'] = [{'reference': _} for _ in resource['reasonReference']]
+            del resource['reasonReference']
+
+    if resource_type == "ResearchSubject":
+        if 'individual' in resource:
+            resource['subject'] = resource['individual']
+            del resource['individual']
+
+    mod = importlib.import_module('fhir.resources')
+    klass = mod.get_fhir_model_class(resource_type)
+
+    if validate:
+        try:
+            _ = klass.parse_obj(resource)
+        except ValidationError as e:
+            print('ValidationError', str(e), json.dumps(resource))
+            raise e
+    return resource
+
+
 @bundle.command('transform')
 @click.option('--input_path', required=True,
               default=None,
@@ -397,7 +560,7 @@ def _simplify(resource: FHIRAbstractModel, schemas: dict) -> dict:
               help='Path where ndjson resources will be stored'
               )
 @click.option('--schema_path', required=True,
-              default='generated-json-schema/aced.json',
+              default='iceberg/schemas/aced.json',
               show_default=True,
               help='Path to gen3 schema json'
               )
@@ -441,6 +604,7 @@ def bundle_transform(input_path, output_path, schema_path, duplicate_ids_for):
         """Render a `link`, assign to thread local, then call the original dict function."""
         global LINKS
         # note `self` is the embedded Reference
+        assert self.reference, ('Expected .reference in Reference', self)
         parts = self.reference.split('/')
         dst_id = parts[-1]
         dst_name = parts[0]
@@ -456,8 +620,6 @@ def bundle_transform(input_path, output_path, schema_path, duplicate_ids_for):
     def _emit_vertex(resource):
         # trigger links
         resource.dict()
-        # if resource.id == "90afbb8d-c8e9-5008-8f27-c2a59602cf14":
-        #     print("?")
 
         schema_links = schemas[inflection.underscore(resource.resource_type)]['links']
         link_instances = []
@@ -499,8 +661,8 @@ def bundle_transform(input_path, output_path, schema_path, duplicate_ids_for):
         # reset shared object
         LINKS.links = []
 
-    with open(schema_path) as fp_:
-        schemas = json.load(fp_)
+    with open(schema_path, "rb") as fp_:
+        schemas = orjson.loads(fp_.read())
 
     # render all bundles into vertex and edges
     for input_file in input_path.glob('*.json'):
@@ -521,7 +683,6 @@ def bundle_transform(input_path, output_path, schema_path, duplicate_ids_for):
 
     for input_file in input_path.glob('*.ndjson'):
         print(input_file)
-
         logged_already = False
         with open(input_file) as fp_:
             for line in fp_.readlines():
@@ -541,6 +702,34 @@ def bundle_transform(input_path, output_path, schema_path, duplicate_ids_for):
                     continue
                 _emit_vertex(resource_)
 
+    for input_file in input_path.glob('*.json.gz'):
+        print(input_file)
+        logged_already = False
+        with io.TextIOWrapper(io.BufferedReader(gzip.GzipFile(input_file))) as fp:
+            for line in fp.readlines():
+                obj_ = orjson.loads(line)
+                if inflection.underscore(obj_['resourceType']) not in schemas:
+                    print(f"WARNING {obj_['resourceType']} not in schemas")
+                    break
+
+                klass = mod.get_fhir_model_class(obj_['resourceType'])
+
+                try:
+                    resource_ = klass.parse_obj(obj_)
+                except ValidationError as e:
+                    if not logged_already:
+                        print(f"ERROR: {obj_['id']} {e}")
+                        logged_already = True
+                    continue
+
+                try:
+                    _emit_vertex(resource_)
+                except AssertionError as e:
+                    if not logged_already:
+                        print(f"ERROR: {obj_['id']} {e}")
+                        logged_already = True
+                    continue
+
     # close all emitters
     for fp_ in emitters.values():
         fp_.close()
@@ -548,8 +737,8 @@ def bundle_transform(input_path, output_path, schema_path, duplicate_ids_for):
     # restore the original dict method
     Reference.dict = orig_dict
 
-    with open(schema_path, "w") as fp:
-        fp.write(orjson.dumps(schemas, option=orjson.OPT_INDENT_2).decode())
+    with open(schema_path, "wb") as fp:
+        fp.write(orjson.dumps(schemas, option=orjson.OPT_INDENT_2))
         print(f"{schema_path} updated")
 
 
