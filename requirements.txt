@@ -14,10 +14,10 @@ git+https://github.com/ACED-IDP/pelican.git@chore/python-version
 psycopg2-binary
 
 # fhirclient
-https://github.com/bmeg/client-py/archive/feature/embedded-schema.zip
+# https://github.com/bmeg/client-py/archive/feature/embedded-schema.zip
 
-# fhir.resources
-https://github.com/bmeg/fhir.resources/archive/feature/backref.zip
+fhir.resources
+# https://github.com/bmeg/fhir.resources/archive/feature/backref.zip
 
 # pluralization
 inflection~=0.5.1
@@ -46,7 +46,7 @@ dictionaryutils~=3.4.4
 asyncio~=3.4.3
 requests~=2.27.1
 aiohttp~=3.8.1
-gen3~=4.16.1
+# gen3~=4.16.1
 fastavro~=1.4.1
 setuptools~=65.5.1
 

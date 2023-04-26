@@ -21,5 +21,7 @@ TRUNCATE        "node_researchsubject"         CASCADE ;
 TRUNCATE        "node_root"     CASCADE ;
 TRUNCATE        "node_specimen"         CASCADE ;
 TRUNCATE        "node_task"    CASCADE ;
+TRUNCATE        "node_substance"    CASCADE ;
+TRUNCATE        "node_familymemberhistory"    CASCADE ;
 
 

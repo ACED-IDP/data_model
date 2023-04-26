@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+"""Load Gen3."""
+
 import csv
 import datetime
 import io
@@ -10,6 +12,7 @@ import sqlite3
 import uuid
 from collections import defaultdict
 from datetime import datetime
+from functools import lru_cache
 from itertools import islice
 from typing import Dict, Iterator, List
 
@@ -113,6 +116,10 @@ def create_index_from_source(_schema, _index, _type):
             mappings['birthDate'] = {"type": "keyword"}
             mappings['us_core_ethnicity'] = {"type": "keyword"}
             mappings['address_orh_zip_designation_code'] = {"type": "keyword"}
+            mappings['condition'] = {"type": "keyword"}
+            mappings['condition_code'] = {"type": "keyword"}
+            mappings['family_history_condition'] = {"type": "keyword"}
+            mappings['family_history_condition_code'] = {"type": "keyword"}
 
     return {
         # https://www.elastic.co/guide/en/elasticsearch/reference/current/dynamic.html#dynamic-parameters
@@ -246,7 +253,7 @@ def observation_generator(project_id, path) -> Iterator[Dict]:
     """Render guppy index for observation."""
     program, project = project_id.split('-')
 
-    connection = sqlite3.connect(f'patient.sqlite')
+    connection = sqlite3.connect(f'denormalized_patient.sqlite')
 
     for observation in read_ndjson(path):
         o_ = observation['object']
@@ -258,30 +265,71 @@ def observation_generator(project_id, path) -> Iterator[Dict]:
             dst_id = relation['dst_id']
             o_[f'{dst_name}_id'] = dst_id
 
-        # # synthetic encounter
-        # o_["encounter_id"] = create_id(o_['patient_id'] + "encounter_id")
-        # o_["encounter_type"] = "General examination of patient (procedure)"
-        # o_["encounter_reason"] = 'synthetic'  # TODO
-        #
-        # # rename a few fields for guppy's display
-        # o_["observation_id"] = o_['id']
-        # # o_["bodySite"] = o_['bodySite_coding_0_code']
-
         #
         for required_field in []:
             if required_field not in o_:
                 o_[required_field] = None
 
-        for row in connection.execute('select entity from patient where id = ? limit 1', (o_['patient_id'], )):
-            row = orjson.loads(row[0])
-            o_['us_core_race'] = row.get('us_core_race', None)
-            o_['address'] = row.get('address', None)
-            o_['gender'] = row.get('gender', None)
-            o_['birthDate'] = row.get('birthDate', None)
-            o_['us_core_ethnicity'] = row.get('us_core_ethnicity', None)
-            o_['address_orh_zip_designation_code'] = row.get('address_orh_zip_designation_code', None)
+        assert 'patient_id' in o_, observation
+
+        denormalized_patient = fetch_denormalized_patient(connection, o_['patient_id'])
+        condition, condition_coding, fh_condition, fh_condition_coding, patient = (
+            denormalized_patient['condition'],
+            denormalized_patient['condition_coding'],
+            denormalized_patient['fh_condition'],
+            denormalized_patient['fh_condition_coding'],
+            denormalized_patient['patient'],
+        )
+
+        if patient:
+            o_['us_core_race'] = patient.get('us_core_race', None)
+            o_['address'] = patient.get('address', None)
+            o_['gender'] = patient.get('gender', None)
+            o_['birthDate'] = patient.get('birthDate', None)
+            o_['us_core_ethnicity'] = patient.get('us_core_ethnicity', None)
+            o_['address_orh_zip_designation_code'] = patient.get('address_orh_zip_designation_code', None)
+
+            o_['condition'] = condition
+            o_['condition_code'] = condition_coding
+            o_['family_history_condition'] = fh_condition
+            o_['family_history_condition_code'] = fh_condition_coding
 
         yield o_
+
+
+@lru_cache(maxsize=1024*10)
+def fetch_denormalized_patient(connection, patient_id):
+    """Retrieve unique conditions and family history"""
+
+    fh_condition = []
+    fh_condition_coding = []
+    condition = []
+    condition_coding = []
+    patient = None
+
+    for row in connection.execute('select entity from patient where id = ? limit 1', (patient_id,)):
+        patient = orjson.loads(row[0])
+        break
+
+    for row in connection.execute('select entity from family_history where patient_id = ? ', (patient_id,)):
+        family_history = orjson.loads(row[0])
+        for _ in family_history['condition']:
+            if _ not in fh_condition:
+                fh_condition.append(_)
+        for _ in family_history['condition_coding']:
+            if _ not in fh_condition_coding:
+                fh_condition_coding.append(_)
+
+    for row in connection.execute('select entity from condition where patient_id = ? ', (patient_id,)):
+        condition_ = orjson.loads(row[0])
+        if condition_['code'] not in condition:
+            condition.append(condition_['code'])
+            condition_coding.append(condition_['code_coding'])
+
+    return {
+        'patient': patient, 'condition': condition, 'condition_coding': condition_coding,
+        'fh_condition': fh_condition, 'fh_condition_coding': fh_condition_coding
+    }
 
 
 def patient_generator(project_id, path) -> Iterator[Dict]:
@@ -365,6 +413,7 @@ def setup_aliases(alias, doc_type, elastic, field_array, index):
 
 @click.group('cli')
 def cli():
+    """Manage Gen3 Loads."""
     pass
 
 
@@ -372,6 +421,79 @@ def cli():
 def load():
     """Load Gen3 databases."""
     pass
+
+
+def write_flat_file(output_path, index, doc_type, limit, generator, schema):
+    """Write the flat model to a file."""
+    counter_ = 0
+
+    pathlib.Path(output_path).mkdir(parents=True, exist_ok=True)
+
+    with open(f"{output_path}/{doc_type}.ndjson", "wb") as fp:
+        for dict_ in generator:
+            fp.write(
+                orjson.dumps(
+                    {
+                        'id': dict_['id'],
+                        'object': dict_,
+                        'name': doc_type,
+                        'relations': []
+                    }
+                )
+            )
+            fp.write(b'\n')
+
+            counter_ += 1
+            if counter_ % 10000 == 0:
+                logger.info(f"{counter_} records written")
+        logger.info(f"{counter_} records written")
+
+
+@cli.command('denormalize-patient')
+@click.option('--input_path', required=True,
+              default=None,
+              show_default=True,
+              help='Path to flattened json'
+              )
+def _denormalize_patient(input_path):
+    """Gather Patient, FamilyHistory, Condition into sqlite db."""
+
+    path = pathlib.Path(input_path)
+
+    def _load_vertex(file_name):
+        """Get the object and patient id"""
+        if not (path / file_name).is_file():
+            return
+        for _ in read_ndjson(path / file_name):
+            patient_id = None
+            if len(_['relations']) == 1 and _['relations'][0]['dst_name'] == 'Patient':
+                patient_id = _['relations'][0]['dst_id']
+            _ = _['object']
+            _['id'] = _['id']
+            if patient_id:
+                _['patient_id'] = patient_id
+            yield _
+
+    connection = sqlite3.connect('denormalized_patient.sqlite')
+    with connection:
+        connection.execute(f'DROP table IF EXISTS patient')
+        connection.execute(f'DROP table IF EXISTS family_history')
+        connection.execute(f'DROP table IF EXISTS condition')
+        connection.execute(f'CREATE TABLE if not exists patient (id PRIMARY KEY, entity Text)')
+        connection.execute(f'CREATE TABLE if not exists family_history (id PRIMARY KEY, patient_id Text, entity Text)')
+        connection.execute(f'CREATE TABLE if not exists condition (id PRIMARY KEY, patient_id Text, entity Text)')
+    with connection:
+        connection.executemany(f'insert into patient values (?, ?)',
+                               [(entity['id'], orjson.dumps(entity).decode(),) for entity in _load_vertex('Patient.ndjson')])
+    with connection:
+        connection.executemany(f'insert into family_history values (?, ?, ?)',
+                               [(entity['id'], entity['patient_id'], orjson.dumps(entity).decode(),) for entity in _load_vertex('FamilyMemberHistory.ndjson')])
+    with connection:
+        connection.executemany(f'insert into condition values (?, ?, ?)',
+                               [(entity['id'], entity['patient_id'], orjson.dumps(entity).decode(),) for entity in _load_vertex('Condition.ndjson')])
+    with connection:
+        connection.execute(f'CREATE INDEX if not exists condition_patient_id on condition(patient_id)')
+        connection.execute(f'CREATE INDEX if not exists family_history_patient_id on condition(patient_id)')
 
 
 @load.command('flat')
@@ -400,7 +522,12 @@ def load():
               show_default=True,
               help='Path to gen3 schema json'
               )
-def load_flat(project_id, index, path, limit, elastic_url, schema_path):
+@click.option('--output_path', required=False,
+              default=None,
+              show_default=True,
+              help='Do not load elastic, write flat model to file instead'
+              )
+def load_flat(project_id, index, path, limit, elastic_url, schema_path, output_path):
     """Gen3 elastic search (guppy)."""
     # replaces tube_lite
 
@@ -420,14 +547,16 @@ def load_flat(project_id, index, path, limit, elastic_url, schema_path):
         alias = 'patient'
         field_array = [k for k, v in schema['patient']['properties'].items() if 'array' in v.get('type', {})]
 
-        # create the index and write data into it.
-        write_bulk_http(elastic=elastic, index=index, doc_type=doc_type, limit=limit,
-                        generator=patient_generator(project_id, path), schema=schema)
+        if not output_path:
+            # create the index and write data into it.
+            write_bulk_http(elastic=elastic, index=index, doc_type=doc_type, limit=limit,
+                            generator=patient_generator(project_id, path), schema=schema)
 
-        setup_aliases(alias, doc_type, elastic, field_array, index)
-
-        # write locally
-        write_sqlite(alias, patient_generator(project_id, path))
+            setup_aliases(alias, doc_type, elastic, field_array, index)
+        else:
+            # write file path
+            write_flat_file(output_path=output_path, index=index, doc_type=doc_type, limit=limit,
+                            generator=patient_generator(project_id, path), schema=schema)
 
     if index == 'observation':
         doc_type = 'observation'
@@ -436,11 +565,16 @@ def load_flat(project_id, index, path, limit, elastic_url, schema_path):
         field_array = [k for k, v in schema['observation']['properties'].items() if 'array' in v.get('type', {})]
         # field_array = ['data_format', 'data_type', '_file_id', 'medications', 'conditions']
 
-        # create the index and write data into it.
-        write_bulk_http(elastic=elastic, index=index, doc_type=doc_type, limit=limit,
-                        generator=observation_generator(project_id, path), schema=schema)
+        if not output_path:
+            # create the index and write data into it.
+            write_bulk_http(elastic=elastic, index=index, doc_type=doc_type, limit=limit,
+                            generator=observation_generator(project_id, path), schema=schema)
 
-        setup_aliases(alias, doc_type, elastic, field_array, index)
+            setup_aliases(alias, doc_type, elastic, field_array, index)
+        else:
+            # write file path
+            write_flat_file(output_path=output_path, index=index, doc_type=doc_type, limit=limit,
+                            generator=observation_generator(project_id, path), schema=schema)
 
     if index == 'file':
         doc_type = 'file'
@@ -449,11 +583,16 @@ def load_flat(project_id, index, path, limit, elastic_url, schema_path):
 
         field_array = [k for k, v in schema['document_reference']['properties'].items() if 'array' in v.get('type',
                                                                                                             {})]
-        # create the index and write data into it.
-        write_bulk_http(elastic=elastic, index=index, doc_type=doc_type, limit=limit,
-                        generator=file_generator(project_id, path), schema=schema)
+        if not output_path:
+            # create the index and write data into it.
+            write_bulk_http(elastic=elastic, index=index, doc_type=doc_type, limit=limit,
+                            generator=file_generator(project_id, path), schema=schema)
 
-        setup_aliases(alias, doc_type, elastic, field_array, index)
+            setup_aliases(alias, doc_type, elastic, field_array, index)
+        else:
+            # write file path
+            write_flat_file(output_path=output_path, index=index, doc_type=doc_type, limit=limit,
+                            generator=file_generator(project_id, path), schema=schema)
 
 
 def _connect_to_postgres(db_host, sheepdog_creds_path):
@@ -585,17 +724,6 @@ def load_edges(files, connection, dependency_order, mapping, project_node_id):
 
                         record_count += 1
                         for relation in relations:
-                            # get destination table
-                            # assert 'label' in relation, relation
-                            # edge_table_mapping = next(
-                            #     iter(
-                            #         [
-                            #             m for m in mapping
-                            #             if m['label'].lower() == f"{entity_name}_{relation['label']}_{relation['dst_name']}".lower()
-                            #         ]
-                            #     ),
-                            #     None
-                            # )
 
                             # entity_name_underscore = inflection.underscore(entity_name)
                             dst_name_camel = inflection.camelize(relation['dst_name'])
@@ -615,6 +743,7 @@ def load_edges(files, connection, dependency_order, mapping, project_node_id):
                                 logger.error(msg)
                                 raise Exception(msg)
                             table_name = edge_table_mapping['tablename']
+                            # print(f"Mapping for src {entity_name} dst {relation['dst_name']} {table_name} {edge_table_mapping}")
                             buf = buffers[table_name]
                             # src_id | dst_id | acl | _sysan | _props | created |
                             buf.write(f"{d_['id']}|{relation['dst_id']}|{{}}|{{}}|{{}}|{datetime.now()}\n")
@@ -623,7 +752,7 @@ def load_edges(files, connection, dependency_order, mapping, project_node_id):
                         # efficient way to write to postgres
                         cursor.copy_from(buf, table_name, sep='|',
                                          columns=['src_id', 'dst_id', 'acl', '_sysan', '_props', 'created'])
-                        logger.info(f"wrote {record_count} records to {table_name} from {path}")
+                        logger.info(f"wrote {record_count} records to {table_name} from {path} {entity_name} {relation['dst_name']}")
         connection.commit()
 
 

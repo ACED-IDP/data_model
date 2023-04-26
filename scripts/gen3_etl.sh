@@ -36,17 +36,41 @@ all_studies=(Alcoholism Alzheimers Breast_Cancer Colon_Cancer Diabetes Lung_Canc
 
 for study in ${synthetic_studies[*]}; do
   # setup directories for extract
+  rm -r studies-5.0/$study || true
+  mkdir -p studies-5.0/$study
+  python3 scripts/transform.py migrate --input_path studies/$study/  --output_path studies-5.0/$study  --validate
+  mv studies/$study/ studies-back/$study/
+  mv studies-5.0/$study/ studies/$study/
+done
+
+study=HOP
+rm -r studies/$study || true
+mkdir -p studies/$study
+python3 scripts/transform.py migrate --input_path ~/hop/data-etl/data/fhir/HOP --output_path studies/$study  --validate
+
+study=MCF10A
+rm -r studies/$study || true
+mkdir -p studies/$study
+python3 scripts/transform.py migrate --input_path ~/aced/MCF10A/output  --output_path studies/$study  --validate
+
+
+for study in ${synthetic_studies[*]}; do
+  # setup directories for extract
   rm -r studies/$study/extractions || true
   mkdir -p studies/$study/extractions
-#  # TODO this is too slow
   # intentionally set the ids relative to study, allows entities to be "duplicated" in separate projects
   python3 scripts/transform.py transform --input_path studies/$study/  --output_path studies/$study/extractions  --duplicate_ids_for $study
 done
 
 
+rm -r studies/MCF10A/extractions || true
+mkdir -p studies/MCF10A/extractions
+python3 scripts/transform.py transform --input_path studies/MCF10A --output_path studies/MCF10A/extractions
+
 rm -r studies/HOP/extractions || true
 mkdir -p studies/HOP/extractions
-python3 scripts/transform.py transform --input_path ~/hop/data-etl/data/fhir/HOP --output_path studies/HOP/extractions
+python3 scripts/transform.py transform --input_path studies/HOP --output_path studies/HOP/extractions
+
 
 for study in ${real_studies[*]}; do
   mkdir -p studies/$study/extractions
@@ -68,26 +92,32 @@ python3 scripts/load.py init
 
 
 # upload will start multiple processes to submit files to bucket and update studies DocumentReferences
-nice -n 10 scripts/upload-files Alcoholism aced-ohsu-staging
+nice -n 10 scripts/upload-files Alcoholism aced-ohsu
+
 nice -n 10 scripts/upload-files Alzheimers aced-ucl
 nice -n 10 scripts/upload-files Breast_Cancer aced-manchester
 nice -n 10 scripts/upload-files Colon_Cancer aced-stanford
+
 nice -n 10 scripts/upload-files Diabetes aced-ucl
 nice -n 10 scripts/upload-files Lung_Cancer aced-manchester
 nice -n 10 scripts/upload-files Prostate_Cancer aced-stanford
+
 nice -n 10 scripts/upload-files NVIDIA aced-ohsu
 
 
 # upload meta data to gen3
 for study in ${synthetic_studies[*]}; do
-  nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code $study
+  nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code $study  --dictionary_url https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json
 done
 
 for study in ${real_studies[*]}; do
   nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code $study
 done
 
-nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code HOP
+nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code HOP   --dictionary_url https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json
+
+nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code MCF10A   --dictionary_url https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json
+
 
 # load metadata to elastic
 
@@ -95,7 +125,8 @@ nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ..
 # docker exec esproxy-service curl -X DELETE http://localhost:9200/gen3.aced.*
 
 for study in ${synthetic_studies[*]}; do
-  rm patient.sqlite
+  rm denormalized_patient.sqlite
+  nice -10 python3 scripts/load.py  denormalize-patient --input_path studies/$study/extractions/
   nice -10 python3 scripts/load.py  load  flat --project_id aced-$study --index patient --path studies/$study/extractions/Patient.ndjson
   nice -10 python3 scripts/load.py  load  flat --project_id aced-$study --index file --path studies/$study/extractions/DocumentReference.ndjson
   nice -10 python3 scripts/load.py  load  flat --project_id aced-$study --index observation --path studies/$study/extractions/Observation.ndjson
@@ -103,9 +134,20 @@ done
 
 
 study=HOP
-rm patient.sqlite
+rm denormalized_patient.sqlite
+nice -10 python3 scripts/load.py  denormalize-patient --input_path studies/$study/extractions/
 nice -10 python3 scripts/load.py load  flat --project_id aced-$study --index patient --path studies/$study/extractions/Patient.ndjson
 nice -10 python3 scripts/load.py load  flat --project_id aced-$study --index observation --path studies/$study/extractions/Observation.ndjson
+
+
+study=MCF10A
+rm denormalized_patient.sqlite
+nice -10 python3 scripts/load.py  denormalize-patient --input_path studies/$study/extractions/
+nice -10 python3 scripts/load.py load  flat --project_id aced-$study --index patient --path studies/$study/extractions/Patient.ndjson
+nice -10 python3 scripts/load.py  load  flat --project_id aced-$study --index file --path studies/$study/extractions/DocumentReference.ndjson
+nice -10 python3 scripts/load.py load  flat --project_id aced-$study --index observation --path studies/$study/extractions/Observation.ndjson
+
+
 
 study=NVIDIA
 rm patient.sqlite
@@ -118,3 +160,40 @@ nice -10 python3 scripts/load.py load  flat --project_id HOP-CORE --index observ
 
 
 # python3 scripts/schema.py publish  --production
+
+
+# for etl/POD
+
+# create program and projects based on resources found in user.yaml
+python3 scripts/load.py init
+
+#
+synthetic_studies=(Alcoholism Alzheimers Breast_Cancer Colon_Cancer Diabetes Lung_Cancer Prostate_Cancer)
+
+# setup environmental variables to connect directly to PG as sheepdog
+export PGDB=`cat /creds/sheepdog-creds/database`
+export PGPASSWORD=`cat /creds/sheepdog-creds/password`
+export PGUSER=`cat /creds/sheepdog-creds/username`
+export PGHOST=`cat /creds/sheepdog-creds/host`
+export DBREADY=`cat /creds/sheepdog-creds/dbcreated`
+export PGPORT=`cat /creds/sheepdog-creds/port`
+echo e.g. Connecting $PGUSER:$PGPASSWORD@$PGHOST:$PGPORT//$PGDB if $DBREADY
+
+# upload meta data to gen3
+for study in ${synthetic_studies[*]}; do
+  nice -10 scripts/load.py load graph   --project_code $study
+done
+nice -10 scripts/load.py load graph  --project_code HOP
+
+export ES="--elastic_url http://$ELASTICSEARCH_SERVICE_HOST:$ELASTICSEARCH_SERVICE_PORT"
+
+for study in ${synthetic_studies[*]}; do
+  rm patient.sqlite
+  nice -10 python3 scripts/load.py  load  flat $ES --project_id aced-$study --index patient --path /studies/$study/extractions/Patient.ndjson
+  nice -10 python3 scripts/load.py  load  flat $ES --project_id aced-$study --index file --path /studies/$study/extractions/DocumentReference.ndjson
+  nice -10 python3 scripts/load.py  load  flat $ES --project_id aced-$study --index observation --path /studies/$study/extractions/Observation.ndjson
+done
+
+study=HOP
+nice -10 python3 scripts/load.py  load  flat $ES --project_id aced-$study --index patient --path /studies/$study/extractions/Patient.ndjson
+nice -10 python3 scripts/load.py  load  flat $ES --project_id aced-$study --index observation --path /studies/$study/extractions/Observation.ndjson
