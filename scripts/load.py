@@ -597,7 +597,7 @@ def load_flat(project_id, index, path, limit, elastic_url, schema_path, output_p
 
 def _connect_to_postgres(db_host, sheepdog_creds_path):
     """Use credential file, overloaded with passed db host to connect."""
-    if pathlib.Path(sheepdog_creds_path):
+    if pathlib.Path(sheepdog_creds_path).is_file():
         sheepdog_creds = json.load(open(sheepdog_creds_path))
         db_username = sheepdog_creds['db_username']
         db_password = sheepdog_creds['db_password']
