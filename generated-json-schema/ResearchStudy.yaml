@@ -285,7 +285,7 @@ properties:
       such as concept development, protocol writing, protocol submission for IRB approval,
       participant recruitment, informed consent, data collection, analysis, interpretation
       and presentation. Note: following not in scope, see config.dependency_order.
-      Practitioner PractitionerRole'
+      PractitionerRole'
     element_property: true
     title: Researcher who oversees multiple aspects of the study
   protocol:

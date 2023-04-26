@@ -84,8 +84,8 @@ properties:
     $ref: Reference.yaml
     description: 'A value that defines the context specified in this context of use.
       The interpretation of the value is defined by the code. See http://hl7.org/fhir/ValueSet/use-context
-      Note: following not in scope, see config.dependency_order. Group Organization
-      PlanDefinition InsurancePlan Location HealthcareService'
+      Note: following not in scope, see config.dependency_order. InsurancePlan Group
+      Location HealthcareService Organization PlanDefinition'
     element_property: true
     one_of_many: value
     one_of_many_required: true

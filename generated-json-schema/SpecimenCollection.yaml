@@ -37,7 +37,7 @@ properties:
   collector:
     $ref: Reference.yaml
     description: 'Person who collected the specimen. Note: following not in scope,
-      see config.dependency_order. Practitioner PractitionerRole'
+      see config.dependency_order. PractitionerRole'
     element_property: true
     title: Who collected the specimen
   duration:

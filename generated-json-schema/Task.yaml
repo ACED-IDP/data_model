@@ -198,7 +198,7 @@ properties:
   insurance:
     description: 'Insurance plans, coverage extensions, pre-authorizations and/or
       pre-determinations that may be relevant to the Task. Note: following not in
-      scope, see config.dependency_order. Coverage ClaimResponse'
+      scope, see config.dependency_order. ClaimResponse Coverage'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -291,8 +291,8 @@ properties:
   owner:
     $ref: Reference.yaml
     description: 'Individual organization or Device currently responsible for task
-      execution. Note: following not in scope, see config.dependency_order. Organization
-      PractitionerRole CareTeam RelatedPerson HealthcareService'
+      execution. Note: following not in scope, see config.dependency_order. Practitioner
+      PractitionerRole CareTeam HealthcareService Organization RelatedPerson'
     element_property: true
     targets:
     - backref: owner_task
@@ -364,7 +364,7 @@ properties:
   requester:
     $ref: Reference.yaml
     description: 'The creator of the task. Note: following not in scope, see config.dependency_order.
-      Organization PractitionerRole RelatedPerson Device'
+      Device Practitioner PractitionerRole Organization RelatedPerson'
     element_property: true
     targets:
     - backref: requester_task

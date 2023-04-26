@@ -1,4 +1,8 @@
 
+#
+# deprecated use iceberg instead
+#
+
 
 
 # Gen3 entity category: defaults to Clinical
@@ -41,19 +45,19 @@ dependency_order:
   - ResearchStudy
   - Patient
   - ResearchSubject
+  - Substance
   - Specimen
 #  - Encounter
   - Observation
   - DiagnosticReport
   - Condition
-  - Substance
   - Medication
   - MedicationAdministration
 #  - ImagingStudy
 #  - Procedure
   - DocumentReference
-  - Substance
   - Task
+  - FamilyMemberHistory
 
 
 # edges that we manually curate, _not_ generated

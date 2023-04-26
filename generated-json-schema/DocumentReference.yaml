@@ -34,13 +34,13 @@ properties:
     $ref: Reference.yaml
     description: 'Which person or organization authenticates that this document is
       valid. Note: following not in scope, see config.dependency_order. Organization
-      Practitioner PractitionerRole'
+      PractitionerRole'
     element_property: true
     title: Who/what authenticated the document
   author:
     description: 'Identifies who is responsible for adding the information to the
-      document. Note: following not in scope, see config.dependency_order. Organization
-      PractitionerRole RelatedPerson Device'
+      document. Note: following not in scope, see config.dependency_order. Device
+      Practitioner PractitionerRole Organization RelatedPerson'
     element_property: true
     items:
       $ref: Reference.yaml
@@ -252,7 +252,7 @@ properties:
       (patient or healthcare practitioner), a device (e.g. a machine) or even a group
       of subjects (such as a document about a herd of farm animals, or a set of patients
       that share a common exposure). Note: following not in scope, see config.dependency_order.
-      Device Group Practitioner'
+      Group Device Practitioner'
     element_property: true
     targets:
     - backref: subject_document_reference

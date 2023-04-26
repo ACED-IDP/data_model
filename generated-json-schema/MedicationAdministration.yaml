@@ -52,7 +52,7 @@ properties:
     $ref: Reference.yaml
     description: 'The visit, admission, or other contact between patient and health
       care provider during which the medication administration was performed. Note:
-      following not in scope, see config.dependency_order. EpisodeOfCare Encounter'
+      following not in scope, see config.dependency_order. Encounter EpisodeOfCare'
     element_property: true
     title: Encounter or Episode of Care administered as part of
   device:
