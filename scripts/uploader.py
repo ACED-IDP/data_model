@@ -93,7 +93,7 @@ async def upload_and_decorate_document_reference(document_reference, bucket_name
         for key, value in metadata.items():
             headers[f"x-amz-meta-{key}"] = value
         # SYNC
-        r = requests.put(signed_url, data=data_f, headers=headers)
+        r = requests.put(signed_url, data=data_f, ) #  TODO -- make this an option, pending UChicago implementation `headers=headers)`
         assert r.status_code == 200, (signed_url, r.text)
         logger.info(
             f"Successfully uploaded resource {document_reference['id']} file_name \"{document_reference['file_name']}\" to {bucket_name} {guid}")
