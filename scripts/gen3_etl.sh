@@ -53,6 +53,11 @@ rm -r studies/$study || true
 mkdir -p studies/$study
 python3 scripts/transform.py migrate --input_path ~/aced/MCF10A/output  --output_path studies/$study  --validate
 
+study=nvidia
+rm -r studies/$study || true
+mkdir -p studies/$study
+python3 scripts/transform.py migrate --input_path tmp/nvidia  --output_path studies/$study  --validate
+
 
 for study in ${synthetic_studies[*]}; do
   # setup directories for extract
@@ -72,6 +77,12 @@ mkdir -p studies/HOP/extractions
 python3 scripts/transform.py transform --input_path studies/HOP --output_path studies/HOP/extractions
 
 
+rm -r studies/NVIDIA/extractions || true
+mkdir -p studies/NVIDIA/extractions
+python3 scripts/transform.py transform --input_path studies/nvidia --output_path studies/nvidia/extractions
+
+
+
 for study in ${real_studies[*]}; do
   mkdir -p studies/$study/extractions
   python3 scripts/transform.py transform --input_path studies/$study/  --output_path studies/$study/extraction
@@ -87,37 +98,63 @@ cat scripts/truncate_buckets.sh |  docker exec -i  etl-service bash
 
 
 # create program and projects based on resources found in user.yaml
-python3 scripts/load.py init
+USER_PATH='--user_path ../compose-services-training/Secrets/user.yaml'
+# in etl pod
+# unset USER_PATH
+python3 scripts/load.py init $USER_PATH
 
 
+# development/staging AWS & ACC buckets
+
+export Alcoholism_BUCKET=aced-ohsu-staging
+export Alzheimers_BUCKET=aced-commons-ucl-data-bucket
+export Breast_Cancer_BUCKET=aced-commons-manchester-data-bucket
+export Colon_Cancer_BUCKET=aced-commons-stanford-data-bucket
+export Diabetes_BUCKET=aced-commons-ucl-data-bucket
+export Lung_Cancer_BUCKET=aced-commons-manchester-data-bucket
+export Prostate_Cancer_BUCKET=aced-commons-stanford-data-bucket
+export NVIDIA_BUCKET=aced-ohsu-staging
+
+# development minio docker-compose buckets
+export Alcoholism_BUCKET=aced-ohsu
+export Alzheimers_BUCKET=aced-ucl
+export Breast_Cancer_BUCKET=aced-manchester
+export Colon_Cancer_BUCKET=aced-stanford
+export Diabetes_BUCKET=aced-ucl
+export Lung_Cancer_BUCKET=aced-manchester
+export Prostate_Cancer_BUCKET=aced-stanford
+export NVIDIA_BUCKET=aced-ohsu
 
 # upload will start multiple processes to submit files to bucket and update studies DocumentReferences
-nice -n 10 scripts/upload-files Alcoholism aced-ohsu
+nice -n 10 scripts/upload-files Alcoholism $Alcoholism_BUCKET ./
+nice -n 10 scripts/upload-files Alzheimers $Alzheimers_BUCKET ./
+nice -n 10 scripts/upload-files Breast_Cancer $Breast_Cancer_BUCKET ./
+nice -n 10 scripts/upload-files Colon_Cancer $Breast_Cancer_BUCKET ./
+nice -n 10 scripts/upload-files Diabetes $Diabetes_BUCKET ./
+nice -n 10 scripts/upload-files Lung_Cancer $Lung_Cancer_BUCKET ./
+nice -n 10 scripts/upload-files Prostate_Cancer $Prostate_Cancer_BUCKET ./
+nice -n 10 scripts/upload-files NVIDIA $NVIDIA_BUCKET ./output/home/exacloud/gscratch
+# done
 
-nice -n 10 scripts/upload-files Alzheimers aced-ucl
-nice -n 10 scripts/upload-files Breast_Cancer aced-manchester
-nice -n 10 scripts/upload-files Colon_Cancer aced-stanford
-
-nice -n 10 scripts/upload-files Diabetes aced-ucl
-nice -n 10 scripts/upload-files Lung_Cancer aced-manchester
-nice -n 10 scripts/upload-files Prostate_Cancer aced-stanford
 
 nice -n 10 scripts/upload-files NVIDIA aced-ohsu
 
 
 # upload meta data to gen3
 for study in ${synthetic_studies[*]}; do
-  nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code $study  --dictionary_url https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json
+  nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code $study # --dictionary_url https://aced-public.s3.us-west-2.amazonaws.com/aced.json
 done
+
 
 for study in ${real_studies[*]}; do
   nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code $study
 done
 
-nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code HOP   --dictionary_url https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json
+nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code HOP
 
-nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code MCF10A   --dictionary_url https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json
+nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code MCF10A
 
+nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code NVIDIA   --dictionary_url https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json
 
 # load metadata to elastic
 
@@ -150,7 +187,7 @@ nice -10 python3 scripts/load.py load  flat --project_id aced-$study --index obs
 
 
 study=NVIDIA
-rm patient.sqlite
+rm denormalized_patient.sqlite
 nice -10 python3 scripts/load.py  load  flat --project_id aced-$study --index file --path studies/$study/extractions/DocumentReference.ndjson
 
 
@@ -188,7 +225,8 @@ nice -10 scripts/load.py load graph  --project_code HOP
 export ES="--elastic_url http://$ELASTICSEARCH_SERVICE_HOST:$ELASTICSEARCH_SERVICE_PORT"
 
 for study in ${synthetic_studies[*]}; do
-  rm patient.sqlite
+  rm denormalized_patient.sqlite
+  nice -10 python3 scripts/load.py  denormalize-patient --input_path studies/$study/extractions/
   nice -10 python3 scripts/load.py  load  flat $ES --project_id aced-$study --index patient --path /studies/$study/extractions/Patient.ndjson
   nice -10 python3 scripts/load.py  load  flat $ES --project_id aced-$study --index file --path /studies/$study/extractions/DocumentReference.ndjson
   nice -10 python3 scripts/load.py  load  flat $ES --project_id aced-$study --index observation --path /studies/$study/extractions/Observation.ndjson
