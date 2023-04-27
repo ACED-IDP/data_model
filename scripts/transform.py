@@ -389,11 +389,17 @@ def _simplify(resource: FHIRAbstractModel, schemas: dict) -> dict:
             obj['data_type'] = attachment.url.split('.')[-1]
             if obj['data_type'] in ['csv']:
                 obj['data_format'] = 'variants'
-            if obj['data_type'] in ['dcm']:
+            if obj['data_type'] in ['dcm', 'tif']:
                 obj['data_format'] = 'imaging'
             if obj['data_type'] in ['txt']:
                 obj['data_format'] = 'note'
-            obj['file_name'] = attachment.url
+            if obj['data_type'] in ['out', 'log']:
+                obj['data_format'] = 'log'
+            if obj['data_type'] in ['m']:
+                obj['data_format'] = 'matlab'
+            if obj['data_type'] in ['sh']:
+                obj['data_format'] = 'script'
+            obj['file_name'] = attachment.url.replace('file:///', '')
             md5sum = next(iter([e.valueString for e in attachment.extension if
                                 e.url == "http://aced-idp.org/fhir/StructureDefinition/md5"]), None)
             obj['md5sum'] = md5sum
@@ -504,9 +510,20 @@ def _migrate_resource(resource, validate):
         for _ in resource['content']:
             if 'format' in _:
                 del _['format']
-        if 'context' in resource:
+        if 'context' in resource and 'encounter' in resource['context']:
             del resource['context']['period']
             resource['context'] = resource['context']['encounter']
+        if 'context' in resource and 'related' in resource['context']:
+            resource['subject'] = resource['context']['related'][0]
+            del resource['context']
+
+        # # patch NVIDIA ids and url
+        # resource['content'][0]['attachment']['url'] = resource['content'][0]['attachment']['url'].replace(
+        #     '/home/exacloud/gscratch/', '')
+        # resource['id'] = str(uuid.uuid5(ACED_NAMESPACE,
+        #                                 "0e3aa99e-47fb-5892-8eab-cfb70ff056bb::"
+        #                                 + resource['content'][0]['attachment']['url']))
+
 
     if resource_type == "Observation":
         _ = resource.get('valueSampledData', None)
