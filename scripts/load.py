@@ -918,7 +918,7 @@ def init(gen3_credentials_file, user_path):
     actual_programs = [link.split('/')[-1] for link in submission_client.get_programs()['links']]
     user_path = pathlib.Path(user_path)
 
-    assert user_path.is_file()
+    assert user_path.is_file(), f"{user_path} is not a file?"
     with open(user_path) as fp:
         authz = yaml.load(fp, SafeLoader)['authz']
 
