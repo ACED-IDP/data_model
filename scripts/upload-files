@@ -18,5 +18,5 @@ split -l 20 studies/$project/extractions/DocumentReference.ndjson studies/$proje
 # run 10 processes at a lower priority (10) via nice
 # The term niceness itself originates from the idea that a process with a higher niceness value is nicer to other processes in the system and to users by virtue of demanding less CPU power—freeing up processing time and power for the more demanding programs, who would in this case be less nice to the system from a CPU usage perspective.[1]
 
-ls -1 studies/$project/extractions/DocumentReference.ndjson.split.* | xargs -L 1 -P 10 nice -n 10 ./scripts/uploader.py upload-files --bucket_name $bucket_name --credentials_file ../compose-services-training/Secrets/credentials.json --program aced --project $project --document_reference_path
+ls -1 studies/$project/extractions/DocumentReference.ndjson.split.* | xargs -L 1 -P 10 nice -n 10 ./scripts/uploader.py upload-files --bucket_name $bucket_name --credentials_file ~/.gen3/credentials.json --program aced --project $project --document_reference_path
 rm studies/$project/extractions/DocumentReference.ndjson.split.*
