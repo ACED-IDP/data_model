@@ -3,6 +3,7 @@ import asyncio
 import base64
 import json
 import logging
+import pathlib
 import urllib
 import uuid
 from itertools import islice
@@ -47,14 +48,16 @@ def extract_endpoint(gen3_credentials_file):
 
 async def upload_and_decorate_document_reference(document_reference, bucket_name,
                                                  file_client, index_client, program,
-                                                 project):
+                                                 project, file_path):
     """Write to indexd."""
 
     if 'content_url' not in document_reference:
         logger.warning('content_url not found')
-        return 
+        return
+
+    # use gen3 properties - should we use 'native' FHIR properties
     md5sum = document_reference["md5sum"]
-    object_name = document_reference['file_name'].lstrip('./')
+    object_name = document_reference['file_name'].lstrip('./').lstrip('file:///')
 
     hashes = {'md5': md5sum}
     assert 'id' in document_reference, document_reference
@@ -73,7 +76,7 @@ async def upload_and_decorate_document_reference(document_reference, bucket_name
         hashes=hashes,
         size=document_reference["file_size"],
         authz=[f'/programs/{program}/projects/{project}'],
-        file_name=document_reference['file_name'],
+        file_name=object_name,
         metadata=metadata,
         urls=[f"s3://{bucket_name}/{guid}/{object_name}"]
     )
@@ -84,7 +87,8 @@ async def upload_and_decorate_document_reference(document_reference, bucket_name
     signed_url = urllib.parse.unquote(document['url'])
     guid = document_reference['id']
 
-    with open(document_reference['file_name'], 'rb') as data_f:
+    file_name = pathlib.Path(file_path) / object_name
+    with open(file_name, 'rb') as data_f:
         # When you use this header, Amazon S3 checks the object against the provided MD5 value and,
         # if they do not match, returns an error.
         content_md5 = base64.b64encode(bytes.fromhex(md5sum))
@@ -102,7 +106,7 @@ async def upload_and_decorate_document_reference(document_reference, bucket_name
 
 
 async def upload_and_decorate_document_references(lines, bucket_name, program,
-                                                  project, file_client, index_client):
+                                                  project, file_client, index_client, file_path):
     records = []
 
     for line in lines:
@@ -115,6 +119,7 @@ async def upload_and_decorate_document_references(lines, bucket_name, program,
             index_client=index_client,
             program=program,
             project=project,
+            file_path=file_path
         )
         record['object'] = document_reference
         records.append(record)
@@ -122,10 +127,12 @@ async def upload_and_decorate_document_references(lines, bucket_name, program,
 
 
 @cli.command(name='upload-files')
-@click.option('--bucket_name', default='aced-default', show_default=True,
+@click.option('--bucket_name', show_default=True,
               help='Destination bucket name')
 @click.option('--document_reference_path', required=True, default=None, show_default=True,
               help='Path to DocumentReference.ndjson')
+@click.option('--file_path', required=True, default=None, show_default=True,
+              help='Path to files references in DocumentReference.ndjson')
 @click.option('--program', required=True, show_default=True,
               help='Gen3 program')
 @click.option('--project', required=True, show_default=True,
@@ -133,11 +140,13 @@ async def upload_and_decorate_document_references(lines, bucket_name, program,
 @click.option('--credentials_file', default='credentials.json', show_default=True,
               help='API credentials file downloaded from gen3 profile.')
 @click.pass_context
-def upload_document_reference(ctx, bucket_name, document_reference_path, program, project, credentials_file):
+def upload_document_reference(ctx, bucket_name, document_reference_path, file_path, program, project, credentials_file):
     """Upload data file found in DocumentReference.ndjson"""
     endpoint = extract_endpoint(credentials_file)
     logger.info(endpoint)
     logger.debug(f"Read {credentials_file} endpoint {endpoint}")
+    assert pathlib.Path(document_reference_path).is_file(), f"{document_reference_path} directory does not exist"
+    assert pathlib.Path(file_path).is_dir(), f"{file_path} directory does not exist"
     auth = Gen3Auth(endpoint, refresh_file=credentials_file)
     file_client = Gen3File(endpoint, auth)
     index_client = Gen3Index(endpoint, auth)
@@ -153,7 +162,8 @@ def upload_document_reference(ctx, bucket_name, document_reference_path, program
                         program=program,
                         project=project,
                         file_client=file_client,
-                        index_client=index_client
+                        index_client=index_client,
+                        file_path=file_path
                     )
                 )
                 for record in records:
