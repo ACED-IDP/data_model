@@ -123,7 +123,7 @@ def create_index_from_source(_schema, _index, _type):
 
     return {
         # https://www.elastic.co/guide/en/elasticsearch/reference/current/dynamic.html#dynamic-parameters
-        "mappings": {_type: {"properties": mappings}}
+        "mappings": {"properties": mappings}
     }
 
 
@@ -200,7 +200,7 @@ def create_indexes(_schema, _index, doc_type, elastic=DEFAULT_ELASTIC):
         "url": f'{elastic}/{_index}',
         "json": create_index_from_source(_schema, _index, doc_type),
         "index": _index,
-        "type": doc_type
+        # "type": doc_type
     }
 
 
@@ -226,7 +226,7 @@ def write_bulk_http(elastic, index, limit, doc_type, generator, schema):
             yield {
                 '_index': index,
                 '_op_type': 'index',
-                '_type': doc_type,
+                # '_type': doc_type,
                 '_source': dict_
             }
             counter_ += 1
@@ -240,8 +240,12 @@ def write_bulk_http(elastic, index, limit, doc_type, generator, schema):
     try:
         elastic.indices.create(index=index_dict['index'], body=index_dict['json'])
     except Exception as e:
-        logger.warning(f"Could not create index. {index} {str(e)}")
-        logger.warning("Continuing to load.")
+        if 'resource_already_exists_exception' not in str(e):
+            logger.warning(f"Could not create index. {index} {str(e)}")
+            print(json.dumps(index_dict['json']))
+            exit(1)
+
+        # logger.warning("Continuing to load.")
 
     logger.info(f'Writing bulk to {index} limit {limit}.')
     _ = bulk(client=elastic,
@@ -380,21 +384,22 @@ def setup_aliases(alias, doc_type, elastic, field_array, index):
     try:
         mapping = {
             "mappings": {
-                "_doc": {
-                    "properties": {
-                        "timestamp": {"type": "date"},
-                        "array": {"type": "keyword"},
-                    }
+                "properties": {
+                  "timestamp": {"type": "date"},
+                  "array": {"type": "keyword"},
                 }
             }
         }
         elastic.indices.create(index=alias_index, body=mapping)
     except Exception as e:
-        logger.warning(f"Could not create index. {index} {str(e)}")
-        logger.warning("Continuing to load.")
+        if 'resource_already_exists_exception' not in str(e):
+            logger.warning(f"Could not create index. {index} {str(e)}")
+            logger.warning(json.dumps(mapping))
+            exit(1)
+        #logger.warning("Continuing to load.")
 
     try:
-        elastic.create(alias_index, id=alias, doc_type='_doc',
+        elastic.create(alias_index, id=alias, #  doc_type='_doc',
                        body={"timestamp": datetime.now().isoformat(), "array": field_array})
     except elasticsearch.exceptions.ConflictError:
         pass
