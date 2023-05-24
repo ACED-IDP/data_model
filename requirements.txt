@@ -36,8 +36,10 @@ https://github.com/uc-cdis/gen3sdk-python/archive/master.zip
 more_itertools
 # using old version of ES.
 # https://github.com/elastic/elasticsearch-py/issues/1933#issuecomment-1073830411#
-elasticsearch==6.8.2
+# elasticsearch==6.8.2
 
+# AWS version of ES curl http://$ELASTICSEARCH_SERVICE_HOST:$ELASTICSEARCH_SERVICE_PORT
+elasticsearch<7.14.0
 
 # faster json
 orjson~=3.8.3
