@@ -142,7 +142,10 @@ nice -n 10 scripts/upload-files NVIDIA aced-ohsu
 
 # upload meta data to gen3
 for study in ${synthetic_studies[*]}; do
-  nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code $study # --dictionary_url https://aced-public.s3.us-west-2.amazonaws.com/aced.json
+  nice -10 scripts/load.py load graph --db_host localhost \
+  --input_path /Users/walsbr/aced/submission/tmp/ \
+  --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json \
+  --project_code $study --dictionary_url https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json
 done
 
 
@@ -154,7 +157,7 @@ nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ..
 
 nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code MCF10A
 
-nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code NVIDIA   --dictionary_url https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json
+nice -10 scripts/load.py load graph --db_host localhost --sheepdog_creds_path ../compose-services-training/Secrets/sheepdog_creds.json --project_code NVIDIA
 
 # load metadata to elastic
 
@@ -190,6 +193,11 @@ study=NVIDIA
 rm denormalized_patient.sqlite
 nice -10 python3 scripts/load.py  load  flat --project_id aced-$study --index file --path studies/$study/extractions/DocumentReference.ndjson
 
+study=ohsu_download_testing
+rm denormalized_patient.sqlite
+nice -10 python3 scripts/load.py  load  flat --project_id aced-$study --index file --path studies/$study/extractions/DocumentReference.ndjson
+
+
 
 rm patient.sqlite
 nice -10 python3 scripts/load.py load  flat --project_id HOP-CORE --index patient --path studies/CORE/extractions/Patient.ndjson
@@ -205,7 +213,7 @@ nice -10 python3 scripts/load.py load  flat --project_id HOP-CORE --index observ
 python3 scripts/load.py init
 
 #
-synthetic_studies=(Alcoholism Alzheimers Breast_Cancer Colon_Cancer Diabetes Lung_Cancer Prostate_Cancer)
+synthetic_studies=(Alcoholism Alzheimers Breast_Cancer Colon_Cancer Diabetes Lung_Cancer Prostate_Cancer ohsu_download_testing)
 
 # setup environmental variables to connect directly to PG as sheepdog
 export PGDB=`cat /creds/sheepdog-creds/database`
@@ -221,9 +229,10 @@ for study in ${synthetic_studies[*]}; do
   nice -10 scripts/load.py load graph   --project_code $study
 done
 nice -10 scripts/load.py load graph  --project_code HOP
+nice -10 scripts/load.py load graph  --project_code NVIDIA
 
 export ES="--elastic_url http://$ELASTICSEARCH_SERVICE_HOST:$ELASTICSEARCH_SERVICE_PORT"
-
+# curl -X DELETE http://$ELASTICSEARCH_SERVICE_HOST:$ELASTICSEARCH_SERVICE_PORT/gen3.aced.*
 for study in ${synthetic_studies[*]}; do
   rm denormalized_patient.sqlite
   nice -10 python3 scripts/load.py  denormalize-patient --input_path studies/$study/extractions/
@@ -235,3 +244,6 @@ done
 study=HOP
 nice -10 python3 scripts/load.py  load  flat $ES --project_id aced-$study --index patient --path /studies/$study/extractions/Patient.ndjson
 nice -10 python3 scripts/load.py  load  flat $ES --project_id aced-$study --index observation --path /studies/$study/extractions/Observation.ndjson
+
+study=NVIDIA
+nice -10 python3 scripts/load.py  load  flat $ES --project_id aced-$study --index file --path /studies/$study/extractions/DocumentReference.ndjson

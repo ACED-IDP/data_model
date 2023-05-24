@@ -47,7 +47,7 @@ dependency_order:
   - ResearchSubject
   - Substance
   - Specimen
-#  - Encounter
+  - Encounter
   - Observation
   - DiagnosticReport
   - Condition
@@ -58,7 +58,7 @@ dependency_order:
   - DocumentReference
   - Task
   - FamilyMemberHistory
-
+  - BodyStructure
 
 # edges that we manually curate, _not_ generated
 # the context variables are substituted [$base_uri]

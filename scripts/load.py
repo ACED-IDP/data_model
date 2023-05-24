@@ -42,6 +42,8 @@ DEFAULT_NAMESPACE = "gen3.aced.io"
 
 ACED_NAMESPACE = uuid.uuid3(uuid.NAMESPACE_DNS, 'aced-ipd.org')
 
+LOGGED_ALREADY = []
+
 
 def create_id(key: str) -> str:
     """Create an idempotent ID from the input string."""
@@ -66,6 +68,7 @@ def read_tsv(path: str) -> Iterator[Dict]:
 def create_index_from_source(_schema, _index, _type):
     """Given an ES source dict, create ES index."""
     mappings = {}
+    # see https://github.com/uc-cdis/guppy/blob/master/src/server/schema.js#L5-L18
     if _type == 'file':
         # TODO fix me - we should have a index called document_reference not file
         properties = _schema['document_reference']['properties']
@@ -97,7 +100,7 @@ def create_index_from_source(_schema, _index, _type):
             }
         elif 'date' in prop_type:
             mappings[k] = {
-                "type": "date"
+                "type": "keyword"
             }
         elif 'array' in prop_type:
             mappings[k] = {
@@ -120,6 +123,15 @@ def create_index_from_source(_schema, _index, _type):
             mappings['condition_code'] = {"type": "keyword"}
             mappings['family_history_condition'] = {"type": "keyword"}
             mappings['family_history_condition_code'] = {"type": "keyword"}
+            # mappings['effectiveTiming'] = {"type": "date"}
+            # mappings['effectiveDateTime'] = {"type": "date"}
+
+            mappings['diastolic_blood_pressure'] = {"type": "keyword"}
+            mappings['diastolic_blood_pressure_unit'] = {"type": "keyword"}
+            mappings['systolic_blood_pressure'] = {"type": "keyword"}
+            mappings['systolic_blood_pressure_unit'] = {"type": "keyword"}
+            mappings['predicted_phenotype'] = {"type": "keyword"}
+            mappings['predicted_phenotype_coding'] = {"type": "keyword"}
 
     return {
         # https://www.elastic.co/guide/en/elasticsearch/reference/current/dynamic.html#dynamic-parameters
@@ -721,7 +733,7 @@ def load_edges(files, connection, dependency_order, mapping, project_node_id):
                         relations = d_['relations']
                         if d_['name'] == 'ResearchStudy':
                             # link the ResearchStudy to the gen3 project
-                            relations.append({"dst_id": project_node_id, "dst_name": "project", "label": "project"})
+                            relations.append({"dst_id": project_node_id, "dst_name": "Project", "label": "project"})
 
                         if len(relations) == 0:
                             continue
@@ -736,16 +748,21 @@ def load_edges(files, connection, dependency_order, mapping, project_node_id):
                                 iter(
                                     [
                                         m for m in mapping
-                                        if m['label'].startswith(entity_name) and m['label'].lower().endswith(
-                                            dst_name_camel.lower())
+                                        if m['srcclass'] == entity_name and m['dstclass'] == relation['dst_name']
                                     ]
                                 ),
                                 None
                             )
-                            if not edge_table_mapping:
+                            if not edge_table_mapping and relation['dst_name'] in dependency_order:
                                 msg = f"No mapping for src {entity_name} dst {relation['dst_name']}"
-                                logger.error(msg)
-                                raise Exception(msg)
+                                if msg not in LOGGED_ALREADY:
+                                    logger.warning(msg)
+                                    for m in mapping:
+                                        logger.debug(m)
+                                    LOGGED_ALREADY.append(msg)
+                                continue
+                            if not edge_table_mapping:
+                                continue
                             table_name = edge_table_mapping['tablename']
                             # print(f"Mapping for src {entity_name} dst {relation['dst_name']} {table_name} {edge_table_mapping}")
                             buf = buffers[table_name]
