@@ -106,14 +106,14 @@ python3 scripts/load.py init $USER_PATH
 
 # development/staging AWS & ACC buckets
 
-export Alcoholism_BUCKET=aced-ohsu-staging
+export Alcoholism_BUCKET=aced-commons-data-bucket  # aced-ohsu-staging
 export Alzheimers_BUCKET=aced-commons-ucl-data-bucket
 export Breast_Cancer_BUCKET=aced-commons-manchester-data-bucket
 export Colon_Cancer_BUCKET=aced-commons-stanford-data-bucket
 export Diabetes_BUCKET=aced-commons-ucl-data-bucket
 export Lung_Cancer_BUCKET=aced-commons-manchester-data-bucket
 export Prostate_Cancer_BUCKET=aced-commons-stanford-data-bucket
-export NVIDIA_BUCKET=aced-ohsu-staging
+export NVIDIA_BUCKET=aced-commons-data-bucket  # aced-ohsu-staging
 
 # development minio docker-compose buckets
 export Alcoholism_BUCKET=aced-ohsu
@@ -226,7 +226,7 @@ echo e.g. Connecting $PGUSER:$PGPASSWORD@$PGHOST:$PGPORT//$PGDB if $DBREADY
 
 # upload meta data to gen3
 for study in ${synthetic_studies[*]}; do
-  nice -10 scripts/load.py load graph   --project_code $study
+  nice -10 scripts/load.py load graph   --project_code $study --dictionary_url https://aced-public.s3.us-west-2.amazonaws.com/aced-test.json
 done
 nice -10 scripts/load.py load graph  --project_code HOP
 nice -10 scripts/load.py load graph  --project_code NVIDIA

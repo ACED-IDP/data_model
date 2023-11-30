@@ -133,9 +133,15 @@ def create_index_from_source(_schema, _index, _type):
             mappings['predicted_phenotype'] = {"type": "keyword"}
             mappings['predicted_phenotype_coding'] = {"type": "keyword"}
 
+    ## v 7
+    # return {
+    #     # https://www.elastic.co/guide/en/elasticsearch/reference/current/dynamic.html#dynamic-parameters
+    #     "mappings": {"properties": mappings}
+    # }
+
+    # v 6
     return {
-        # https://www.elastic.co/guide/en/elasticsearch/reference/current/dynamic.html#dynamic-parameters
-        "mappings": {"properties": mappings}
+        "mappings": {_type: {"properties": mappings}}
     }
 
 
@@ -212,7 +218,7 @@ def create_indexes(_schema, _index, doc_type, elastic=DEFAULT_ELASTIC):
         "url": f'{elastic}/{_index}',
         "json": create_index_from_source(_schema, _index, doc_type),
         "index": _index,
-        # "type": doc_type
+        "type": doc_type  # v 6
     }
 
 
@@ -238,7 +244,7 @@ def write_bulk_http(elastic, index, limit, doc_type, generator, schema):
             yield {
                 '_index': index,
                 '_op_type': 'index',
-                # '_type': doc_type,
+                '_type': doc_type,  # v 6
                 '_source': dict_
             }
             counter_ += 1
@@ -395,10 +401,21 @@ def setup_aliases(alias, doc_type, elastic, field_array, index):
     alias_index = f'{DEFAULT_NAMESPACE}_{doc_type}-array-config_0'
     try:
         mapping = {
+            # v 7
+            # "mappings": {
+            #     "properties": {
+            #       "timestamp": {"type": "date"},
+            #       "array": {"type": "keyword"},
+            #     }
+            # }
+
+            # v 6
             "mappings": {
-                "properties": {
-                  "timestamp": {"type": "date"},
-                  "array": {"type": "keyword"},
+                "_doc": {
+                    "properties": {
+                        "timestamp": {"type": "date"},
+                        "array": {"type": "keyword"},
+                    }
                 }
             }
         }
@@ -411,7 +428,8 @@ def setup_aliases(alias, doc_type, elastic, field_array, index):
         #logger.warning("Continuing to load.")
 
     try:
-        elastic.create(alias_index, id=alias, #  doc_type='_doc',
+        # elastic.create(alias_index, id=alias,  # v 7
+        elastic.create(alias_index, id=alias, doc_type='_doc',  # v 6
                        body={"timestamp": datetime.now().isoformat(), "array": field_array})
     except elasticsearch.exceptions.ConflictError:
         pass
